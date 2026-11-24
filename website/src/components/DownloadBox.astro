@@ -1,0 +1,9 @@
+---
+import DownloadButton from "./DownloadButton.astro";
+import { INSTALLER_SIZE, VERSION } from "../site";
+---
+
+<div class="dl">
+  <DownloadButton label={`Download v${VERSION}`} />
+  <span class="meta">Windows 10/11 · 64-bit · sekitar {INSTALLER_SIZE}</span>
+</div>

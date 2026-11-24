@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+*.exe
+!src-tauri/icons/
+website/.astro/
+website/.vercel/
+website/.env*
+backup/

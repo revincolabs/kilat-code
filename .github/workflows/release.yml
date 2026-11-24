@@ -1,0 +1,77 @@
+# Build Kilat Code for Windows, macOS and Linux and publish a GitHub Release.
+# Start it by pushing a version tag:  git tag v0.2.0 && git push origin v0.2.0
+#
+# Needs repository secrets:
+#   TAURI_SIGNING_PRIVATE_KEY           content of ~/.tauri/kilat-updater.key
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  its password (may be empty)
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: ""
+          - os: macos-latest
+            args: "--target universal-apple-darwin"
+          - os: ubuntu-22.04
+            args: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev pkg-config
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Kilat Code ${{ github.ref_name }}"
+          releaseBody: |
+            Unduh installer untuk sistem operasimu di bawah. Panduan lengkap: https://kilat-code.vercel.app/docs
+
+            - Windows 10/11: file `-setup.exe`
+            - macOS 11+ (Apple Silicon & Intel): file `.dmg`
+            - Linux: file `.AppImage` atau `.deb`
+
+            Pengguna versi sebelumnya akan mendapat tawaran update otomatis di dalam aplikasi.
+          releaseDraft: false
+          prerelease: false
+          # Version-less names so the website can link releases/latest/download/<name>.
+          releaseAssetNamePattern: "KilatCode_[platform]_[arch][setup][ext]"
+          args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json

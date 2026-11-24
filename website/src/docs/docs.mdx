@@ -1,0 +1,253 @@
+import Note from "../components/Note.astro";
+import DownloadBox from "../components/DownloadBox.astro";
+import { DOWNLOAD_URL, INSTALLER } from "../site";
+
+## Mulai cepat
+
+1. Pastikan [persyaratan](#persyaratan) sudah terpasang, minimal Git for Windows dan salah satu dari Claude Code CLI atau Codex CLI.
+2. <a href={DOWNLOAD_URL} download>Unduh installer</a>, jalankan, lalu buka **Kilat Code** dari Start menu.
+3. Klik **👤 Akun & Pengaturan** di kiri bawah. Akun bawaan sudah ada: *Claude (login bawaan)* dan *ChatGPT (login bawaan)* memakai login CLI yang sudah ada di komputermu. Tambahkan akun lain kalau perlu.
+4. Klik **📁** untuk membuka folder project.
+5. Klik **+ Thread baru**. Terminal agent langsung berjalan di folder itu. Ketik tugasmu seperti biasa.
+
+<Note>
+**Tip:** thread baru memakai akun, model, dan mode yang terakhir kamu pakai. Semuanya bisa diganti dari bar di atas terminal.
+</Note>
+
+## Persyaratan
+
+| Komponen | Wajib? | Keterangan |
+|---|---|---|
+| Windows 10 / 11, 64-bit | Ya | Versi sekarang khusus Windows. |
+| Microsoft Edge WebView2 | Ya | Sudah bawaan di Windows 11 dan kebanyakan Windows 10. Kalau belum ada, pasang dari situs Microsoft. |
+| Git for Windows | Ya | Untuk Git Bash, worktree, diff, dan commit. |
+| Claude Code CLI | Salah satu | Untuk agent Claude. Perintah `claude` harus bisa dijalankan. |
+| Codex CLI | Salah satu | Untuk agent ChatGPT. Perintah `codex` harus bisa dijalankan. |
+| GitHub CLI (`gh`) | Opsional | Untuk banyak akun GitHub dan membuat pull request. |
+| Langganan atau API key | Ya | Claude Pro/Max atau API key Anthropic, dan/atau ChatGPT atau API key OpenAI. |
+
+Kilat mencari program-program itu secara otomatis. Kalau ada yang tidak ketemu, status bar di bawah menampilkan peringatan dan kamu bisa mengisi lokasinya di [Pengaturan](#pengaturan).
+
+## Instalasi
+
+<DownloadBox />
+
+1. Jalankan <code>{INSTALLER}</code>.
+2. Kalau muncul *"Windows protected your PC"*, klik **More info** lalu **Run anyway**. Peringatan ini muncul karena installer belum ditandatangani secara digital.
+3. Kilat terpasang untuk akun Windows-mu saja di `%LOCALAPPDATA%\Kilat Code`, tanpa hak admin.
+
+**Update:** unduh installer versi baru dan jalankan. Akun, pengaturan, dan thread tidak hilang karena disimpan terpisah dari program.
+
+## Menambah akun
+
+Semua akun diatur di **👤 Akun & Pengaturan**. Setiap akun wajib punya **nama unik** (mis. "Claude Kantor"). Email dan paket (Pro, Max, Plus, …) dideteksi otomatis, jadi kamu selalu tahu akun mana yang sedang dipakai.
+
+### Claude (langganan Pro/Max)
+
+1. Buka tab **Claude**, isi nama akun, klik **+ Login langganan (Pro/Max)**.
+2. Langkah 1: terminal kecil menjalankan `claude setup-token`. Klik *Izinkan* di browser. Token berlaku satu tahun, ditangkap otomatis, dicek ke Anthropic, lalu disimpan di Windows Credential Manager.
+3. Langkah 2: login sekali lagi di browser hanya untuk membaca email dan paket akun. Login ini langsung dihapus setelah dibaca.
+
+<Note>
+**Penting:** sebelum Setup, pastikan browser sedang login ke akun Claude yang benar. Kalau email yang terbaca ternyata milik akun Claude lain, Kilat menolaknya supaya akun tidak tertukar. Akun lama yang emailnya belum terdeteksi punya tombol **Deteksi email**.
+</Note>
+
+### Claude (API key)
+
+Isi nama akun, tempel API key `sk-ant-api…`, klik **Pakai API key**. Key dicek ke Anthropic sebelum disimpan.
+
+### ChatGPT / Codex
+
+Buka tab **ChatGPT / Codex**, isi nama, klik **+ Login ChatGPT**. Kilat menjalankan `codex login` di folder khusus milik akun itu. Bisa juga memakai API key OpenAI.
+
+### GitHub
+
+Klik **+ Login akun GitHub baru** (menjalankan `gh auth login`) atau **↻ Impor dari gh** kalau kamu sudah pernah login lewat `gh`. Nama dan email commit serta SSH key bisa diatur per akun.
+
+## Project dan thread
+
+Sebuah **project** adalah folder di komputermu. Sebuah **thread** adalah satu percakapan dengan agent di project itu, ditampilkan sebagai terminal.
+
+- **+ Thread baru** membuat thread di project aktif. Tombol **+** di samping nama project juga bisa.
+- **Thread di worktree terpisah** (menu **⋯** di project): Kilat membuat git worktree dan branch `kilat/…` khusus untuk thread itu, jadi beberapa agent bisa mengubah file tanpa saling menimpa.
+- Judul thread terisi otomatis dari pesan pertamamu. Klik dua kali judul di bar atas untuk menggantinya.
+- Di daftar thread: 📌 sematkan di atas, 🗄 arsipkan, × hapus. Kotak cari menyaring berdasarkan judul.
+- Titik di samping thread menunjukkan status: kuning berkedip = bekerja, hijau = siap, kuning = butuh izin atau kena limit (⏳), abu-abu = agent tidak berjalan.
+
+Menghapus thread menghentikan agent-nya. Sesi asli Claude/Codex tetap ada di `~/.claude` / `~/.codex`.
+
+## Terminal agent
+
+Isi thread adalah terminal `claude` atau `codex` yang asli. Semua yang bisa dilakukan di terminal biasa bisa dilakukan di sini: slash command, `/model`, menyetujui izin, mode bash, dan seterusnya.
+
+- **Agent tetap jalan di belakang.** Pindah ke thread lain tidak menghentikannya. Saat kembali, layar digambar ulang.
+- **↻** menjalankan ulang agent dan melanjutkan sesi yang sama. **⏹** menghentikannya.
+- Kalau agent berhenti (misalnya kamu mengetik `/exit`), muncul tombol **▶ Jalankan lagi** yang melanjutkan sesi sebelumnya.
+- Statusline Claude di bagian bawah terminal menampilkan `⚡ Kilat · nama akun · paket · pemakaian`, jadi kamu selalu tahu sedang memakai akun apa.
+
+### Keyboard di terminal
+
+| Tombol | Fungsi |
+|---|---|
+| <kbd>Enter</kbd> | Kirim pesan ke agent. |
+| <kbd>Shift</kbd>+<kbd>Enter</kbd> | Baris baru di kotak pesan agent. |
+| <kbd>Ctrl</kbd>+<kbd>V</kbd> | Tempel teks. |
+| <kbd>Ctrl</kbd>+<kbd>C</kbd> | Salin kalau ada teks terpilih. Kalau tidak, dikirim ke agent (menghentikan proses yang sedang jalan). |
+| <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Selalu salin. |
+
+## Model dan mode izin
+
+Bar di atas terminal punya pilihan **model** dan **mode izin**. Mengganti salah satunya menjalankan ulang agent di sesi yang sama dengan setelan baru. Model juga bisa diganti langsung dengan `/model` di terminal.
+
+| Mode | Claude Code | Codex |
+|---|---|---|
+| Akses penuh | `--dangerously-skip-permissions` | `--dangerously-bypass-approvals-and-sandbox` |
+| Setelan CLI | tanpa flag, ikut setelan CLI (mis. mode auto) | tanpa flag, ikut `config.toml` |
+| Minta izin | `--permission-mode default` | `-s workspace-write -a on-request` |
+| Plan / read-only | `--permission-mode plan` | `-s read-only -a on-request` |
+
+<Note warn>
+**Akses penuh** berarti agent bisa menjalankan perintah dan mengubah file tanpa bertanya. Saat pertama kali, Claude Code menampilkan peringatan *Bypass Permissions* yang harus kamu setujui sendiri di terminal. Pakai mode ini hanya di project yang kamu percaya.
+</Note>
+
+## Ganti akun dan provider
+
+Dropdown akun di atas terminal berisi semua akun Claude dan ChatGPT. Pilih akun lain, dan agent dijalankan ulang dengan akun itu. Kalau agent sedang bekerja, Kilat bertanya dulu.
+
+| Perpindahan | Cara konteks dipertahankan |
+|---|---|
+| Claude → Claude | Semua akun Claude memakai penyimpanan sesi yang sama. Agent dilanjutkan dengan `--resume` di sesi yang sama; yang berbeda hanya token akunnya. |
+| ChatGPT → ChatGPT | Tiap akun punya folder login sendiri, tapi folder sesinya dibagi. `codex resume` melanjutkan thread yang sama. |
+| Claude ↔ ChatGPT | Kilat menulis bagian percakapan yang belum dilihat agent tujuan (pesanmu, jawaban agent, dan perintah/file yang disentuh) ke sebuah file Markdown, lalu menyuruh agent tujuan membacanya dulu sebelum melanjutkan. |
+
+Kilat mencatat akun dan sesi asli di setiap bagian percakapan. Saat kembali ke provider yang pernah dipakai, sesinya dilanjutkan dan hanya bagian yang terjadi sejak itu yang diteruskan.
+
+## Saat kena limit
+
+Kilat mendeteksi limit secara otomatis: dari hook `StopFailure` Claude Code, atau dari file sesi Codex. Thread ditandai ⏳, kamu mendapat notifikasi, dan dialog berisi tiga pilihan muncul di atas terminal.
+
+### 1. Tunggu
+
+Kilat menampilkan jam reset, dibaca dari data pemakaian CLI atau dari pesan limitnya (mis. *"resets 3pm"*, *"try again at …"*). Pilih **Tunggu sampai …** atau durasi lain (30 menit, 1, 3, atau 5 jam). Saat waktunya tiba, Kilat menjalankan ulang agent di sesi yang sama dan mengirim pesan lanjutan. Ini berjalan selama Kilat terbuka; kalau Kilat ditutup, pekerjaan dilanjutkan begitu Kilat dibuka lagi. Selama menunggu, bar kuning di atas terminal punya tombol **Lanjut sekarang** dan **Batal**.
+
+### 2. Pindah ke akun Claude lain
+
+Daftar akun Claude lain beserta pemakaiannya. Klik salah satu: sesi yang sama dilanjutkan dengan akun itu dan agent diminta meneruskan pekerjaan yang terhenti.
+
+### 3. Pindah ke akun ChatGPT
+
+Klik akun ChatGPT: Codex mulai dengan riwayat percakapan sebagai konteks dan diminta meneruskan pekerjaan terakhir.
+
+<Note>
+Pesan lanjutan bisa diubah di [Pengaturan](#pengaturan) (bawaan: *"Lanjutkan pekerjaan yang tadi terhenti karena limit akun."*). Tombol × menutup dialog kalau kamu mau mengurusnya sendiri.
+</Note>
+
+## Pemakaian akun
+
+- **Claude:** persentase jendela 5 jam dan 7 hari, dilaporkan Claude Code lewat statusline.
+- **Codex:** jendela limit dari file sesi Codex.
+
+Pemakaian tampil di dropdown akun, dialog limit, dan daftar akun di Pengaturan, lengkap dengan jam reset. Akun yang sedang limit ditandai ⏳. Kalau limitnya ternyata sudah lewat, klik **⏳ reset limit** di daftar akun.
+
+<Note>
+Kalau kamu memasang `statusLine` sendiri di `~/.claude/settings.json`, Kilat tidak menimpanya. Akibatnya pemakaian Claude tidak terbaca, tapi limit tetap terdeteksi.
+</Note>
+
+## Skill, plugin, dan MCP
+
+Karena Kilat menjalankan CLI asli dengan konfigurasimu sendiri, semua yang sudah kamu pasang tetap jalan:
+
+- **Claude Code:** semua akun Claude memakai folder `~/.claude` yang sama. Plugin, skill, MCP server, hook, `CLAUDE.md`, dan setelan berlaku di setiap akun. Hook milik Kilat hanya ditambahkan, tidak menggantikan punyamu.
+- **Codex:** folder `skills`, `rules`, `prompts`, `plugins`, dan `sessions` disambungkan ke `~/.codex`, sedangkan `config.toml` (termasuk MCP server) dan `AGENTS.md` disalin ke setiap akun ChatGPT sebelum agent dijalankan.
+
+Pasang skill atau plugin seperti biasa dari terminal agent mana pun. Hasilnya langsung tersedia di akun lain.
+
+## Editor, diff, dan commit
+
+Tombol di kanan atas membuka panel samping:
+
+- **Editor:** file explorer dan editor (CodeMirror) untuk melihat atau mengubah file cepat. <kbd>Ctrl</kbd>+<kbd>P</kbd> mencari file.
+- **Perubahan:** git status, diff per file, dan centang file yang ikut di commit.
+  - **✨ Buat pesan**: agent menulis pesan commit dari diff, memakai akun thread aktif.
+  - **Commit**, **Commit & Push**, **⇡ Push**, **+ branch**.
+  - **⤴ Buat PR**: push lalu buat pull request lewat `gh`, bisa sebagai draft.
+
+## GitHub multi-akun
+
+Pilih akun GitHub per project di **status bar** bawah. Pilihan itu langsung berlaku di terminal bash, agent, dan panel Perubahan, termasuk yang sedang berjalan, tanpa restart.
+
+Caranya: setiap proses di project itu memakai `GIT_CONFIG_GLOBAL` khusus yang meng-*include* `~/.gitconfig` milikmu, lalu menimpa nama/email commit dan memasang credential helper yang mengambil token akun terpilih dari `gh`. Ganti akun hanya menulis ulang dua file kecil.
+
+## Terminal bash
+
+Selain terminal agent, ada panel Git Bash di bawah. Buka/tutup dengan <kbd>Ctrl</kbd>+<kbd>{"`"}</kbd> atau tombol **Terminal**. Bisa banyak tab. Terminal ini juga memakai akun GitHub project.
+
+## Notifikasi
+
+Saat jendela Kilat tidak aktif, kamu mendapat notifikasi Windows (dan suara, kalau diaktifkan) ketika agent **selesai**, **butuh izin**, atau **kena limit**. Kalau Kilat aktif tapi kamu sedang di thread lain, muncul toast kecil.
+
+## Pengaturan
+
+| Setelan | Fungsi |
+|---|---|
+| Notifikasi Windows | Notifikasi saat agent selesai, butuh izin, atau kena limit. |
+| Bunyikan suara | Suara pendek bersama notifikasi. Ada tombol ▶ coba. |
+| Claude in Chrome | Agent Claude dijalankan dengan `--chrome` supaya bisa mengendalikan Chrome lewat extension Claude. |
+| Pesan lanjutan setelah limit | Pesan yang dikirim ke agent saat pekerjaan dilanjutkan. |
+| Daftar model Claude | Pilihan model di bar thread (pisahkan dengan koma). |
+| Ukuran font terminal | Ukuran huruf terminal. |
+| Lokasi program | Path Bash, Claude Code, Codex, dan GitHub CLI. Kosongkan untuk deteksi otomatis. |
+
+## Pintasan keyboard
+
+| Tombol | Fungsi |
+|---|---|
+| <kbd>Ctrl</kbd>+<kbd>{"`"}</kbd> | Buka/tutup terminal bash. |
+| <kbd>Ctrl</kbd>+<kbd>P</kbd> | Buka file cepat di editor. |
+| <kbd>Shift</kbd>+<kbd>Enter</kbd> | Baris baru di terminal agent. |
+| <kbd>Enter</kbd> di kotak cari | Buka thread teratas hasil pencarian. |
+
+## Data dan privasi
+
+- Kilat **tidak punya server**. Tidak ada akun Kilat, tidak ada telemetri.
+- Token Claude dan API key disimpan di **Windows Credential Manager**, bukan di file biasa.
+- Data aplikasi (project, daftar akun tanpa rahasia, thread, pengaturan) ada di `%APPDATA%\dev.kilat.code`.
+- Percakapan disimpan oleh CLI masing-masing di `~/.claude` dan `~/.codex`, persis seperti tanpa Kilat. File oper konteks Claude ↔ ChatGPT ada di folder `handoff` di data Kilat.
+- Kilat sendiri hanya menghubungi Anthropic untuk memeriksa token Claude yang kamu simpan (apakah valid dan milik siapa), dan GitHub lewat `gh` untuk profil akun. Selebihnya semua lalu lintas berasal dari CLI resmi.
+
+## Cara kerja di balik layar
+
+- Tiap thread menjalankan `claude` atau `codex` di pseudo-console Windows (ConPTY). Tampilannya memakai xterm.js. Prosesnya milik aplikasi, bukan milik tampilan, jadi tetap jalan saat kamu pindah thread.
+- **Claude:** Kilat menambahkan file setelan lewat `--settings` berisi hook `SessionStart`, `UserPromptSubmit`, `Stop`, `StopFailure`, `Notification` dan statusline. Hook-hook itu memanggil `kilat.exe --kilat-hook`, proses kecil yang meneruskan datanya ke Kilat lewat socket lokal `127.0.0.1` dengan kunci acak, lalu langsung keluar.
+- **Codex:** Kilat membaca file sesi (rollout) yang ditulis Codex untuk mengetahui id sesi, status kerja, pemakaian, dan limit. Codex dijalankan dengan `--no-daemon` supaya setiap akun benar-benar memakai login-nya sendiri.
+- **Akun:** akun Claude dibedakan lewat `CLAUDE_CODE_OAUTH_TOKEN` / `ANTHROPIC_API_KEY`; akun ChatGPT lewat `CODEX_HOME` masing-masing.
+
+## Pemecahan masalah
+
+### "tidak ditemukan: claude / codex / bash / gh" di status bar
+
+Pasang programnya, atau isi lokasinya di [Pengaturan](#pengaturan) bagian *Lokasi program*. Untuk Claude Code, coba jalankan `claude --version` di terminal biasa dulu.
+
+### Thread menampilkan "belum di-setup" atau "belum login"
+
+Buka Akun & Pengaturan dan selesaikan Setup untuk akun itu, atau pilih akun lain dari dropdown di atas terminal.
+
+### Claude bertanya soal trust folder atau menampilkan peringatan Bypass Permissions
+
+Itu dialog bawaan Claude Code yang muncul sekali. Jawab langsung di terminal. Kalau tidak mau peringatan Bypass Permissions, pakai mode *Setelan CLI* atau *Minta izin*.
+
+### Jam reset tidak diketahui
+
+Pilih salah satu durasi tunggu (30 menit sampai 5 jam). Kamu bisa menekan **Lanjut sekarang** kapan saja.
+
+### Pemakaian Claude tidak muncul
+
+Angkanya muncul setelah agent mengirim permintaan pertama. Kalau kamu punya `statusLine` sendiri, lihat catatan di [Pemakaian akun](#pemakaian-akun). Akun API key memang tidak punya jendela 5 jam/7 hari.
+
+### Tampilan terminal berantakan setelah pindah thread
+
+Ubah ukuran jendela sedikit atau klik **↻**. Agent akan menggambar ulang layarnya.
+
+## Menghapus Kilat
+
+Buka **Settings → Apps → Installed apps**, cari *Kilat Code*, lalu **Uninstall**. Data di `%APPDATA%\dev.kilat.code` dan token di Credential Manager (entri yang mengandung `kilat-code`) bisa dihapus manual kalau ingin bersih total. Sesi di `~/.claude` dan `~/.codex` tidak disentuh.

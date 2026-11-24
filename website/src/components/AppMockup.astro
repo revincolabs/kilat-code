@@ -1,0 +1,71 @@
+---
+// A drawn (not screenshotted) Kilat window: thread list, a Claude Code
+// terminal that just hit its limit, and the limit dialog. Example data only.
+const threads = [
+  { project: "toko-online" },
+  { title: "Refactor pembayaran", status: "warn", provider: "claude", sel: true },
+  { title: "Halaman checkout baru", status: "run", provider: "codex" },
+  { title: "Perbaiki bug login", status: "ok", provider: "claude" },
+  { project: "api-server" },
+  { title: "Migrasi database", status: "run", provider: "claude" },
+  { title: "Tulis dokumentasi API", status: "ok", provider: "codex" },
+];
+---
+
+<div class="shot" role="img" aria-label="Tampilan Kilat Code: daftar thread di kiri, terminal Claude Code di kanan, dan dialog pilihan saat akun kena limit">
+  <div class="win-bar" aria-hidden="true">
+    <i></i><i></i><i></i>
+    <span class="t">Refactor pembayaran · toko-online</span>
+    <span class="r"><span>Editor</span><span>Perubahan</span><span>Terminal</span></span>
+  </div>
+  <div class="app" aria-hidden="true">
+    <div class="side">
+      <div class="new">+ Thread baru</div>
+      {
+        threads.map((t) =>
+          t.project ? (
+            <div class="proj">▾ {t.project}</div>
+          ) : (
+            <div class:list={["th", { sel: t.sel }]}>
+              <i class={`d ${t.status}`} />
+              <span>{t.title}</span>
+              <b style={`color: var(--${t.provider})`}>{t.provider === "claude" ? "C" : "G"}</b>
+            </div>
+          ),
+        )
+      }
+    </div>
+    <div class="main">
+      <div class="tbar">
+        <span class="badge">Claude</span>
+        <span class="sel">Kerja (MAX) · ⏳ limit</span>
+        <span class="sel">opus</span>
+        <span class="sel">Akses penuh</span>
+        <span class="st"><i class="d warn"></i>kena limit</span>
+      </div>
+      <div class="term">
+        <div><span class="c">▐▛███▜▌</span>  Claude Code</div>
+        <div class="g">        Opus · Claude Max · ~\toko-online</div>
+        <div class="p">❯ refactor modul pembayaran, lalu jalankan semua test</div>
+        <div>● Saya mulai dari <span class="y">src/payments/</span>, ada 6 file yang terlibat.</div>
+        <div class="g">  Read 6 files · Edit src/payments/charge.ts</div>
+        <div>● Bash(npm test)</div>
+        <div class="g">  ⎿ 42 passed, 3 failed</div>
+        <div>● Memperbaiki 3 test yang gagal…</div>
+        <div class="e">  ⎿ You've hit your session limit · resets 3pm</div>
+        <div class="g">────────────────────────────────────────────</div>
+        <div>❯ </div>
+        <div class="g">  <span class="y">⚡ Kilat</span> · Kerja · MAX · 5 jam 100% · 7 hari 64%</div>
+        <div class="limit">
+          <h4>⏳ Akun Claude "Kerja" kena limit</h4>
+          <div class="m">You've hit your session limit · resets 3pm</div>
+          <div class="w">⏱ Tunggu sampai 15.00, lalu lanjut otomatis</div>
+          <div class="k">Pindah ke akun Claude lain <span>· sesi sama</span></div>
+          <div class="a"><b>Pribadi</b><span>PRO · 5 jam 12%</span></div>
+          <div class="k">Pindah ke akun ChatGPT <span>· riwayat diteruskan</span></div>
+          <div class="a"><b>Tim</b><span>PLUS · 18%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,272 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { EditorView, basicSetup } from "codemirror";
+  import { EditorState, Compartment, type Extension } from "@codemirror/state";
+  import { keymap } from "@codemirror/view";
+  import { indentWithTab } from "@codemirror/commands";
+  import { oneDark } from "@codemirror/theme-one-dark";
+  import { api } from "../lib/api";
+  import { app, fail, toast } from "../lib/state.svelte";
+  import FileTree from "./FileTree.svelte";
+
+  let { root }: { root: string } = $props();
+
+  interface Tab {
+    path: string;
+    name: string;
+    state: EditorState;
+    saved: string;
+    dirty: boolean;
+  }
+
+  let tabs = $state<Tab[]>([]);
+  let current = $state<string | null>(null);
+  let host: HTMLDivElement;
+  let view: EditorView;
+  const lang = new Compartment();
+
+  async function languageFor(path: string): Promise<Extension> {
+    const ext = path.split(".").pop()?.toLowerCase() ?? "";
+    switch (ext) {
+      case "js": case "mjs": case "cjs": case "jsx":
+        return (await import("@codemirror/lang-javascript")).javascript({ jsx: true });
+      case "ts": case "mts": case "cts": case "tsx":
+        return (await import("@codemirror/lang-javascript")).javascript({ jsx: true, typescript: true });
+      case "svelte": case "vue": case "html": case "htm":
+        return (await import("@codemirror/lang-html")).html();
+      case "css": case "scss": case "less":
+        return (await import("@codemirror/lang-css")).css();
+      case "json": case "jsonc":
+        return (await import("@codemirror/lang-json")).json();
+      case "md": case "markdown":
+        return (await import("@codemirror/lang-markdown")).markdown();
+      case "py":
+        return (await import("@codemirror/lang-python")).python();
+      case "rs":
+        return (await import("@codemirror/lang-rust")).rust();
+      default:
+        return [];
+    }
+  }
+
+  const theme = EditorView.theme({
+    "&": { height: "100%", fontSize: `${app.data.settings.fontSize || 13}px`, backgroundColor: "#121215" },
+    ".cm-scroller": { fontFamily: "var(--mono)" },
+    ".cm-gutters": { backgroundColor: "#121215", borderRight: "1px solid #26262d" },
+  });
+
+  function baseExtensions(path: string, langExt: Extension): Extension[] {
+    return [
+      basicSetup,
+      keymap.of([indentWithTab, { key: "Mod-s", run: () => (save(path), true) }]),
+      oneDark,
+      theme,
+      lang.of(langExt),
+      EditorView.updateListener.of((u) => {
+        if (!u.docChanged) return;
+        const t = tabs.find((x) => x.path === path);
+        if (t) t.dirty = u.state.doc.toString() !== t.saved;
+      }),
+    ];
+  }
+
+  async function openFile(path: string) {
+    const existing = tabs.find((t) => t.path === path);
+    if (existing) return activate(path);
+    try {
+      const text = await api.readFile(path);
+      const state = EditorState.create({ doc: text, extensions: baseExtensions(path, await languageFor(path)) });
+      tabs.push({ path, name: path.split(/[\\/]/).pop() ?? path, state, saved: text, dirty: false });
+      activate(path);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  function stash() {
+    const t = tabs.find((x) => x.path === current);
+    if (t && view) t.state = view.state;
+  }
+
+  function activate(path: string) {
+    stash();
+    current = path;
+    const t = tabs.find((x) => x.path === path);
+    if (t && view) {
+      view.setState(t.state);
+      view.focus();
+    }
+  }
+
+  function close(path: string) {
+    const t = tabs.find((x) => x.path === path);
+    if (t?.dirty && !confirm(`Tutup ${t.name} tanpa menyimpan?`)) return;
+    const i = tabs.findIndex((x) => x.path === path);
+    tabs.splice(i, 1);
+    if (current === path) {
+      current = null;
+      const next = tabs[Math.max(0, i - 1)];
+      if (next) {
+        current = next.path;
+        view.setState(next.state);
+      } else view.setState(EditorState.create({ doc: "" }));
+    }
+  }
+
+  async function save(path: string) {
+    const t = tabs.find((x) => x.path === path);
+    if (!t) return;
+    const text = path === current ? view.state.doc.toString() : t.state.doc.toString();
+    try {
+      await api.writeFile(path, text);
+      t.saved = text;
+      t.dirty = false;
+      toast(`Tersimpan: ${t.name}`, "ok");
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  // Reload clean tabs after an agent turn (files may have changed).
+  let lastTick = app.fsTick;
+  $effect(() => {
+    const tick = app.fsTick;
+    if (tick === lastTick) return;
+    lastTick = tick;
+    for (const t of tabs) {
+      if (t.dirty) continue;
+      api.readFile(t.path).then(async (text) => {
+        if (text === t.saved) return;
+        t.saved = text;
+        t.state = EditorState.create({ doc: text, extensions: baseExtensions(t.path, await languageFor(t.path)) });
+        if (t.path === current) view.setState(t.state);
+      }).catch(() => {});
+    }
+  });
+
+  onMount(() => {
+    view = new EditorView({ parent: host, state: EditorState.create({ doc: "" }) });
+    return () => view.destroy();
+  });
+
+  // Files requested from elsewhere (Ctrl+P quick open).
+  $effect(() => {
+    const req = app.openFileReq;
+    if (!req || !view) return;
+    app.openFileReq = null;
+    openFile(req);
+  });
+</script>
+
+<div class="editor">
+  <div class="tree">
+    <div class="tree-head muted" title={root}>{root.split(/[\\/]/).pop()}</div>
+    <div class="tree-body">
+      <FileTree path={root} onopen={openFile} depth={0} />
+    </div>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      {#each tabs as t (t.path)}
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+        <div class="tab" class:sel={t.path === current} onclick={() => activate(t.path)} title={t.path}>
+          <span>{t.name}</span>
+          {#if t.dirty}<span class="dirty">●</span>{/if}
+          <button class="ghost icon x" onclick={(e) => { e.stopPropagation(); close(t.path); }}>×</button>
+        </div>
+      {/each}
+    </div>
+    <div class="cm" class:empty={!current} bind:this={host}></div>
+    {#if !current}
+      <div class="placeholder muted">Pilih file di kiri. <kbd>Ctrl</kbd>+<kbd>S</kbd> untuk simpan.</div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .editor {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+  }
+  .tree {
+    width: 200px;
+    flex: none;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .tree-head {
+    padding: 8px 10px 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tree-body {
+    flex: 1;
+    overflow: auto;
+    padding-bottom: 8px;
+  }
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    flex: none;
+    min-height: 31px;
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 4px 4px 10px;
+    font-size: 12px;
+    border-right: 1px solid var(--line);
+    cursor: pointer;
+    color: var(--fg-2);
+    white-space: nowrap;
+  }
+  .tab.sel {
+    background: #121215;
+    color: var(--fg);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .dirty {
+    color: var(--accent);
+    font-size: 10px;
+  }
+  .x {
+    min-width: 18px;
+    padding: 0 4px;
+  }
+  .cm {
+    flex: 1;
+    min-height: 0;
+  }
+  .cm.empty {
+    visibility: hidden;
+  }
+  .placeholder {
+    position: absolute;
+    inset: 32px 0 0;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+  }
+  kbd {
+    border: 1px solid var(--line-2);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+</style>

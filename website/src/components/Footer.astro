@@ -1,0 +1,20 @@
+---
+import { DOWNLOAD_URL } from "../site";
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="wrap">
+    <span>© {year} Kilat Code</span>
+    <nav aria-label="Tautan bawah">
+      <a href="/#fitur">Fitur</a>
+      <a href="/docs">Dokumentasi</a>
+      <a href="/docs#pemecahan-masalah">Bantuan</a>
+      <a href={DOWNLOAD_URL} download>Download</a>
+    </nav>
+    <p class="disclaimer">
+      Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI.
+      Claude dan Claude Code adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,32 @@
+---
+import { DOWNLOAD_URL } from "../site";
+
+interface Props {
+  current: "home" | "docs";
+}
+const { current } = Astro.props;
+const links = [
+  { href: "/#fitur", label: "Fitur" },
+  { href: "/#limit", label: "Saat kena limit" },
+  { href: "/#mulai", label: "Mulai" },
+  { href: "/docs", label: "Dokumentasi", page: "docs" },
+  { href: "/#faq", label: "FAQ" },
+];
+---
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/icon.png" alt="" width="28" height="28" />Kilat <span>Code</span></a>
+    <nav class="nav-links" aria-label="Navigasi utama">
+      {
+        links.map((l) => (
+          <a href={l.href} aria-current={l.page === current ? "page" : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+    <a class="btn small primary" href={DOWNLOAD_URL} download>Download</a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+  </div>
+</header>

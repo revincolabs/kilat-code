@@ -1,0 +1,9 @@
+---
+/** Callout box in the docs. `warn` for risky things. */
+interface Props {
+  warn?: boolean;
+}
+const { warn = false } = Astro.props;
+---
+
+<div class:list={["note", { warn }]}><slot /></div>

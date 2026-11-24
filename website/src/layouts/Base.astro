@@ -1,0 +1,64 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { DESCRIPTION, SITE_NAME } from "../site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** which nav link is the current page */
+  current?: "home" | "docs";
+}
+
+const { title, description = DESCRIPTION, current = "home" } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME} — banyak agent coding, banyak akun, satu jendela`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const image = new URL("/icon.png", Astro.site);
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b0b0d" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a class="skip" href="#isi">Langsung ke isi</a>
+    <Header current={current} />
+    <slot />
+    <Footer />
+    <script>
+      // Mobile menu and the header border once the page scrolls.
+      const nav = document.querySelector<HTMLElement>(".nav");
+      const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+      if (nav && toggle) {
+        toggle.addEventListener("click", () => {
+          const open = nav.classList.toggle("open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        nav.querySelectorAll(".nav-links a").forEach((a) =>
+          a.addEventListener("click", () => {
+            nav.classList.remove("open");
+            toggle.setAttribute("aria-expanded", "false");
+          }),
+        );
+        const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+      }
+    </script>
+  </body>
+</html>
