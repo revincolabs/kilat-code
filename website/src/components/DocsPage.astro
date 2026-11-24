@@ -1,0 +1,103 @@
+---
+// The documentation page, rendered once per language.
+import Base from "../layouts/Base.astro";
+import * as idDoc from "../docs/docs.mdx";
+import * as enDoc from "../docs/docs.en.mdx";
+import { DOCS_UPDATED, PUBLISHER, SITE_NAME, SITE_URL } from "../site";
+import { LOCALE, localePath, longDate, ui, type Lang } from "../i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang].docs;
+const doc = lang === "en" ? enDoc : idDoc;
+const { Content } = doc;
+const sections = doc.getHeadings().filter((h) => h.depth === 2);
+
+const abs = (p: string) => new URL(p, SITE_URL).href;
+const home = abs(localePath(lang, "/"));
+const url = abs(localePath(lang, "/docs"));
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "Organization", "@id": PUBLISHER.id, name: PUBLISHER.name, url: PUBLISHER.url, logo: PUBLISHER.logo },
+    {
+      "@type": "TechArticle",
+      "@id": `${url}#article`,
+      headline: t.h1,
+      description: t.description,
+      url,
+      mainEntityOfPage: url,
+      inLanguage: LOCALE[lang],
+      dateModified: DOCS_UPDATED,
+      image: abs(`/og/kilat-${lang}.png`),
+      author: { "@id": PUBLISHER.id },
+      publisher: { "@id": PUBLISHER.id },
+      about: { "@id": `${SITE_URL}/#software` },
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${url}#breadcrumb`,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: SITE_NAME, item: home },
+        { "@type": "ListItem", position: 2, name: t.crumb },
+      ],
+    },
+  ],
+};
+---
+
+<Base lang={lang} path="/docs" title={t.title} description={t.description} current="docs" ogType="article" jsonLd={jsonLd}>
+  <div class="wrap docs">
+    <aside class="toc" aria-label={t.tocLabel}>
+      <details open>
+        <summary>{t.contents}</summary>
+        {
+          sections.map((h) => (
+            <>
+              {t.groups[h.slug] && <h5>{t.groups[h.slug]}</h5>}
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </>
+          ))
+        }
+      </details>
+    </aside>
+    <main class="doc" id="isi">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href={localePath(lang, "/")}>{SITE_NAME}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{t.crumb}</span>
+      </nav>
+      <h1>{t.h1}</h1>
+      <p class="lead" set:html={t.lead} />
+      <p class="updated">{t.updated} <time datetime={DOCS_UPDATED}>{longDate(lang, DOCS_UPDATED)}</time></p>
+      <Content />
+    </main>
+  </div>
+</Base>
+
+<script>
+  // On narrow screens the table of contents starts folded.
+  const toc = document.querySelector<HTMLDetailsElement>(".toc details");
+  if (toc && matchMedia("(max-width: 1023px)").matches) toc.open = false;
+  toc?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => matchMedia("(max-width: 1023px)").matches && (toc.open = false)));
+
+  // Highlight the section being read in the table of contents.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>(".toc a[href^='#']")];
+  const byId = new Map(links.map((a) => [a.hash.slice(1), a]));
+  const visible = new Map<string, boolean>();
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => visible.set(e.target.id, e.isIntersecting));
+      const first = [...byId.keys()].find((id) => visible.get(id));
+      if (first) links.forEach((a) => a.classList.toggle("on", a === byId.get(first)));
+    },
+    { rootMargin: "-80px 0px -65% 0px" },
+  );
+  byId.forEach((_, id) => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
+</script>

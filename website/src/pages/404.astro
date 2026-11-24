@@ -1,0 +1,63 @@
+---
+// One 404 page for both languages (Vercel serves it for any unknown path).
+import Base from "../layouts/Base.astro";
+import { ui } from "../i18n";
+
+const id = ui.id.notFound;
+const en = ui.en.notFound;
+---
+
+<Base lang="id" path="/404" title={`${id.title} · Kilat Code`} description={id.text} noindex>
+  <main id="isi" class="wrap not-found">
+    <p class="label">404</p>
+    <h1>{id.title}</h1>
+    <p class="lead">{id.text}</p>
+    <div class="buttons">
+      <a class="btn btn-yellow" href="/">{id.home}</a>
+      <a class="btn btn-line" href="/docs">{id.docs}</a>
+    </div>
+    <div lang="en" class="other-lang">
+      <h2>{en.title}</h2>
+      <p>{en.text}</p>
+      <p><a href="/en">{en.home}</a> · <a href="/en/docs">{en.docs}</a></p>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .not-found {
+    padding-top: 96px;
+    padding-bottom: 48px;
+  }
+  h1 {
+    margin-top: 16px;
+    font-size: var(--text-h2);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+  .lead {
+    margin-top: 16px;
+    max-width: 40em;
+    font-size: var(--text-lead);
+    color: var(--fg-muted);
+  }
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+  .other-lang {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--fg-muted);
+  }
+  .other-lang h2 {
+    font-size: var(--text-h3);
+    color: var(--fg);
+  }
+  .other-lang p {
+    margin-top: 8px;
+  }
+</style>

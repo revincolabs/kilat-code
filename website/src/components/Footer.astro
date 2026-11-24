@@ -1,48 +1,27 @@
 ---
-import { REPO_URL, VERSION } from "../site";
-const year = new Date().getFullYear();
+import { VERSION } from "../site";
+import { localePath, ui, type Lang } from "../i18n";
 
-const cols = [
-  {
-    title: "Produk",
-    links: [
-      ["Fitur", "/#fitur"],
-      ["Saat kena limit", "/#limit"],
-      ["Download", "/#download"],
-      ["Catatan rilis", `${REPO_URL}/releases`],
-    ],
-  },
-  {
-    title: "Dokumentasi",
-    links: [
-      ["Mulai cepat", "/docs#mulai-cepat"],
-      ["Menambah akun", "/docs#menambah-akun"],
-      ["Pemecahan masalah", "/docs#pemecahan-masalah"],
-    ],
-  },
-  {
-    title: "Kode",
-    links: [
-      ["GitHub", REPO_URL],
-      ["Lapor masalah", `${REPO_URL}/issues`],
-      ["revincolabs", "https://revincolabs.com"],
-    ],
-  },
-];
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <a class="brand" href="/" aria-label="Kilat Code, beranda">
-          <img src="/icon.png" alt="" width="28" height="28" />
+        <a class="brand" href={localePath(lang, "/")} aria-label={t.home}>
+          <img src="/icon-64.png" alt="" width="28" height="28" loading="lazy" />
           <span>Kilat Code</span>
         </a>
-        <p>Terminal Claude Code dan Codex yang asli, banyak akun, satu jendela. Dibuat dan dirawat oleh revincolabs.</p>
+        <p set:html={t.footTagline} />
       </div>
       {
-        cols.map((c) => (
+        t.footCols.map((c) => (
           <nav class="foot-col" aria-label={c.title}>
             <h2>{c.title}</h2>
             <ul>
@@ -57,11 +36,8 @@ const cols = [
       }
     </div>
     <div class="foot-bottom">
-      <p>
-        Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI. Claude dan Claude Code
-        adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
-      </p>
-      <span>© {year} revincolabs · v{VERSION}</span>
+      <p>{t.disclaimer}</p>
+      <span>© {year} Revinco Labs · v{VERSION}</span>
     </div>
   </div>
 </footer>

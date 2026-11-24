@@ -1,26 +1,37 @@
 ---
 import GithubMark from "./GithubMark.astro";
 import { REPO_URL } from "../site";
+import { anchors, localePath, other, ui, type Lang } from "../i18n";
 
 interface Props {
+  lang: Lang;
+  /** current page path without the language prefix, for the language switch */
+  path: string;
   current: "home" | "docs";
 }
-const { current } = Astro.props;
+const { lang, path, current } = Astro.props;
+const t = ui[lang];
+const a = anchors[lang];
+const home = localePath(lang, "/");
+const at = (id: string) => (home === "/" ? `/#${id}` : `${home}#${id}`);
 const links = [
-  { href: "/#fitur", label: "Fitur" },
-  { href: "/#limit", label: "Saat kena limit" },
-  { href: "/docs", label: "Dokumentasi", page: "docs" },
-  { href: "/#faq", label: "FAQ" },
+  { href: at(a.features), label: t.nav.features },
+  { href: at(a.limits), label: t.nav.limits },
+  { href: localePath(lang, "/docs"), label: t.nav.docs, page: "docs" },
+  { href: at(a.faq), label: t.nav.faq },
 ];
+const alt = other(lang);
+// pages without a translation (404) switch to the other home page
+const switchPath = path === "/404" ? "/" : path;
 ---
 
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="/" aria-label="Kilat Code, beranda">
-      <img src="/icon.png" alt="" width="28" height="28" />
+    <a class="brand" href={home} aria-label={t.home}>
+      <img src="/icon-64.png" alt="" width="28" height="28" />
       <span>Kilat Code</span>
     </a>
-    <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
+    <nav class="nav-links" id="nav-links" aria-label={t.navLabel}>
       {
         links.map((l) => (
           <a href={l.href} aria-current={l.page === current ? "page" : undefined}>
@@ -28,14 +39,17 @@ const links = [
           </a>
         ))
       }
-      <a class="nav-gh-m" href="/#download">Download</a>
+      <a class="nav-gh-m" href={at(a.download)}>{t.nav.download}</a>
     </nav>
     <div class="nav-end">
-      <a class="icon-btn" href={REPO_URL} aria-label="Kode sumber di GitHub" title="GitHub">
+      <a class="lang-switch" href={localePath(alt, switchPath)} hreflang={alt} lang={alt} title={t.switchTo} aria-label={t.switchTo}>
+        {t.switchLabel}
+      </a>
+      <a class="icon-btn" href={REPO_URL} aria-label={t.github} title="GitHub">
         <GithubMark size={22} />
       </a>
-      <a class="btn btn-yellow btn-sm" href="/#download">Download</a>
-      <button class="icon-btn nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
+      <a class="btn btn-yellow btn-sm" href={at(a.download)}>{t.nav.download}</a>
+      <button class="icon-btn nav-toggle" aria-label={t.menuOpen} data-open={t.menuOpen} data-close={t.menuClose} aria-expanded="false" aria-controls="nav-links">
         <svg class="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
           <path d="M4 8h16M4 16h16"></path>
         </svg>
@@ -54,5 +68,21 @@ const links = [
   }
   :global(.site-header.open) .nav-toggle .i-close {
     display: block;
+  }
+  .lang-switch {
+    display: inline-grid;
+    place-items: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 8px;
+    border-radius: var(--r-sm);
+    font: 500 12px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--fg-2);
+    text-decoration: none;
+  }
+  .lang-switch:hover {
+    background: var(--bg-soft);
+    color: var(--fg);
   }
 </style>

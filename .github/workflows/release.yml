@@ -63,7 +63,7 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "Kilat Code ${{ github.ref_name }}"
           releaseBody: |
-            Unduh installer untuk sistem operasimu di bawah. Panduan lengkap: https://kilat-code.vercel.app/docs
+            Unduh installer untuk sistem operasimu di bawah. Panduan lengkap: https://kilat.revincolabs.com/docs
 
             - Windows 10/11: file `-setup.exe`
             - macOS 11+ (Apple Silicon & Intel): file `.dmg`

@@ -47,7 +47,7 @@ BODY="$(cat <<EOF
 New package: **Kilat Code** $VERSION (\`$ID\`).
 
 Lightweight Tauri desktop app that runs the real Claude Code and Codex terminals side by side with multiple accounts.
-Homepage: https://kilat-code.vercel.app · Source: https://github.com/revincolabs/kilat-code
+Homepage: https://kilat.revincolabs.com · Source: https://github.com/revincolabs/kilat-code
 
 The installer is the NSIS (\`nullsoft\`) setup built by Tauri, per-user scope, silent with \`/S\`. It is not code-signed yet.
 

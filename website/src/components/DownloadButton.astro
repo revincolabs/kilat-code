@@ -1,21 +1,24 @@
 ---
 import { PLATFORMS } from "../site";
+import { ui, type Lang } from "../i18n";
 
 interface Props {
+  lang: Lang;
   /** "yellow" on light backgrounds, "dark" on the yellow panel */
   tone?: "yellow" | "dark";
 }
-const { tone = "yellow" } = Astro.props;
+const { lang, tone = "yellow" } = Astro.props;
+const t = ui[lang];
 const fallback = PLATFORMS[0];
 // The browser swaps in the visitor's OS (script below); without JS it stays Windows.
-const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].url, name: p.name }]));
+const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].url, label: t.downloadFor(p.name) }]));
 ---
 
 <a class:list={["btn", tone === "dark" ? "btn-dark" : "btn-yellow"]} href={fallback.files[0].url} data-os-download={JSON.stringify(links)}>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"></path>
   </svg>
-  <span class="os-label">Download untuk {fallback.name}</span>
+  <span class="os-label">{t.downloadFor(fallback.name)}</span>
 </a>
 
 <script>
@@ -35,7 +38,7 @@ const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].u
       if (!pick) return;
       a.href = pick.url;
       const text = a.querySelector(".os-label");
-      if (text) text.textContent = `Download untuk ${pick.name}`;
+      if (text) text.textContent = pick.label;
     });
   }
 </script>

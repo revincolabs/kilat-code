@@ -1,0 +1,305 @@
+---
+// The home page, rendered once per language.
+import { Image, getImage } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import Section from "./Section.astro";
+import DownloadButton from "./DownloadButton.astro";
+import DownloadBox from "./DownloadBox.astro";
+import GithubMark from "./GithubMark.astro";
+import { PUBLISHER, RELEASES_URL, REPO_URL, SITE_NAME, SITE_URL, VERSION } from "../site";
+import { LANGS, LOCALE, anchors, localePath, type Lang } from "../i18n";
+import { home } from "../i18n/home";
+// Real screenshots of the app (dev preview with example data, see preview.html in the app repo).
+import appLimit from "../assets/screens/app-limit.webp";
+import appChanges from "../assets/screens/app-changes.webp";
+import limitWait from "../assets/screens/limit-wait.webp";
+import terminal from "../assets/screens/terminal.webp";
+import sidebar from "../assets/screens/sidebar.webp";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = home[lang];
+const a = anchors[lang];
+const visualCol = "(max-width: 1023px) calc(100vw - 64px), 660px";
+const fullCol = "(max-width: 1240px) calc(100vw - 64px), 1176px";
+
+// ---------------------------------------------------------------- JSON-LD
+const abs = (p: string) => new URL(p, SITE_URL).href;
+const url = abs(localePath(lang, "/"));
+const shot = abs((await getImage({ src: appLimit, width: 1600, format: "webp" })).src);
+const strip = (html: string) => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&");
+const ids = {
+  website: `${SITE_URL}/#website`,
+  software: `${SITE_URL}/#software`,
+  page: `${url}#webpage`,
+  faq: `${url}#faq`,
+};
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "Organization", "@id": PUBLISHER.id, name: PUBLISHER.name, url: PUBLISHER.url, logo: PUBLISHER.logo },
+    {
+      "@type": "WebSite",
+      "@id": ids.website,
+      url: `${SITE_URL}/`,
+      name: SITE_NAME,
+      inLanguage: LANGS.map((l) => LOCALE[l]),
+      publisher: { "@id": PUBLISHER.id },
+    },
+    {
+      "@type": "WebPage",
+      "@id": ids.page,
+      url,
+      name: c.title,
+      description: c.description,
+      inLanguage: LOCALE[lang],
+      isPartOf: { "@id": ids.website },
+      about: { "@id": ids.software },
+      primaryImageOfPage: { "@type": "ImageObject", url: shot },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": ids.software,
+      name: SITE_NAME,
+      description: c.description,
+      url: `${SITE_URL}/`,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Windows 10, Windows 11, macOS 11+, Linux",
+      softwareVersion: VERSION,
+      downloadUrl: RELEASES_URL,
+      screenshot: shot,
+      // the app's interface language
+      inLanguage: "id",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      author: { "@id": PUBLISHER.id },
+      publisher: { "@id": PUBLISHER.id },
+      sameAs: [REPO_URL],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": ids.faq,
+      url,
+      inLanguage: LOCALE[lang],
+      isPartOf: { "@id": ids.website },
+      mainEntity: c.faq.items.map(([q, ans]) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: { "@type": "Answer", text: strip(ans) },
+      })),
+    },
+  ],
+};
+---
+
+<Base lang={lang} path="/" title={c.title} description={c.description} jsonLd={jsonLd}>
+  <main id="isi">
+    <section class="hero">
+      <div class="wrap">
+        <p class="label">{c.eyebrow}</p>
+        <h1><span>{c.h1[0]}</span> <span><em>{c.h1[1]}</em></span></h1>
+        <div class="hero-foot">
+          <p class="lead">{c.lead}</p>
+          <div class="hero-cta">
+            <div class="buttons">
+              <DownloadButton lang={lang} />
+              <a class="btn btn-line" href={REPO_URL}><GithubMark size={18} /> GitHub</a>
+            </div>
+            <p class="label plain">v{VERSION} · {c.meta}</p>
+          </div>
+        </div>
+
+        <div class="app-panel">
+          <figure>
+            <Image
+              src={appLimit}
+              alt={c.alt.limit}
+              widths={[760, 1200, 1800, 2560]}
+              sizes="(max-width: 767px) calc(100vw - 60px), (max-width: 1240px) calc(100vw - 104px), 1136px"
+              loading="eager"
+              fetchpriority="high"
+            />
+            <figcaption>{c.panelCaption}</figcaption>
+          </figure>
+          <ul class="facts">
+            {
+              c.facts.map((f) => (
+                <li>
+                  <b>{f.big}</b>
+                  <p>{f.text}</p>
+                  <small>{f.small}</small>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <Section id={a.features} label={c.problem.label} title={c.problem.title} lead={c.problem.lead}>
+      <ol class="trio">
+        {c.problem.trio.map((s) => <li>{s}</li>)}
+      </ol>
+      <p class="after-trio">{c.problem.after}</p>
+    </Section>
+
+    <Section id={a.limits} label={c.limits.label} title={c.limits.title}>
+      <div class="split">
+        <div class="copy">
+          <p>{c.limits.intro}</p>
+          <ul class="rows">
+            {c.limits.rows.map(([b, s]) => <li><b>{b}</b> <span set:html={s} /></li>)}
+          </ul>
+          <a class="more" href={`${localePath(lang, "/docs")}#${a.docsLimits}`}>{c.limits.more}</a>
+        </div>
+        <figure class="shot">
+          <div class="frame">
+            <Image src={limitWait} alt={c.alt.wait} widths={[680, 1360]} sizes={visualCol} />
+          </div>
+          <figcaption>{c.limits.caption}</figcaption>
+        </figure>
+      </div>
+    </Section>
+
+    <Section label={c.terminal.label} title={c.terminal.title}>
+      <div class="split">
+        <div class="copy">
+          <p set:html={c.terminal.intro} />
+          <ul class="rows">
+            {c.terminal.rows.map(([b, s]) => <li><b>{b}</b> <span set:html={s} /></li>)}
+          </ul>
+        </div>
+        <figure class="shot">
+          <div class="frame">
+            <Image src={terminal} alt={c.alt.terminal} widths={[680, 1360]} sizes={visualCol} />
+          </div>
+          <figcaption>{c.terminal.caption}</figcaption>
+        </figure>
+      </div>
+    </Section>
+
+    <Section label={c.handoff.label} title={c.handoff.title}>
+      <div class="split">
+        <div class="copy">
+          <p>{c.handoff.intro}</p>
+          <ul class="rows">
+            {c.handoff.rows.map(([b, s]) => <li><b>{b}</b> <span set:html={s} /></li>)}
+          </ul>
+        </div>
+        <figure class="with-cap" aria-label={c.handoff.aria}>
+          <div class="soft handoff">
+            <ol>
+              {
+                c.handoff.hops.map((h, i) => (
+                  <>
+                    {i > 0 && <li class="link" set:html={c.handoff.links[i - 1]} />}
+                    <li class="hop">
+                      <span class={`tag ${h.provider}`}>
+                        <i />
+                        {h.tag}
+                      </span>
+                      <span class="what">
+                        <b>{h.account}</b>
+                        <span>{h.task}</span>
+                      </span>
+                      <span class:list={["state", { warn: h.warn }]}>{h.state}</span>
+                    </li>
+                  </>
+                ))
+              }
+            </ol>
+          </div>
+          <figcaption>{c.handoff.caption}</figcaption>
+        </figure>
+      </div>
+    </Section>
+
+    <Section label={c.agents.label} title={c.agents.title}>
+      <div class="split">
+        <div class="copy">
+          <p>{c.agents.intro}</p>
+          <ul class="rows">
+            {c.agents.rows.map(([b, s]) => <li><b>{b}</b> <span set:html={s} /></li>)}
+          </ul>
+        </div>
+        <div class="soft agents">
+          <figure class="shot">
+            <div class="frame">
+              <Image src={sidebar} alt={c.alt.sidebar} widths={[236, 472, 504]} sizes="236px" />
+            </div>
+          </figure>
+          <ul class="legend">
+            {c.agents.legend.map((s, i) => <li><i class:list={["sw", ["run", "ok", "warn", ""][i]]} /><span set:html={s} /></li>)}
+            <li><span class="letter">C/G</span><span set:html={c.agents.letters} /></li>
+          </ul>
+        </div>
+      </div>
+    </Section>
+
+    <Section label={c.around.label} title={c.around.title} lead={c.around.lead}>
+      <figure class="shot wide-shot">
+        <div class="frame">
+          <Image src={appChanges} alt={c.alt.changes} widths={[760, 1200, 1800, 2400]} sizes={fullCol} />
+        </div>
+        <figcaption>{c.around.caption}</figcaption>
+      </figure>
+      <div class="extras">
+        {
+          c.around.extras.map(([h, p]) => (
+            <div class="extra">
+              <h3>{h}</h3>
+              <p>{p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </Section>
+
+    <Section id={a.start} label={c.start.label} title={c.start.title}>
+      <ol class="steps">
+        {
+          c.start.steps.map(([h, p]) => (
+            <li>
+              <h3>{h}</h3>
+              <p set:html={p} />
+            </li>
+          ))
+        }
+      </ol>
+      <p class="steps-note" set:html={c.start.note} />
+    </Section>
+
+    <Section id={a.download} label={c.download.label} title={c.download.title} lead={c.download.lead}>
+      <DownloadBox lang={lang} />
+    </Section>
+
+    <Section id={a.faq} label={c.faq.label} title={c.faq.title}>
+      <div class="faq">
+        {
+          c.faq.items.map(([q, ans]) => (
+            <details>
+              <summary>{q}</summary>
+              <p set:html={ans} />
+            </details>
+          ))
+        }
+      </div>
+    </Section>
+
+    <div class="wrap">
+      <section class="cta-panel" aria-label={c.download.aria}>
+        <div>
+          <p class="label">{c.cta.label}</p>
+          <h2>{c.cta.title}</h2>
+          <p class="lead">{c.cta.lead}</p>
+        </div>
+        <div class="buttons">
+          <DownloadButton lang={lang} tone="dark" />
+          <a class="btn btn-line" href={REPO_URL}><GithubMark size={18} /> GitHub</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</Base>

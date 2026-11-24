@@ -1,6 +1,6 @@
 # Situs Kilat Code
 
-Astro (output statis) di Vercel. Live: https://kilat-code.vercel.app
+Astro (output statis) di Vercel. Live: https://kilat.revincolabs.com
 
 ```
 src/site.ts                  versi, link download per OS, alamat situs  ← ubah di sini saat rilis
@@ -35,7 +35,7 @@ Folder ini sudah terhubung ke project Vercel `kilat-code` (`.vercel/`).
 
 ```bash
 vercel deploy          # preview (URL terpisah, untuk dicek dulu)
-vercel deploy --prod   # production → kilat-code.vercel.app
+vercel deploy --prod   # production → kilat.revincolabs.com
 ```
 
 ### Pasang subdomain sendiri

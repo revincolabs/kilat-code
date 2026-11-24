@@ -424,6 +424,9 @@ pre {
 .hero h1 span {
   display: block;
 }
+.hero .label + h1 {
+  margin-top: 20px;
+}
 .hero h1 em {
   font-style: normal;
   text-decoration: underline;
@@ -1108,6 +1111,26 @@ pre {
 }
 .doc {
   max-width: 760px;
+}
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font: 500 12px/1.5 var(--font-mono);
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+}
+.crumbs a {
+  color: var(--fg-2);
+  text-decoration: none;
+}
+.crumbs a:hover {
+  color: var(--fg);
+}
+.doc > .updated {
+  margin-top: 14px;
+  font: 400 12.5px/1.5 var(--font-mono);
+  color: var(--fg-muted);
 }
 .doc h1 {
   margin-top: 16px;

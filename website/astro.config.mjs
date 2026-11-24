@@ -8,5 +8,7 @@ export default defineConfig({
   integrations: [mdx()],
   // Pure static output: Vercel serves the files from dist/.
   output: "static",
-  trailingSlash: "ignore",
+  // Clean URLs without a trailing slash: /docs, /en, /en/docs (see vercel.json).
+  trailingSlash: "never",
+  build: { format: "file" },
 });

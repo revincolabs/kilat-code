@@ -5,7 +5,7 @@ PackageVersion: 0.2.0
 PackageLocale: id-ID
 Publisher: revincolabs
 PackageName: Kilat Code
-PackageUrl: https://kilat-code.vercel.app
+PackageUrl: https://kilat.revincolabs.com
 License: Gratis
 ShortDescription: Aplikasi desktop ringan untuk menjalankan terminal Claude Code dan Codex asli berdampingan, dengan banyak akun.
 Description: |-
@@ -26,6 +26,6 @@ Tags:
 ReleaseNotesUrl: https://github.com/revincolabs/kilat-code/releases/tag/v0.2.0
 Documentations:
 - DocumentLabel: Dokumentasi
-  DocumentUrl: https://kilat-code.vercel.app/docs
+  DocumentUrl: https://kilat.revincolabs.com/docs
 ManifestType: locale
 ManifestVersion: 1.12.0

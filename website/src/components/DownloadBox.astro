@@ -1,6 +1,13 @@
 ---
 // Every platform's downloads side by side (home page and docs).
-import { PLATFORMS, RELEASES_URL, VERSION } from "../site";
+import { PLATFORMS } from "../site";
+import { mb, ui, type Lang } from "../i18n";
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = "id" } = Astro.props;
+const t = ui[lang];
 ---
 
 <div class="dl-grid">
@@ -9,25 +16,23 @@ import { PLATFORMS, RELEASES_URL, VERSION } from "../site";
       <div class="dl-card" data-os={p.id}>
         <h3>
           {p.name}
-          <span class="mine-tag">Sistem kamu</span>
+          <span class="mine-tag">{t.yourSystem}</span>
         </h3>
         <p class="dl-req">{p.requirement}</p>
         <div class="dl-files">
           {p.files.map((f) => (
             <a class="btn btn-line" href={f.url}>
               <span>{f.label}</span>
-              {f.size && <span class="size">{f.size}</span>}
+              <span class="size">{mb(lang, f.mb)}</span>
             </a>
           ))}
         </div>
-        <p class="dl-note">{p.note}</p>
+        <p class="dl-note">{p.note[lang]}</p>
       </div>
     ))
   }
 </div>
-<p class="dl-foot">
-  Versi {VERSION}. <a href={RELEASES_URL}>Semua file dan catatan rilis ada di GitHub</a>.
-</p>
+<p class="dl-foot" set:html={t.dlFoot} />
 
 <script>
   // Put the visitor's OS first and mark it.

@@ -2,7 +2,9 @@
 
 Editor desktop ringan untuk menjalankan banyak agent coding sekaligus, dengan banyak akun yang bisa diganti tanpa login ulang. **Berbasis terminal**: tiap thread adalah TUI asli `claude` (Claude Code) atau `codex` (ChatGPT), persis seperti di terminal biasa, sehingga slash command, `/model`, izin, dan lainnya tetap jalan. Dibangun dengan **Tauri + Rust** (webview bawaan sistem) supaya tetap ringan.
 
-**Website & dokumentasi:** https://kilat-code.vercel.app
+**Website & dokumentasi:** https://kilat.revincolabs.com
+
+**Suka Kilat Code?** [Traktir kopi di Saweria](https://saweria.co/gdwpran) ☕
 
 ## Download
 
