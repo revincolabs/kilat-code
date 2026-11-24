@@ -200,11 +200,10 @@
     min-width: 0;
     flex: 0 1 auto;
     max-width: 200px;
-    background-color: transparent;
-    border-color: var(--line);
   }
   .bar select:hover {
-    background-color: var(--bg-2);
+    background-color: var(--bg-3);
+    border-color: transparent;
   }
   .bar select.acc {
     max-width: 300px;
@@ -257,12 +256,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 7px 10px 7px 12px;
+    margin: 8px 10px 0;
+    padding: 6px 8px 6px 12px;
     font-size: 12px;
     color: var(--warn);
     background: var(--warn-soft);
-    border-bottom: 1px solid var(--line);
-    box-shadow: inset 2px 0 0 var(--warn);
+    border: 1px solid rgba(255, 158, 69, 0.22);
+    border-radius: var(--radius);
   }
   .waitbar .grow {
     flex: 1;

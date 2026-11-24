@@ -89,7 +89,7 @@
     </div>
 
     <section>
-      <h4><span class="n">1</span>Tunggu sampai reset</h4>
+      <h4><span class="step-n">1</span>Tunggu sampai reset</h4>
       {#if reset}
         <button class="primary wide" disabled={!!busy} onclick={() => waitUntil(reset + 60_000)}>
           <Icon name="clock" size={13} />
@@ -111,7 +111,7 @@
     </section>
 
     <section>
-      <h4><span class="n">2</span>Pindah ke akun Claude lain <span class="why">sesi yang sama dilanjutkan</span></h4>
+      <h4><span class="step-n">2</span>Pindah ke akun Claude lain <span class="why">sesi yang sama dilanjutkan</span></h4>
       {#each claudeOthers as a (a.id)}
         {@render choice(a)}
       {:else}
@@ -120,7 +120,7 @@
     </section>
 
     <section>
-      <h4><span class="n">3</span>Pindah ke akun ChatGPT <span class="why">riwayat percakapan diteruskan</span></h4>
+      <h4><span class="step-n">3</span>Pindah ke akun ChatGPT <span class="why">riwayat percakapan diteruskan</span></h4>
       {#each codexOthers as a (a.id)}
         {@render choice(a)}
       {:else}
@@ -146,23 +146,29 @@
     overflow-y: auto;
     background: var(--bg-1);
     border: 1px solid var(--line-2);
-    border-top: 2px solid var(--warn);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-pop);
   }
   .head {
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    padding: 14px 10px 14px 16px;
+    padding: 16px 12px 14px 18px;
   }
   .ic {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 8px;
+    background: var(--warn-soft);
     color: var(--warn);
-    padding-top: 1px;
   }
   .head b {
-    font-size: 14px;
-    font-weight: 650;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
   .grow {
     flex: 1;
@@ -175,20 +181,15 @@
     overflow-wrap: anywhere;
   }
   section {
-    border-top: 1px solid var(--line);
-    padding: 12px 16px 14px;
+    padding: 4px 18px 18px;
   }
   h4 {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
     margin: 0 0 10px;
     font-size: 12.5px;
     font-weight: 600;
-  }
-  .n {
-    font: 500 11px/1 var(--mono);
-    color: var(--muted);
   }
   .why {
     font-weight: 400;
@@ -197,7 +198,8 @@
   }
   .wide {
     width: 100%;
-    min-height: 34px;
+    min-height: 38px;
+    border-radius: var(--radius);
     justify-content: flex-start;
     padding: 0 12px;
   }
@@ -223,18 +225,17 @@
     align-items: center;
     justify-content: stretch;
     text-align: left;
-    min-height: 36px;
+    min-height: 38px;
     margin-bottom: 6px;
     padding: 0 10px 0 12px;
-    background: var(--bg);
-    border-color: var(--line);
+    background: var(--bg-2);
+    border-radius: var(--radius);
   }
   .acc:last-child {
     margin-bottom: 0;
   }
   .acc:hover:not(:disabled) {
-    border-color: var(--line-3);
-    background: var(--bg-2);
+    background: var(--bg-3);
   }
   .acc .name {
     font-weight: 600;

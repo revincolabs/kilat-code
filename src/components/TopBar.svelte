@@ -120,6 +120,8 @@
   .seg button.on {
     background: var(--bg-3);
     color: var(--fg);
-    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .seg button.on :global(svg) {
+    color: var(--accent);
   }
 </style>

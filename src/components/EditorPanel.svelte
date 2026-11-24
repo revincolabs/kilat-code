@@ -229,18 +229,22 @@
   }
   .tabs {
     display: flex;
+    align-items: center;
+    gap: 2px;
     overflow-x: auto;
     border-bottom: 1px solid var(--line);
     flex: none;
     height: 34px;
+    padding: 0 5px;
   }
   .tab {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 0 4px 0 12px;
+    height: 25px;
+    padding: 0 2px 0 10px;
     font-size: 12px;
-    border-right: 1px solid var(--line);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     color: var(--muted);
     white-space: nowrap;
@@ -249,9 +253,8 @@
     color: var(--fg);
   }
   .tab.sel {
-    background: var(--bg);
+    background: var(--bg-3);
     color: var(--fg);
-    box-shadow: inset 0 -2px 0 var(--accent);
   }
   .dirty {
     width: 6px;
@@ -276,7 +279,10 @@
     inset: 34px 0 0;
     display: grid;
     place-items: center;
+    padding: 0 24px;
+    text-align: center;
     font-size: 12px;
+    line-height: 1.7;
     color: var(--muted);
   }
 </style>

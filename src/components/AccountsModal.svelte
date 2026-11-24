@@ -512,40 +512,41 @@
     max-height: calc(100vh - 48px);
     background: var(--bg-1);
     border: 1px solid var(--line-2);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-pop);
+    overflow: hidden;
   }
   .top {
     display: flex;
     align-items: center;
-    padding: 12px 10px 4px 18px;
+    padding: 14px 12px 6px 18px;
   }
   .top b {
-    font-size: 15px;
-    font-weight: 700;
-    font-stretch: 90%;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
   .tabs {
     display: flex;
-    gap: 2px;
-    padding: 0 12px;
+    gap: 4px;
+    padding: 6px 14px 12px;
     border-bottom: 1px solid var(--line);
   }
   .tabs button {
-    min-height: 34px;
-    border-radius: 0;
+    min-height: 30px;
+    background: transparent;
     color: var(--muted);
-    padding: 0 10px;
+    padding: 0 12px;
   }
   .tabs button:hover:not(:disabled) {
-    background: transparent;
+    background: var(--bg-2);
     color: var(--fg);
   }
   .tabs button.sel {
+    background: var(--bg-3);
     color: var(--fg);
-    box-shadow: inset 0 -2px 0 var(--accent);
   }
   .tabs .n {
     font: 500 10.5px/1 var(--mono);
@@ -576,15 +577,16 @@
   .list {
     display: flex;
     flex-direction: column;
-    margin-bottom: 18px;
-    border-top: 1px solid var(--line);
+    gap: 6px;
+    margin-bottom: 20px;
   }
   .acc {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 4px 10px 6px;
-    border-bottom: 1px solid var(--line);
+    padding: 10px 8px 10px 14px;
+    background: var(--bg-2);
+    border-radius: var(--radius);
   }
   .who {
     display: flex;
@@ -610,7 +612,7 @@
   }
   .acc .name-input:hover,
   .acc .name-input:focus {
-    border-color: var(--line-2);
+    border-color: var(--line-3);
   }
   .email {
     font-size: 11.5px;
@@ -637,11 +639,9 @@
     flex: 1;
   }
   .setup {
-    border: 1px solid var(--line-2);
-    box-shadow: inset 2px 0 0 var(--accent);
     border-radius: var(--radius);
-    padding: 12px 12px 12px 14px;
-    background: var(--bg);
+    padding: 14px;
+    background: var(--bg-2);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -653,14 +653,14 @@
   }
   .setup-term {
     height: 260px;
-    border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     overflow: hidden;
     background: var(--bg);
   }
   .gh-acc {
-    padding: 10px 4px 12px 6px;
-    border-bottom: 1px solid var(--line);
+    padding: 12px 14px 14px;
+    background: var(--bg-2);
+    border-radius: var(--radius);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -687,14 +687,10 @@
     gap: 10px;
   }
   .settings .label {
-    margin: 10px 0 0;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
+    margin: 16px 0 0;
   }
   .settings .label:first-child {
     margin-top: 0;
-    padding-top: 0;
-    border-top: none;
   }
   .settings label.check {
     flex-direction: row;
@@ -747,8 +743,8 @@
   .ubar {
     width: 48px;
     height: 4px;
-    border-radius: 1px;
-    background: var(--bg-3);
+    border-radius: 2px;
+    background: var(--line-2);
     overflow: hidden;
   }
   .ubar span {

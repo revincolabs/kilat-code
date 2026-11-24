@@ -1,20 +1,28 @@
-/* Kilat Code — app chrome.
-   Flat, warm-neutral dark surfaces separated by hairlines. The lightning
-   yellow is the only accent and is reserved for: the primary action, the
-   selected item marker, and "an agent is working". No gradients, no glow. */
+/* Kilat Code — app chrome. Same language as the website (website/design.md),
+   in dark: warm-neutral filled surfaces instead of outlined boxes, soft corners,
+   Instrument Sans + JetBrains Mono. The lightning yellow is the only accent:
+   the primary action, the selected marker, step numbers, and "an agent is
+   working". No gradients, no glow. */
 
 /* Latin subsets only (≈130 KB), bundled so the app looks the same offline
    and on every OS. Other scripts fall back to the system font. */
 @font-face {
-  font-family: "Archivo Variable";
+  font-family: "Instrument Sans Variable";
   font-style: normal;
   font-display: block;
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
-  src: url("./assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2-variations");
-  /* everything in the latin subset except "&": Archivo's ampersand reads as an 8 at UI sizes */
-  unicode-range: U+0000-0025, U+0027-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  font-weight: 400 700;
+  src: url("./assets/fonts/instrument-sans-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Instrument Sans Variable";
+  font-style: normal;
+  font-display: block;
+  font-weight: 400 700;
+  src: url("./assets/fonts/instrument-sans-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: "JetBrains Mono Variable";
@@ -49,9 +57,10 @@
   --codex: #8db7ff;
   --gh: #c9c7bf;
   /* shape + type */
-  --radius: 6px;
-  --radius-sm: 4px;
-  --sans: "Archivo Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius-lg: 14px;
+  --radius: 10px;
+  --radius-sm: 7px;
+  --sans: "Instrument Sans Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono Variable", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
   --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.55);
   color-scheme: dark;
@@ -72,7 +81,6 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 400 13px/1.45 var(--sans);
-  font-stretch: 100%;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -99,7 +107,7 @@ button {
   gap: 6px;
   min-height: 26px;
   cursor: pointer;
-  border: 1px solid var(--line-2);
+  border: 1px solid transparent;
   background: var(--bg-2);
   border-radius: var(--radius-sm);
   padding: 0 10px;
@@ -108,7 +116,6 @@ button {
 }
 button:hover:not(:disabled) {
   background: var(--bg-3);
-  border-color: var(--line-3);
 }
 button:disabled {
   opacity: 0.45;
@@ -171,16 +178,16 @@ input[type="password"],
 input[type="number"],
 select,
 textarea {
-  background: var(--bg);
-  border: 1px solid var(--line-2);
+  background: var(--bg-2);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: 5px 8px;
+  padding: 5px 9px;
   outline: none;
 }
 input:hover,
 select:hover,
 textarea:hover {
-  border-color: var(--line-3);
+  border-color: var(--line-2);
 }
 input:focus,
 select:focus,
@@ -223,14 +230,14 @@ kbd {
   font-size: 11.5px;
   color: var(--fg);
   background: var(--bg-3);
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 0 4px;
 }
 kbd {
   font-size: 11px;
   border: 1px solid var(--line-2);
   border-bottom-width: 2px;
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 0 4px;
   color: var(--fg-2);
 }
@@ -278,9 +285,36 @@ kbd {
 /* small uppercase label used for section headings inside panels */
 .label {
   font: 500 10.5px/1 var(--mono);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
+}
+/* the website's section label: a small yellow bolt in front */
+.label.bolt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.label.bolt::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  flex: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffc83d' d='M13.5 2L4 14h7l-1.5 8L20 9.5h-7.2z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* step number in a yellow square (as on the website) */
+.step-n {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 5px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 10.5px/1 var(--mono);
 }
 
 .dot {
@@ -318,8 +352,8 @@ kbd {
   font: 500 10.5px/1 var(--mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 4px 6px;
-  border-radius: 3px;
+  padding: 4px 7px;
+  border-radius: 6px;
   background: var(--bg-3);
   color: var(--fg-2);
   white-space: nowrap;

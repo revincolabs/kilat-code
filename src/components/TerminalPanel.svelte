@@ -68,8 +68,9 @@
     display: flex;
     align-items: center;
     gap: 7px;
-    height: 100%;
-    padding: 0 4px 0 10px;
+    height: 24px;
+    padding: 0 2px 0 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 12px;
     color: var(--muted);
@@ -79,7 +80,7 @@
   }
   .tab.sel {
     color: var(--fg);
-    box-shadow: inset 0 -2px 0 var(--accent);
+    background: var(--bg-3);
   }
   .x {
     width: 20px;

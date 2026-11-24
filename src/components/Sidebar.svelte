@@ -249,10 +249,9 @@
     border-bottom: 1px solid var(--line);
   }
   .brand b {
-    font-size: 14px;
-    font-weight: 750;
-    font-stretch: 85%;
-    letter-spacing: -0.01em;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
   }
   .bolt {
     width: 15px;
@@ -269,8 +268,6 @@
   }
   .actions .box {
     width: 30px;
-    border-color: var(--line-2);
-    background: var(--bg-2);
   }
   .wide {
     flex: 1;
@@ -293,8 +290,6 @@
     height: 28px;
     padding: 0 8px 0 28px;
     font-size: 12.5px;
-    background: var(--bg);
-    border-color: var(--line);
   }
   .list {
     flex: 1;
@@ -383,7 +378,7 @@
   .thread {
     position: relative;
     padding: 0 6px 0 22px;
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     cursor: pointer;
     color: var(--fg-2);
   }
@@ -409,10 +404,10 @@
     content: "";
     position: absolute;
     left: 0;
-    top: 6px;
-    bottom: 6px;
-    width: 2px;
-    border-radius: 1px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
     background: var(--accent);
   }
   .ttitle {
@@ -496,7 +491,7 @@
     font: 500 10.5px/1 var(--mono);
     color: var(--muted);
     background: var(--bg-3);
-    border-radius: 3px;
-    padding: 3px 5px;
+    border-radius: 5px;
+    padding: 3px 6px;
   }
 </style>

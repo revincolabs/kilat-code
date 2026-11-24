@@ -20,30 +20,33 @@
     max-width: 420px;
   }
   .toast {
+    display: flex;
+    gap: 10px;
     background: var(--bg-2);
     border: 1px solid var(--line-2);
     border-radius: var(--radius);
-    box-shadow:
-      inset 2px 0 0 var(--fg-2),
-      var(--shadow-pop);
-    padding: 9px 12px 9px 14px;
+    box-shadow: var(--shadow-pop);
+    padding: 10px 14px 10px 12px;
     font-size: 12.5px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-  .toast.ok {
-    box-shadow:
-      inset 2px 0 0 var(--ok),
-      var(--shadow-pop);
+  .toast::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin-top: 0.45em;
+    flex: none;
+    border-radius: 50%;
+    background: var(--fg-2);
   }
-  .toast.warn {
-    box-shadow:
-      inset 2px 0 0 var(--warn),
-      var(--shadow-pop);
+  .toast.ok::before {
+    background: var(--ok);
   }
-  .toast.error {
-    box-shadow:
-      inset 2px 0 0 var(--err),
-      var(--shadow-pop);
+  .toast.warn::before {
+    background: var(--warn);
+  }
+  .toast.error::before {
+    background: var(--err);
   }
 </style>

@@ -321,10 +321,9 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    border: 1px solid var(--line-2);
     border-radius: var(--radius);
-    padding: 10px;
-    background: var(--bg);
+    padding: 12px;
+    background: var(--bg-2);
   }
   .check {
     display: flex;
@@ -336,14 +335,15 @@
     overflow: auto;
     border-bottom: 1px solid var(--line);
     flex: none;
-    padding: 4px 0;
+    padding: 4px 6px;
   }
   .file {
     display: flex;
     align-items: center;
     gap: 9px;
-    height: 24px;
-    padding: 0 12px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
@@ -359,7 +359,6 @@
   .file.sel {
     background: var(--bg-3);
     color: var(--fg);
-    box-shadow: inset 2px 0 0 var(--accent);
   }
   .file .mono {
     font-size: 11.5px;

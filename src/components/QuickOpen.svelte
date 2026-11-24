@@ -99,7 +99,7 @@
     width: min(620px, 92vw);
     background: var(--bg-1);
     border: 1px solid var(--line-2);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-pop);
     overflow: hidden;
   }
@@ -125,14 +125,13 @@
     display: flex;
     gap: 12px;
     align-items: baseline;
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    border-radius: 8px;
     cursor: pointer;
     white-space: nowrap;
   }
   .qo-item.sel {
     background: var(--bg-3);
-    box-shadow: inset 2px 0 0 var(--accent);
   }
   .name {
     font-family: var(--mono);

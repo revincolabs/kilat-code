@@ -24,7 +24,7 @@
   <h1>Kilat Code</h1>
   <p class="lead">Terminal Claude Code &amp; Codex asli. Banyak agent sekaligus, banyak akun, tanpa login ulang.</p>
 
-  <div class="label">Mulai</div>
+  <div class="label bolt">Mulai</div>
   <div class="actions">
     {#if project}
       <button class="act" onclick={() => newThread(project.id)}>
@@ -50,7 +50,7 @@
     </button>
   </div>
 
-  <div class="label">Perlu diketahui</div>
+  <div class="label bolt">Perlu diketahui</div>
   <ul class="tips">
     <li>Tiap thread adalah terminal <code>claude</code> / <code>codex</code> asli: slash command, <code>/model</code>, dan izin jalan seperti biasa.</li>
     <li>Kena limit? Pilih tunggu sampai reset lalu lanjut otomatis, pindah ke akun Claude lain (sesi sama), atau ke akun ChatGPT (riwayat diteruskan).</li>
@@ -73,45 +73,46 @@
     fill: var(--accent);
   }
   h1 {
-    margin: 14px 0 6px;
-    font-size: 30px;
-    font-weight: 780;
-    font-stretch: 80%;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    margin: 14px 0 8px;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1;
   }
   .lead {
-    margin: 0 0 32px;
+    margin: 0 0 36px;
     color: var(--fg-2);
-    font-size: 14px;
+    font-size: 14.5px;
+    line-height: 1.5;
   }
   .label {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
   .actions {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--line);
-    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 36px;
   }
   .act {
     display: grid;
-    grid-template-columns: 18px 170px 1fr;
-    gap: 12px;
+    grid-template-columns: 18px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 3px 10px;
     align-items: center;
     justify-content: stretch;
     text-align: left;
-    min-height: 42px;
-    padding: 0 10px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
+    min-height: 0;
+    padding: 12px 14px;
+    background: var(--bg-1);
+    border-radius: var(--radius);
     color: var(--fg-2);
+    white-space: normal;
   }
   .act:hover:not(:disabled) {
-    background: var(--bg-1);
-    border-color: var(--line);
+    background: var(--bg-2);
+  }
+  .act :global(svg) {
     color: var(--accent);
   }
   .act b {
@@ -119,10 +120,12 @@
     font-weight: 600;
   }
   .act span {
+    grid-column: 2;
     color: var(--muted);
-    font-size: 12.5px;
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .act span.mono {
     font-size: 11.5px;
@@ -135,17 +138,11 @@
     color: var(--fg-2);
   }
   .tips li {
-    position: relative;
-    padding: 7px 0 7px 16px;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
     line-height: 1.55;
   }
-  .tips li::before {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: 16px;
-    width: 6px;
-    height: 1px;
-    background: var(--muted);
+  .tips li:last-child {
+    border-bottom: 1px solid var(--line);
   }
 </style>
