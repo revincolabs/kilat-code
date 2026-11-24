@@ -49,7 +49,7 @@ export const PLATFORMS: Platform[] = [
       { label: "AppImage", url: latest("KilatCode_linux_amd64.AppImage"), size: "83 MB" },
       { label: ".deb", url: latest("KilatCode_linux_amd64.deb"), size: "4,5 MB" },
     ],
-    note: "AppImage: chmod +x lalu jalankan.",
+    note: "AppImage: chmod +x lalu jalankan. Fedora: pasang fuse-libs dulu; paket .rpm menyusul di v0.2.1.",
   },
 ];
 

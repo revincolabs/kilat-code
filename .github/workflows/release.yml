@@ -67,7 +67,7 @@ jobs:
 
             - Windows 10/11: file `-setup.exe`
             - macOS 11+ (Apple Silicon & Intel): file `.dmg`
-            - Linux: file `.AppImage` atau `.deb`
+            - Linux: `.AppImage` (semua distro), `.deb` (Ubuntu, Debian), atau `.rpm` (Fedora)
 
             Pengguna versi sebelumnya akan mendapat tawaran update otomatis di dalam aplikasi.
           releaseDraft: false

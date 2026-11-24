@@ -12,7 +12,7 @@ Ambil installer di [Releases terbaru](https://github.com/revincolabs/kilat-code/
 |---|---|---|
 | Windows 10/11 (64-bit) | `…-setup.exe` | Belum ditandatangani: di SmartScreen klik *More info → Run anyway* |
 | macOS 11+ (Apple Silicon & Intel) | `.dmg` | Belum dinotarisasi: klik kanan aplikasi → *Open*, atau `xattr -cr "/Applications/Kilat Code.app"` |
-| Linux (x86_64) | `.AppImage` / `.deb` | Butuh WebKitGTK 4.1 dan Secret Service (GNOME Keyring / KWallet) untuk menyimpan token |
+| Linux (x86_64) | `.AppImage` / `.deb` / `.rpm` (Fedora) | Butuh WebKitGTK 4.1 dan Secret Service (GNOME Keyring / KWallet) untuk menyimpan token |
 
 Versi Windows yang paling banyak diuji; macOS dan Linux masih tahap awal. Aplikasi memeriksa update sendiri dan menawarkannya di status bar.
 

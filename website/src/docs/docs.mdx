@@ -19,7 +19,7 @@ import { RELEASES_URL } from "../site";
 | Komponen | Wajib? | Keterangan |
 |---|---|---|
 | Sistem operasi | Ya | Windows 10/11 (64-bit), macOS 11 atau lebih baru (Apple Silicon & Intel), atau Linux x86_64. Versi Windows yang paling banyak diuji; macOS dan Linux masih tahap awal. |
-| Webview sistem | Ya | Windows: Microsoft Edge WebView2 (bawaan Windows 11 dan kebanyakan Windows 10). macOS: sudah bawaan. Linux: WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). |
+| Webview sistem | Ya | Windows: Microsoft Edge WebView2 (bawaan Windows 11 dan kebanyakan Windows 10). macOS: sudah bawaan. Linux: WebKitGTK 4.1 (`libwebkit2gtk-4.1-0` di Ubuntu/Debian, `webkit2gtk4.1` di Fedora). |
 | Git | Ya | Untuk worktree, diff, dan commit. Di Windows pasang Git for Windows, yang sekaligus menyediakan Git Bash. |
 | Penyimpan rahasia | Linux saja | GNOME Keyring atau KWallet (Secret Service) untuk menyimpan token. Windows memakai Credential Manager, macOS memakai Keychain. |
 | Claude Code CLI | Salah satu | Untuk agent Claude. Perintah `claude` harus bisa dijalankan. |
@@ -66,6 +66,14 @@ Semua file juga ada di halaman <a href={RELEASES_URL}>GitHub Releases</a>.
   ```bash
   sudo apt install ./KilatCode_*.deb
   ```
+
+- **.rpm** (Fedora dan turunannya, mulai v0.2.1). `dnf` ikut memasang WebKitGTK yang dibutuhkan:
+
+  ```bash
+  sudo dnf install ./KilatCode_*.rpm
+  ```
+
+  Di versi sebelumnya, pengguna Fedora bisa memakai AppImage. AppImage butuh FUSE 2, yang di Fedora belum terpasang secara bawaan: jalankan `sudo dnf install fuse-libs` dulu.
 
 Token disimpan lewat Secret Service, jadi pastikan GNOME Keyring atau KWallet berjalan di sesi desktopmu.
 
@@ -289,6 +297,6 @@ Ubah ukuran jendela sedikit atau klik tombol mulai ulang (panah melingkar) di ba
 
 - **Windows:** Settings → Apps → Installed apps → *Kilat Code* → **Uninstall**.
 - **macOS:** seret *Kilat Code* dari Applications ke Trash.
-- **Linux:** hapus file AppImage-nya, atau `sudo apt remove kilat-code` untuk versi `.deb`.
+- **Linux:** hapus file AppImage-nya, `sudo apt remove kilat-code` untuk versi `.deb`, atau `sudo dnf remove kilat-code` untuk versi `.rpm`.
 
 Folder data Kilat (lihat [Data dan privasi](#data-dan-privasi)) dan token di penyimpan rahasia sistem (entri yang mengandung `kilat-code`) bisa dihapus manual kalau ingin bersih total. Sesi di `~/.claude` dan `~/.codex` tidak disentuh.
