@@ -1,6 +1,7 @@
 //! Kilat Code — a light desktop editor for running many coding agents
 //! (the Claude Code and Codex terminal UIs) across many accounts.
 
+mod i18n;
 mod accounts;
 mod agents;
 mod fsops;
@@ -67,7 +68,7 @@ fn settings_save(st: S, settings: Settings) -> store::Tools {
 fn project_add(st: S, path: String) -> CmdResult<Project> {
     let p = Path::new(&path);
     if !p.is_dir() {
-        return Err("Folder tidak ditemukan".into());
+        return Err(crate::i18n::tr("Folder tidak ditemukan", "Folder not found").into());
     }
     if let Some(existing) = st
         .store
@@ -122,7 +123,7 @@ fn project_set_github(st: S, id: String, account_id: Option<String>) -> CmdResul
             .projects
             .iter_mut()
             .find(|p| p.id == id)
-            .ok_or("Project tidak ditemukan")?;
+            .ok_or(crate::i18n::tr("Project tidak ditemukan", "Project not found"))?;
         p.github_account_id = account_id.filter(|s| !s.is_empty());
         p.clone()
     };
@@ -151,7 +152,7 @@ struct NewThread {
 
 #[tauri::command]
 fn thread_create(st: S, req: NewThread) -> CmdResult<ThreadMeta> {
-    let project = st.store.project(&req.project_id).ok_or("Project tidak ditemukan")?;
+    let project = st.store.project(&req.project_id).ok_or(crate::i18n::tr("Project tidak ditemukan", "Project not found"))?;
     let id = util::new_id();
     let mut cwd = project.path.clone();
     let mut branch = None;
@@ -175,7 +176,7 @@ fn thread_create(st: S, req: NewThread) -> CmdResult<ThreadMeta> {
     let meta = ThreadMeta {
         id,
         project_id: project.id,
-        title: "Thread baru".into(),
+        title: crate::i18n::tr("Thread baru", "New thread").into(),
         provider,
         account_id,
         model: req.model,
@@ -196,14 +197,14 @@ fn thread_create(st: S, req: NewThread) -> CmdResult<ThreadMeta> {
 
 #[tauri::command]
 fn thread_get(st: S, id: String) -> CmdResult<Thread> {
-    st.store.thread(&id).ok_or_else(|| "Thread tidak ditemukan".into())
+    st.store.thread(&id).ok_or_else(|| crate::i18n::tr("Thread tidak ditemukan", "Thread not found").into())
 }
 
 #[tauri::command]
 fn thread_rename(st: S, id: String, title: String) -> CmdResult<()> {
     st.store
         .update_thread(&id, Persist::Always, |t| t.meta.title = title)
-        .ok_or("Thread tidak ditemukan")?;
+        .ok_or(crate::i18n::tr("Thread tidak ditemukan", "Thread not found"))?;
     Ok(())
 }
 
@@ -241,7 +242,7 @@ fn thread_set_flags(st: S, id: String, pinned: Option<bool>, archived: Option<bo
             }
             t.meta.clone()
         })
-        .ok_or_else(|| "Thread tidak ditemukan".into())
+        .ok_or_else(|| crate::i18n::tr("Thread tidak ditemukan", "Thread not found").into())
 }
 
 // --------------------------------------------------------------- git ops
@@ -309,6 +310,15 @@ async fn fs_list_files(root: String) -> Vec<String> {
     tauri::async_runtime::spawn_blocking(move || gitops::list_files(&root))
         .await
         .unwrap_or_default()
+}
+
+/// The UI's language, for the text the backend writes (see i18n.rs).
+#[tauri::command]
+fn set_ui_lang(app: tauri::AppHandle, st: S, lang: String) {
+    i18n::set(&lang);
+    if st.store.localize_defaults() {
+        let _ = app.emit("accounts-changed", "");
+    }
 }
 
 // ---------------------------------------------------------- notifications
@@ -422,7 +432,7 @@ struct AccountPatch {
 
 #[tauri::command]
 fn account_update(st: S, id: String, patch: AccountPatch) -> CmdResult<Account> {
-    let current = st.store.account(&id).ok_or("Akun tidak ditemukan")?;
+    let current = st.store.account(&id).ok_or(crate::i18n::tr("Akun tidak ditemukan", "Account not found"))?;
     let label = match &patch.label {
         Some(l) => Some(accounts::validate_label(&st.store, &current.provider, l, Some(&id)).es()?),
         None => None,
@@ -447,7 +457,7 @@ fn account_update(st: S, id: String, patch: AccountPatch) -> CmdResult<Account> 
                 a.limited_until = None;
             }
         })
-        .ok_or("Akun tidak ditemukan")?;
+        .ok_or(crate::i18n::tr("Akun tidak ditemukan", "Account not found"))?;
     // Refresh git contexts that use this account.
     let projects: Vec<String> = st
         .store
@@ -486,7 +496,7 @@ async fn account_refresh(st: S<'_>, id: String) -> CmdResult<Account> {
     tauri::async_runtime::spawn_blocking(move || accounts::refresh(&store, &id))
         .await
         .es()?
-        .ok_or_else(|| "Akun tidak ditemukan".into())
+        .ok_or_else(|| crate::i18n::tr("Akun tidak ditemukan", "Account not found").into())
 }
 
 #[tauri::command]
@@ -605,6 +615,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            set_ui_lang,
             bootstrap,
             settings_save,
             project_add,

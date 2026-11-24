@@ -61,9 +61,11 @@ fn save_setup_token(store: Arc<Store>, app: AppHandle, acc: String, token: Strin
             let label = store.account(&acc).map(|a| a.label).unwrap_or_default();
             let _ = app.emit(
                 "account-error",
-                format!(
+                crate::trf!(
                     "Token akun \"{label}\" tidak tersimpan. {e} Kalau perlu, salin token dari terminal \
-                     ke kolom di bawahnya lalu klik Simpan token."
+                     ke kolom di bawahnya lalu klik Simpan token.",
+                    "The token for the account \"{label}\" wasn't saved. {e} If needed, copy the token from the terminal \
+                     into the field below it and click Save token."
                 ),
             );
         }
@@ -97,7 +99,7 @@ impl PtyManager {
                 self.store
                     .account(id)
                     .filter(|a| a.provider == "claude")
-                    .ok_or_else(|| anyhow::anyhow!("Akun Claude tidak ditemukan"))?;
+                    .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Akun Claude tidak ditemukan", "Claude account not found")))?;
                 let claude = tools
                     .claude
                     .ok_or_else(|| anyhow::anyhow!("Claude Code CLI tidak ditemukan"))?;
@@ -150,10 +152,10 @@ impl PtyManager {
                 c.args(["auth", "login", "--hostname", "github.com", "--git-protocol", "https", "--web"]);
                 c
             }
-            Some(other) => anyhow::bail!("setup tidak dikenal: {other}"),
+            Some(other) => anyhow::bail!(crate::trf!("setup tidak dikenal: {other}", "unknown setup: {other}")),
             None => {
                 let bash = tools.bash.ok_or_else(|| {
-                    anyhow::anyhow!("Shell tidak ditemukan. Install Git for Windows atau atur path bash di Pengaturan.")
+                    anyhow::anyhow!(crate::i18n::tr("Shell tidak ditemukan. Install Git for Windows atau atur path bash di Pengaturan.", "Shell not found. Install Git for Windows or set the bash path in Settings."))
                 })?;
                 let mut c = CommandBuilder::new(&bash);
                 if cfg!(windows) {
@@ -272,7 +274,7 @@ impl PtyManager {
             .lock()
             .get(id)
             .cloned()
-            .ok_or_else(|| anyhow::anyhow!("terminal sudah ditutup"))?;
+            .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("terminal sudah ditutup", "the terminal is already closed")))?;
         let mut w = s.writer.lock();
         w.write_all(data.as_bytes())?;
         w.flush()?;

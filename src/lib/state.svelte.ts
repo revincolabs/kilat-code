@@ -12,6 +12,7 @@ import {
   type ThreadMeta,
   type Tools,
 } from "./api";
+import { t as tr, applyLang } from "./i18n/index.svelte";
 import { chime } from "./sound";
 
 export interface TermTab {
@@ -135,6 +136,7 @@ export async function reloadData() {
 
 export async function init() {
   await reloadData();
+  applyLang(app.data.settings.language);
   try {
     app.codexModels = await api.codexModels();
   } catch {}
@@ -233,7 +235,7 @@ export async function setThreadFlags(id: string, flags: { pinned?: boolean; arch
 export async function switchAgent(req: SwitchReq) {
   const t = threadMeta(req.threadId);
   if (t?.status === "running" && req.reason === "manual") {
-    const ok = confirm("Agent sedang bekerja. Ganti sekarang akan menghentikan pekerjaannya (sesi tetap tersimpan). Lanjut?");
+    const ok = confirm(tr().state.confirmSwitch);
     if (!ok) return false;
   }
   try {
@@ -243,8 +245,8 @@ export async function switchAgent(req: SwitchReq) {
     if (t && (t.accountId !== req.accountId || cross)) {
       toast(
         cross
-          ? `Pindah ke ${providerLabel(req.provider)} "${acc?.label}". Riwayat percakapan diteruskan sebagai konteks.`
-          : `Lanjut dengan akun "${acc?.label}". Sesi yang sama dilanjutkan, konteks utuh.`,
+          ? tr().state.movedProvider(providerLabel(req.provider), acc?.label ?? "")
+          : tr().state.movedAccount(acc?.label ?? ""),
         "ok",
       );
     }
@@ -305,10 +307,10 @@ function alertUser(threadId: string, kind: "done" | "attention" | "error" | "lim
   const sound = kind === "limited" ? "error" : kind;
   if (!document.hasFocus()) {
     if (s.sound) chime(sound);
-    if (s.notify) api.notify(`Kilat · ${title}`, body || "Agent selesai").catch(() => {});
+    if (s.notify) api.notify(`Kilat · ${title}`, body || tr().state.agentDone).catch(() => {});
   } else if (threadId !== app.activeThreadId) {
     const level = kind === "done" ? "ok" : kind === "error" ? "error" : "warn";
-    toast(`${title}: ${body || "selesai"}`, level);
+    toast(`${title}: ${body || tr().state.done}`, level);
   }
 }
 

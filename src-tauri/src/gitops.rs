@@ -54,7 +54,7 @@ fn run(mut c: Command, input: Option<&[u8]>, timeout: Duration) -> anyhow::Resul
     let out = child.wait_with_output()?;
     done.store(true, Ordering::SeqCst);
     if timed_out.load(Ordering::SeqCst) {
-        anyhow::bail!("Waktu habis ({} detik). Cek koneksi atau login akun.", timeout.as_secs());
+        anyhow::bail!(crate::trf!("Waktu habis ({} detik). Cek koneksi atau login akun.", "Timed out ({} s). Check the connection or the account sign-in.", timeout.as_secs()));
     }
     let stdout = String::from_utf8_lossy(&out.stdout).into_owned();
     if !out.status.success() {
@@ -115,7 +115,7 @@ fn current_branch(store: &Store, project_id: &str, cwd: &str) -> String {
 pub fn create_branch(store: &Store, project_id: &str, cwd: &str, name: &str) -> anyhow::Result<()> {
     let name = name.trim();
     if name.is_empty() || name.contains(char::is_whitespace) {
-        anyhow::bail!("Nama branch tidak boleh kosong atau berisi spasi");
+        anyhow::bail!(crate::i18n::tr("Nama branch tidak boleh kosong atau berisi spasi", "The branch name can't be empty or contain spaces"));
     }
     git(store, project_id, cwd, &["switch", "-c", name], None, SHORT)?;
     Ok(())
@@ -129,7 +129,7 @@ pub fn create_pr(store: &Store, project_id: &str, cwd: &str, title: &str, body: 
         .ok_or_else(|| anyhow::anyhow!("GitHub CLI (gh) tidak ditemukan"))?;
     let branch = push(store, project_id, cwd)?;
     if branch.is_empty() {
-        anyhow::bail!("Tidak sedang di sebuah branch");
+        anyhow::bail!(crate::i18n::tr("Tidak sedang di sebuah branch", "Not on a branch"));
     }
     let mut env = env_for(store, project_id);
     // Act as the project's GitHub account (not gh's default one).
@@ -183,7 +183,7 @@ pub fn suggest_message(store: &Store, project_id: &str, cwd: &str, provider: &st
     let diff = g(&["diff", base]);
     let untracked = g(&["ls-files", "-o", "--exclude-standard"]);
     if stat.trim().is_empty() && untracked.trim().is_empty() {
-        anyhow::bail!("Tidak ada perubahan untuk di-commit");
+        anyhow::bail!(crate::i18n::tr("Tidak ada perubahan untuk di-commit", "Nothing to commit"));
     }
     let untracked: String = untracked.lines().take(60).collect::<Vec<_>>().join("\n");
     let recent = g(&["log", "-8", "--format=%s"]);
@@ -230,7 +230,7 @@ Recent commits:\n{}\n\nNew (untracked) files:\n{}\n\nChanges:\n{}\n\n{}",
     };
     let msg = strip_fences(&text);
     if msg.is_empty() {
-        anyhow::bail!("Agent tidak memberi pesan commit");
+        anyhow::bail!(crate::i18n::tr("Agent tidak memberi pesan commit", "The agent didn't return a commit message"));
     }
     Ok(msg)
 }

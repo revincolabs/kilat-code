@@ -9,6 +9,7 @@
   import { app, fail, toast } from "../lib/state.svelte";
   import FileTree from "./FileTree.svelte";
   import Icon from "./Icon.svelte";
+  import { t as tr } from "../lib/i18n/index.svelte";
   import { keyLabel } from "../lib/platform";
 
   let { root }: { root: string } = $props();
@@ -105,7 +106,7 @@
 
   function close(path: string) {
     const t = tabs.find((x) => x.path === path);
-    if (t?.dirty && !confirm(`Tutup ${t.name} tanpa menyimpan?`)) return;
+    if (t?.dirty && !confirm(tr().editor.confirmClose(t.name))) return;
     const i = tabs.findIndex((x) => x.path === path);
     tabs.splice(i, 1);
     if (current === path) {
@@ -126,7 +127,7 @@
       await api.writeFile(path, text);
       t.saved = text;
       t.dirty = false;
-      toast(`Tersimpan: ${t.name}`, "ok");
+      toast(tr().editor.saved(t.name), "ok");
     } catch (e) {
       fail(e);
     }
@@ -176,14 +177,14 @@
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <div class="tab" class:sel={t.path === current} onclick={() => activate(t.path)} title={t.path}>
           <span>{t.name}</span>
-          {#if t.dirty}<span class="dirty" title="Belum disimpan"></span>{/if}
-          <button class="ghost icon x" aria-label="Tutup" onclick={(e) => { e.stopPropagation(); close(t.path); }}><Icon name="x" size={12} /></button>
+          {#if t.dirty}<span class="dirty" title={tr().editor.unsaved}></span>{/if}
+          <button class="ghost icon x" aria-label={tr().common.close} onclick={(e) => { e.stopPropagation(); close(t.path); }}><Icon name="x" size={12} /></button>
         </div>
       {/each}
     </div>
     <div class="cm" class:empty={!current} bind:this={host}></div>
     {#if !current}
-      <div class="placeholder"><p>Pilih file di kiri. <kbd>{keyLabel("S")}</kbd> menyimpan, <kbd>{keyLabel("P")}</kbd> mencari file.</p></div>
+      <div class="placeholder"><p>{@html tr().editor.placeholder(keyLabel("S"), keyLabel("P"))}</p></div>
     {/if}
   </div>
 </div>

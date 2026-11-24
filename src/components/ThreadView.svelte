@@ -7,15 +7,13 @@
   import LimitDialog from "./LimitDialog.svelte";
   import Icon from "./Icon.svelte";
   import { keyLabel } from "../lib/platform";
+  import { t } from "../lib/i18n/index.svelte";
 
   let { thread, active }: { thread: ThreadMeta; active: boolean } = $props();
 
-  const modes: { id: Mode; label: string; hint: string }[] = [
-    { id: "full", label: "Akses penuh", hint: "Tanpa minta izin (Claude: --dangerously-skip-permissions, Codex: tanpa sandbox)" },
-    { id: "cli", label: "Setelan CLI", hint: "Ikuti setelan izin milik CLI-nya sendiri (mis. mode auto di Claude)" },
-    { id: "ask", label: "Minta izin", hint: "Agent minta persetujuan sebelum mengubah file / menjalankan perintah" },
-    { id: "plan", label: "Plan / read-only", hint: "Hanya membaca dan menyusun rencana" },
-  ];
+  const modes = $derived(
+    (["full", "cli", "ask", "plan"] as Mode[]).map((id) => ({ id, label: t().thread.modes[id][0], hint: t().thread.modes[id][1] })),
+  );
 
   const acc = $derived(account(thread.accountId));
   const models = $derived(
@@ -25,18 +23,19 @@
   );
   const off = $derived(!!app.exited[thread.id] && thread.status !== "limited");
   const statusText = $derived.by(() => {
-    if (off) return "tidak berjalan";
+    const s = t().thread.status;
+    if (off) return s.off;
     switch (thread.status) {
       case "running":
-        return "bekerja";
+        return s.running;
       case "attention":
-        return "butuh izin";
+        return s.attention;
       case "limited":
-        return "kena limit";
+        return s.limited;
       case "ready":
-        return "siap";
+        return s.ready;
       default:
-        return "memulai";
+        return s.starting;
     }
   });
 
@@ -50,8 +49,8 @@
   function accLabel(a: ReturnType<typeof account>) {
     if (!a) return "";
     const w = a.usage?.windows?.[0];
-    const extra = isLimited(a) ? " · limit" : w ? ` · ${w.label} ${Math.round(w.usedPercent)}%` : "";
-    return `${a.label}${a.plan ? ` (${a.plan.toUpperCase()})` : ""}${a.ready ? "" : " · belum login"}${extra}`;
+    const extra = isLimited(a) ? t().thread.limitTag : w ? ` · ${t().fmt.window(w.label)} ${Math.round(w.usedPercent)}%` : "";
+    return `${a.label}${a.plan ? ` (${a.plan.toUpperCase()})` : ""}${a.ready ? "" : t().thread.notSignedIn}${extra}`;
   }
 
   async function pickAccount(e: Event) {
@@ -119,18 +118,18 @@
 <div class="tv">
   <div class="bar">
     <span class="badge {thread.provider}">{providerLabel(thread.provider)}</span>
-    <select class="acc" aria-label="Akun" title={accountIdentity(acc) || "Akun yang menjalankan agent ini"} value={thread.accountId} onchange={pickAccount}>
+    <select class="acc" aria-label={t().thread.account} title={accountIdentity(acc) || t().thread.accountTitle} value={thread.accountId} onchange={pickAccount}>
       {#each ["claude", "codex"] as p (p)}
-        <optgroup label={p === "claude" ? "Claude" : "ChatGPT / Codex"}>
+        <optgroup label={p === "claude" ? "Claude" : t().thread.codexGroup}>
           {#each accountsOf(p) as a (a.id)}
             <option value={a.id}>{accLabel(a)}</option>
           {/each}
         </optgroup>
       {/each}
-      <option value="__add">+ Tambah akun…</option>
+      <option value="__add">{t().thread.addAccount}</option>
     </select>
-    <select aria-label="Model" title="Model (bisa juga diganti dengan /model di terminal)" value={thread.model} onchange={pickModel}>
-      <option value="">model bawaan</option>
+    <select aria-label={t().thread.model} title={t().thread.modelTitle} value={thread.model} onchange={pickModel}>
+      <option value="">{t().thread.defaultModel}</option>
       {#each models as m (m.id)}
         <option value={m.id}>{m.name || m.id}</option>
       {/each}
@@ -138,7 +137,7 @@
         <option value={thread.model}>{thread.model}</option>
       {/if}
     </select>
-    <select aria-label="Mode izin" title={modes.find((m) => m.id === thread.mode)?.hint} value={thread.mode} onchange={pickMode}>
+    <select aria-label={t().thread.mode} title={modes.find((m) => m.id === thread.mode)?.hint} value={thread.mode} onchange={pickMode}>
       {#each modes as m (m.id)}
         <option value={m.id} title={m.hint}>{m.label}</option>
       {/each}
@@ -147,20 +146,20 @@
       <span class="dot"></span>{statusText}
     </span>
     <span class="spacer"></span>
-    <span class="hint">Shift+Enter baris baru · {keyLabel("V")} tempel</span>
-    <button class="ghost icon" title="Mulai ulang agent (sesi dilanjutkan)" aria-label="Mulai ulang agent" onclick={restart}><Icon name="refresh" size={14} /></button>
-    <button class="ghost icon" title="Hentikan agent" aria-label="Hentikan agent" disabled={app.exited[thread.id]} onclick={stop}><Icon name="stop" size={13} /></button>
+    <span class="hint">{t().thread.hint(keyLabel("V"))}</span>
+    <button class="ghost icon" title={t().thread.restart} aria-label={t().thread.restartLabel} onclick={restart}><Icon name="refresh" size={14} /></button>
+    <button class="ghost icon" title={t().thread.stop} aria-label={t().thread.stop} disabled={app.exited[thread.id]} onclick={stop}><Icon name="stop" size={13} /></button>
   </div>
 
   {#if thread.waitUntil}
     <div class="waitbar">
       <Icon name="clock" size={14} />
       <span class="grow">
-        Menunggu limit akun "{account(thread.limit?.accountId)?.label ?? acc?.label}" reset. Lanjut otomatis {fmtReset(thread.waitUntil)}
-        <span class="mono">({fmtIn(Math.max(0, thread.waitUntil - now))} lagi)</span>
+        {t().thread.waiting(account(thread.limit?.accountId)?.label ?? acc?.label ?? "", fmtReset(thread.waitUntil))}
+        <span class="mono">{t().thread.left(fmtIn(Math.max(0, thread.waitUntil - now)))}</span>
       </span>
-      <button class="small" onclick={continueNow}>Lanjut sekarang</button>
-      <button class="small ghost" onclick={cancelWait}>Batal</button>
+      <button class="small" onclick={continueNow}>{t().thread.continueNow}</button>
+      <button class="small ghost" onclick={cancelWait}>{t().common.cancel}</button>
     </div>
   {/if}
 

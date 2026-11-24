@@ -90,9 +90,26 @@ pub struct Settings {
     pub claude_chrome: bool,
     /// Typed into the agent when work resumes after a limit.
     pub continue_prompt: String,
+    /// UI language: "auto" (follow the system), "id" or "en".
+    pub language: String,
 }
 
 pub const DEFAULT_CONTINUE: &str = "Lanjutkan pekerjaan yang tadi terhenti karena limit akun.";
+/// Same message in English (keep in sync with src/lib/i18n/en.ts).
+pub const DEFAULT_CONTINUE_EN: &str = "Continue the work that stopped because the account hit its limit.";
+
+impl Settings {
+    /// The follow-up message to type after a limit: the user's own text, or the
+    /// built-in one in the UI language (so the agent answers in that language).
+    pub fn continue_text(&self) -> String {
+        let p = self.continue_prompt.trim();
+        if p.is_empty() || p == DEFAULT_CONTINUE || p == DEFAULT_CONTINUE_EN {
+            crate::i18n::tr(DEFAULT_CONTINUE, DEFAULT_CONTINUE_EN).to_string()
+        } else {
+            p.to_string()
+        }
+    }
+}
 
 impl Default for Settings {
     fn default() -> Self {
@@ -112,6 +129,7 @@ impl Default for Settings {
             sound: true,
             claude_chrome: true,
             continue_prompt: DEFAULT_CONTINUE.into(),
+            language: "auto".into(),
         }
     }
 }
@@ -222,6 +240,12 @@ pub struct AppData {
 pub const CLAUDE_DEFAULT: &str = "claude-default";
 pub const CODEX_DEFAULT: &str = "codex-default";
 
+/// Built-in names of the default accounts: (id, Indonesian, English).
+const DEFAULT_NAMES: [(&str, &str, &str); 2] = [
+    (CLAUDE_DEFAULT, "Claude (login bawaan)", "Claude (default login)"),
+    (CODEX_DEFAULT, "ChatGPT (login bawaan)", "ChatGPT (default login)"),
+];
+
 impl AppData {
     fn ensure_defaults(&mut self) {
         let defaults = [
@@ -316,6 +340,27 @@ impl Store {
 
     pub fn tools(&self) -> Tools {
         self.tools.read().clone()
+    }
+
+    /// Name the default accounts in the UI language, unless the user renamed
+    /// them. True when a name changed (the UI should reload the accounts).
+    pub fn localize_defaults(&self) -> bool {
+        let mut changed = false;
+        {
+            let mut d = self.data.write();
+            for (id, name_id, name_en) in DEFAULT_NAMES {
+                let Some(a) = d.accounts.iter_mut().find(|a| a.id == id) else { continue };
+                let want = crate::i18n::tr(name_id, name_en);
+                if (a.label == name_id || a.label == name_en) && a.label != want {
+                    a.label = want.into();
+                    changed = true;
+                }
+            }
+        }
+        if changed {
+            self.save();
+        }
+        changed
     }
 
     pub fn save(&self) {

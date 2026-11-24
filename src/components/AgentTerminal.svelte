@@ -6,6 +6,7 @@
   import { app, providerLabel } from "../lib/state.svelte";
   import { isMac } from "../lib/platform";
   import Icon from "./Icon.svelte";
+  import { t as tr } from "../lib/i18n/index.svelte";
 
   /**
    * The real `claude` / `codex` terminal UI of one thread. The process lives
@@ -137,8 +138,8 @@
   {#if ended}
     <div class="ended">
       <span class="dot"></span>
-      <span>Agent {providerLabel(thread.provider)} tidak berjalan. <span class="muted">Sesi sebelumnya akan dilanjutkan.</span></span>
-      <button class="primary" disabled={starting} onclick={start}><Icon name="play" size={12} />{starting ? "Memulai…" : "Jalankan lagi"}</button>
+      <span>{tr().terminal.agentOff(providerLabel(thread.provider))} <span class="muted">{tr().terminal.resumes}</span></span>
+      <button class="primary" disabled={starting} onclick={start}><Icon name="play" size={12} />{starting ? tr().terminal.starting : tr().terminal.runAgain}</button>
     </div>
   {/if}
 </div>

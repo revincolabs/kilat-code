@@ -2,6 +2,7 @@
   import { app, openTerminal, closeTerminal, activeProject, activeThread } from "../lib/state.svelte";
   import Terminal from "./Terminal.svelte";
   import Icon from "./Icon.svelte";
+  import { t as tr } from "../lib/i18n/index.svelte";
   import { keyLabel } from "../lib/platform";
 
   const tabs = $derived(app.terminals.filter((t) => !t.setup));
@@ -20,14 +21,14 @@
       <div class="tab" class:sel={t.key === app.activeTerminal} onclick={() => (app.activeTerminal = t.key)}>
         <Icon name="terminal" size={13} />
         <span>{t.title}</span>
-        {#if t.exited}<span class="muted">selesai</span>{/if}
-        <button class="ghost icon x" aria-label="Tutup terminal" onclick={(e) => { e.stopPropagation(); closeTerminal(t.key); }}><Icon name="x" size={12} /></button>
+        {#if t.exited}<span class="muted">{tr().terminal.exited}</span>{/if}
+        <button class="ghost icon x" aria-label={tr().terminal.close} onclick={(e) => { e.stopPropagation(); closeTerminal(t.key); }}><Icon name="x" size={12} /></button>
       </div>
     {/each}
-    <button class="ghost icon" title="Terminal bash baru" aria-label="Terminal bash baru" onclick={add}><Icon name="plus" size={14} /></button>
+    <button class="ghost icon" title={tr().terminal.new} aria-label={tr().terminal.new} onclick={add}><Icon name="plus" size={14} /></button>
     <span class="spacer"></span>
-    <span class="hint">bash · akun GitHub mengikuti project</span>
-    <button class="ghost icon" title="Sembunyikan ({keyLabel("`")})" aria-label="Sembunyikan terminal" onclick={() => (app.terminalOpen = false)}><Icon name="hide" size={14} /></button>
+    <span class="hint">{tr().terminal.hint}</span>
+    <button class="ghost icon" title={tr().terminal.hide(keyLabel("`"))} aria-label={tr().terminal.hideLabel} onclick={() => (app.terminalOpen = false)}><Icon name="hide" size={14} /></button>
   </div>
   <div class="body">
     {#each tabs as t (t.key)}
@@ -42,7 +43,7 @@
     {/each}
     {#if tabs.length === 0}
       <div class="none muted">
-        <button onclick={add}><Icon name="terminal" size={13} /> Buka terminal bash</button>
+        <button onclick={add}><Icon name="terminal" size={13} /> {tr().terminal.open}</button>
       </div>
     {/if}
   </div>

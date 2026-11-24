@@ -327,7 +327,7 @@ fn claude_token_org(token: &str) -> Option<String> {
 /// Check a Claude subscription token with Anthropic, then save it.
 pub fn store_claude_token(store: &Store, id: &str, token: &str) -> anyhow::Result<()> {
     if claude_secret_rejected("oauth", token) {
-        anyhow::bail!("Token ditolak Anthropic (401). Pastikan yang disalin hanya tokennya, utuh, tanpa teks lain.");
+        anyhow::bail!(crate::i18n::tr("Token ditolak Anthropic (401). Pastikan yang disalin hanya tokennya, utuh, tanpa teks lain.", "Anthropic rejected the token (401). Make sure you copied only the token, complete, with no other text."));
     }
     let org = claude_token_org(token);
     secret_set(id, token)?;
@@ -380,7 +380,7 @@ pub struct ConfirmedIdentity {
 /// in and keep it only if it is the same Claude account as the stored token
 /// (same organization). setup-token tokens cannot read the email themselves.
 pub fn claude_confirm_identity(store: &Store, id: &str) -> anyhow::Result<ConfirmedIdentity> {
-    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!("akun tidak ada"))?;
+    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("akun tidak ada", "account not found")))?;
     let dir = claude_setup_dir(store, id);
     let cfg = read_json(&dir.join(".claude.json"));
     forget_claude_login(&dir);
@@ -388,19 +388,21 @@ pub fn claude_confirm_identity(store: &Store, id: &str) -> anyhow::Result<Confir
     let email = ident
         .email
         .clone()
-        .ok_or_else(|| anyhow::anyhow!("Login belum selesai, email belum terbaca. Coba lagi."))?;
+        .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Login belum selesai, email belum terbaca. Coba lagi.", "The sign-in didn't finish, so the email wasn't read. Try again.")))?;
     let token = secret_get(id)
-        .ok_or_else(|| anyhow::anyhow!("Token akun \"{}\" belum ada. Jalankan Setup dulu.", acc.label))?;
+        .ok_or_else(|| anyhow::anyhow!(crate::trf!("Token akun \"{}\" belum ada. Jalankan Setup dulu.", "There's no token for the account \"{}\" yet. Run Set up first.", acc.label)))?;
     let token_org = claude_token_org(&token).ok_or_else(|| {
-        anyhow::anyhow!("Tidak bisa memastikan pemilik token (gagal menghubungi Anthropic). Coba lagi.")
+        anyhow::anyhow!(crate::i18n::tr("Tidak bisa memastikan pemilik token (gagal menghubungi Anthropic). Coba lagi.", "Couldn't confirm who owns the token (couldn't reach Anthropic). Try again."))
     })?;
     let same = str_at(&cfg, "/oauthAccount/organizationUuid").is_some_and(|o| o.eq_ignore_ascii_case(&token_org));
     if !same {
-        anyhow::bail!(
+        anyhow::bail!(crate::trf!(
             "Kamu login sebagai {email}, tapi token akun \"{}\" milik akun Claude lain. \
              Ganti ke akun yang benar di claude.ai (browser), lalu klik Deteksi email lagi.",
+            "You're signed in as {email}, but the token of the account \"{}\" belongs to another Claude account. \
+             Switch to the right account on claude.ai (in the browser), then click Detect email again.",
             acc.label
-        );
+        ));
     }
     let account = store
         .update_account(id, |a| {
@@ -411,7 +413,7 @@ pub fn claude_confirm_identity(store: &Store, id: &str) -> anyhow::Result<Confir
             }
             a.org_id = Some(token_org.clone());
         })
-        .ok_or_else(|| anyhow::anyhow!("akun tidak ada"))?;
+        .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("akun tidak ada", "account not found")))?;
     let warning = store
         .data
         .read()
@@ -421,9 +423,11 @@ pub fn claude_confirm_identity(store: &Store, id: &str) -> anyhow::Result<Confir
             o.provider == "claude" && o.id != id && o.email.as_deref().is_some_and(|e| e.eq_ignore_ascii_case(&email))
         })
         .map(|o| {
-            format!(
+            crate::trf!(
                 "Akun \"{}\" ternyata akun Claude yang sama dengan \"{}\" ({email}). \
                  Kemungkinan browser masih login ke akun itu waktu Setup.",
+                "The account \"{}\" turns out to be the same Claude account as \"{}\" ({email}). \
+                 The browser was probably still signed in to that account during setup.",
                 acc.label, o.label
             )
         });
@@ -500,13 +504,13 @@ pub fn refresh_all(store: &Store) {
 pub fn validate_label(store: &Store, provider: &str, label: &str, except: Option<&str>) -> anyhow::Result<String> {
     let label = label.trim();
     if label.is_empty() {
-        anyhow::bail!("Nama akun wajib diisi, supaya tidak tertukar dengan akun lain");
+        anyhow::bail!(crate::i18n::tr("Nama akun wajib diisi, supaya tidak tertukar dengan akun lain", "An account name is required, so accounts don't get mixed up"));
     }
     let taken = store.data.read().accounts.iter().any(|a| {
         a.provider == provider && Some(a.id.as_str()) != except && a.label.eq_ignore_ascii_case(label)
     });
     if taken {
-        anyhow::bail!("Nama \"{label}\" sudah dipakai akun lain. Pakai nama yang berbeda.");
+        anyhow::bail!(crate::trf!("Nama \"{label}\" sudah dipakai akun lain. Pakai nama yang berbeda.", "The name \"{label}\" is already used by another account. Use a different name."));
     }
     Ok(label.to_string())
 }
@@ -532,9 +536,9 @@ pub fn add(store: &Store, provider: &str, kind: &str, label: &str) -> anyhow::Re
 
 pub fn remove(store: &Store, id: &str) -> anyhow::Result<()> {
     if id == CLAUDE_DEFAULT || id == CODEX_DEFAULT {
-        anyhow::bail!("Akun bawaan tidak bisa dihapus");
+        anyhow::bail!(crate::i18n::tr("Akun bawaan tidak bisa dihapus", "Default accounts can't be removed"));
     }
-    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!("akun tidak ada"))?;
+    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("akun tidak ada", "account not found")))?;
     secret_delete(id);
     if acc.provider == "codex" {
         remove_codex_home(store, id);
@@ -557,10 +561,10 @@ pub fn remove(store: &Store, id: &str) -> anyhow::Result<()> {
 
 /// Store a pasted secret (Claude token / API key, or Codex API key).
 pub fn set_secret(store: &Store, id: &str, secret: &str) -> anyhow::Result<Account> {
-    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!("akun tidak ada"))?;
+    let acc = store.account(id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("akun tidak ada", "account not found")))?;
     let secret = secret.trim();
     if secret.is_empty() {
-        anyhow::bail!("Token kosong");
+        anyhow::bail!(crate::i18n::tr("Token kosong", "The token is empty"));
     }
     match acc.provider.as_str() {
         "claude" => {
@@ -599,16 +603,16 @@ pub fn set_secret(store: &Store, id: &str, secret: &str) -> anyhow::Result<Accou
             }
             store.update_account(id, |a| a.kind = "apikey".into());
         }
-        _ => anyhow::bail!("Provider ini tidak memakai token"),
+        _ => anyhow::bail!(crate::i18n::tr("Provider ini tidak memakai token", "This provider doesn't use tokens")),
     }
-    refresh(store, id).ok_or_else(|| anyhow::anyhow!("akun tidak ada"))
+    refresh(store, id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("akun tidak ada", "account not found")))
 }
 
 /// Environment for running an agent as `account_id`.
 pub fn agent_env(store: &Store, account_id: &str) -> anyhow::Result<EnvPlan> {
     let acc = store
         .account(account_id)
-        .ok_or_else(|| anyhow::anyhow!("Akun tidak ditemukan"))?;
+        .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Akun tidak ditemukan", "Account not found")))?;
     let mut env = EnvPlan::default();
     match (acc.provider.as_str(), acc.kind.as_str()) {
         ("claude", "default") => {
@@ -616,7 +620,7 @@ pub fn agent_env(store: &Store, account_id: &str) -> anyhow::Result<EnvPlan> {
         }
         ("claude", kind) => {
             let secret = secret_get(account_id).ok_or_else(|| {
-                anyhow::anyhow!("Akun '{}' belum di-setup (token belum ada)", acc.label)
+                anyhow::anyhow!(crate::trf!("Akun '{}' belum di-setup (token belum ada)", "The account '{}' isn't set up yet (no token)", acc.label))
             })?;
             env.remove("ANTHROPIC_AUTH_TOKEN");
             env.remove("CLAUDE_CODE_USE_BEDROCK");
@@ -632,13 +636,13 @@ pub fn agent_env(store: &Store, account_id: &str) -> anyhow::Result<EnvPlan> {
         ("codex", _) => {
             let home = prepare_codex_home(store, account_id)?;
             if !codex_has_auth(&home) {
-                anyhow::bail!("Akun '{}' belum login (jalankan setup dulu)", acc.label);
+                anyhow::bail!(crate::trf!("Akun '{}' belum login (jalankan setup dulu)", "The account '{}' isn't signed in (run setup first)", acc.label));
             }
             if account_id != CODEX_DEFAULT {
                 env.set("CODEX_HOME", home.to_string_lossy());
             }
         }
-        _ => anyhow::bail!("Akun ini bukan akun agent"),
+        _ => anyhow::bail!(crate::i18n::tr("Akun ini bukan akun agent", "This isn't an agent account")),
     }
     Ok(env)
 }

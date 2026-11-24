@@ -1,4 +1,5 @@
 import type { Account, LimitInfo } from "./api";
+import { t } from "./i18n/index.svelte";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
@@ -72,12 +73,13 @@ export function resetFor(limit: LimitInfo, acc: Account | undefined, now = Date.
 
 /** 8_100_000 -> "2 jam 15 mnt" */
 export function fmtIn(ms: number): string {
-  if (ms <= 60_000) return "< 1 menit";
+  const f = t().fmt;
+  if (ms <= 60_000) return f.lessThanMinute;
   const m = Math.round(ms / 60_000);
   const d = Math.floor(m / 1440);
   const h = Math.floor((m % 1440) / 60);
   const mm = m % 60;
-  if (d) return h ? `${d} hari ${h} jam` : `${d} hari`;
-  if (h) return mm ? `${h} jam ${mm} mnt` : `${h} jam`;
-  return `${mm} menit`;
+  if (d) return f.dh(d, h);
+  if (h) return f.hm(h, mm);
+  return f.m(mm);
 }

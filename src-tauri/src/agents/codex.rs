@@ -199,7 +199,7 @@ fn signal(v: &Value) -> Option<Signal> {
         }
         "token_count" => usage::from_codex_token_count(p).0.map(Signal::Usage),
         "exec_approval_request" | "apply_patch_approval_request" | "request_permissions" | "elicitation_request" => {
-            Some(Signal::Attention("Codex minta izin".into()))
+            Some(Signal::Attention(crate::i18n::tr("Codex minta izin", "Codex needs permission").into()))
         }
         "user_message" => Some(Signal::UserText(s(p, "message").to_string())),
         _ => None,

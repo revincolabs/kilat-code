@@ -55,6 +55,8 @@ export interface Settings {
   claudeChrome: boolean;
   /** typed into the agent when work continues after a limit */
   continuePrompt: string;
+  /** UI language: "auto" (follow the system), "id" or "en" */
+  language: string;
 }
 
 export interface LimitInfo {

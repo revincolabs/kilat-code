@@ -118,6 +118,7 @@ const data: AppData = {
     codexPath: "",
     ghPath: "",
     claudeModels: ["opus", "sonnet", "haiku"],
+    language: q.get("lang") ?? "auto",
     fontSize: 13,
     notify: true,
     sound: true,

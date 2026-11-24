@@ -126,7 +126,7 @@ pub fn claude_entries(path: &Path) -> Vec<Entry> {
                         .strip_prefix("<bash-input>")
                         .and_then(|r| r.split("</bash-input>").next())
                     {
-                        push(&mut out, at, Kind::User, &format!("(menjalankan di terminal) `{}`", clip(cmd.trim(), 300)));
+                        push(&mut out, at, Kind::User, &crate::trf!("(menjalankan di terminal) `{}`", "(ran in the terminal) `{}`", clip(cmd.trim(), 300)));
                     } else if !is_injected(t) && !trimmed.starts_with("<bash-std") {
                         push(&mut out, at, Kind::User, t);
                     }
@@ -348,7 +348,7 @@ fn parts(store: &Store, thread: &Thread, segs: &[Segment]) -> Vec<Part> {
         let who = if accounts.is_empty() {
             provider_name(&first.provider).to_string()
         } else {
-            format!("{} (akun {})", provider_name(&first.provider), accounts.join(", "))
+            crate::trf!("{} (akun {})", "{} (account {})", provider_name(&first.provider), accounts.join(", "))
         };
         if !entries.is_empty() {
             out.push(Part { who, entries });
@@ -368,9 +368,9 @@ fn render_blocks(parts: &[Part]) -> Vec<String> {
             }
             let shown: Vec<String> = actions.iter().take(30).map(|a| format!("- {a}")).collect();
             let more = actions.len().saturating_sub(30);
-            let mut b = format!("_Aksi {}:_\n{}", p.who, shown.join("\n"));
+            let mut b = crate::trf!("_Aksi {}:_\n{}", "_Actions by {}:_\n{}", p.who, shown.join("\n"));
             if more > 0 {
-                b.push_str(&format!("\n- …dan {more} aksi lain"));
+                b.push_str(&crate::trf!("\n- …dan {more} aksi lain", "\n- …and {more} more actions"));
             }
             blocks.push(b);
             actions.clear();
@@ -380,7 +380,7 @@ fn render_blocks(parts: &[Part]) -> Vec<String> {
                 Kind::Action => actions.push(e.text.replace('\n', " ")),
                 Kind::User => {
                     flush(&mut actions, &mut blocks);
-                    blocks.push(format!("### 👤 Pengguna\n{}", clip(&e.text, PER_MESSAGE)));
+                    blocks.push(crate::trf!("### 👤 Pengguna\n{}", "### 👤 User\n{}", clip(&e.text, PER_MESSAGE)));
                 }
                 Kind::Assistant => {
                     flush(&mut actions, &mut blocks);
@@ -416,16 +416,20 @@ pub fn render(parts_in: &[(String, Vec<Entry>)], cwd: &str, to: &str) -> String 
     let skipped = blocks.len() - kept.len();
     kept.reverse();
     let from: Vec<&str> = parts.iter().map(|p| p.who.as_str()).collect();
-    let mut doc = format!(
+    let mut doc = crate::trf!(
         "# Riwayat percakapan sebelumnya\n\n\
 Thread ini dikerjakan oleh {} lalu dilanjutkan oleh {}. Di bawah ini semua yang terjadi \
 yang belum kamu lihat (paling lama di atas): pesan pengguna, jawaban agent, dan aksinya.\n\n\
 Folder kerja: `{cwd}`\n\n---\n\n",
+        "# Earlier conversation\n\n\
+This thread was handled by {} and is now continued by {}. Below is everything that happened \
+that you haven't seen yet (oldest first): the user's messages, the agent's replies, and its actions.\n\n\
+Working folder: `{cwd}`\n\n---\n\n",
         from.join(" → "),
         provider_name(to),
     );
     if skipped > 0 {
-        doc.push_str(&format!("_({skipped} bagian lama dilewati karena terlalu panjang)_\n\n"));
+        doc.push_str(&crate::trf!("_({skipped} bagian lama dilewati karena terlalu panjang)_\n\n", "_({skipped} older parts skipped because the history is long)_\n\n"));
     }
     doc.push_str(&kept.iter().map(|b| b.as_str()).collect::<Vec<_>>().join("\n\n"));
     doc.push('\n');

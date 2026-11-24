@@ -4,6 +4,7 @@
   import { fmtReset } from "../lib/format";
   import { fmtIn, resetFor } from "../lib/limits";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n/index.svelte";
 
   /** Shown over the terminal when the thread's account hits its limit. */
   let { thread }: { thread: ThreadMeta } = $props();
@@ -56,9 +57,9 @@
   }
 
   function usageText(a: Account): string {
-    if (isLimited(a)) return `limit s/d ${fmtReset(a.limitedUntil)}`;
+    if (isLimited(a)) return t().limit.limitedUntil(fmtReset(a.limitedUntil));
     const w = a.usage?.windows ?? [];
-    return w.length ? w.slice(0, 2).map((x) => `${x.label} ${Math.round(x.usedPercent)}%`).join(" · ") : "";
+    return w.length ? w.slice(0, 2).map((x) => `${t().fmt.window(x.label)} ${Math.round(x.usedPercent)}%`).join(" · ") : "";
   }
 </script>
 
@@ -67,64 +68,64 @@
     class="acc"
     class:hot={isLimited(a)}
     disabled={!!busy || !a.ready}
-    title={a.ready ? accountIdentity(a) : "Akun belum siap — login dulu di Akun & Pengaturan"}
+    title={a.ready ? accountIdentity(a) : t().limit.notReady}
     onclick={() => moveTo(a)}
   >
-    <span class="name">{busy === a.id ? "Memindahkan…" : a.label}</span>
-    <span class="id">{a.ready ? accountIdentity(a) || "—" : "belum login"}</span>
+    <span class="name">{busy === a.id ? t().limit.moving : a.label}</span>
+    <span class="id">{a.ready ? accountIdentity(a) || "—" : t().limit.notSignedIn}</span>
     {#if usageText(a)}<span class="use">{usageText(a)}</span>{/if}
     <Icon name="chevronRight" size={13} />
   </button>
 {/snippet}
 
 <div class="veil">
-  <div class="card" role="dialog" aria-label="Akun kena limit">
+  <div class="card" role="dialog" aria-label={t().limit.dialog}>
     <div class="head">
       <span class="ic"><Icon name="clock" size={16} /></span>
       <div class="grow">
-        <b>Akun {providerLabel(limit.provider)} "{limitedAcc?.label ?? limit.accountId}" kena limit</b>
+        <b>{t().limit.title(providerLabel(limit.provider), limitedAcc?.label ?? limit.accountId)}</b>
         {#if limit.message}<div class="msg">{limit.message}</div>{/if}
       </div>
-      <button class="ghost icon" title="Tutup (urus sendiri di terminal)" aria-label="Tutup" onclick={dismiss}><Icon name="x" size={14} /></button>
+      <button class="ghost icon" title={t().limit.closeTitle} aria-label={t().common.close} onclick={dismiss}><Icon name="x" size={14} /></button>
     </div>
 
     <section>
-      <h4><span class="step-n">1</span>Tunggu sampai reset</h4>
+      <h4><span class="step-n">1</span>{t().limit.wait}</h4>
       {#if reset}
         <button class="primary wide" disabled={!!busy} onclick={() => waitUntil(reset + 60_000)}>
           <Icon name="clock" size={13} />
-          <span>Tunggu sampai {fmtReset(reset)}, lalu lanjut otomatis</span>
+          <span>{t().limit.waitUntil(fmtReset(reset))}</span>
           <span class="spacer"></span>
-          <span class="mono">{fmtIn(reset - now)} lagi</span>
+          <span class="mono">{t().limit.left(fmtIn(reset - now))}</span>
         </button>
       {:else}
-        <p class="note">Waktu reset tidak diketahui. Lanjut otomatis setelah:</p>
+        <p class="note">{t().limit.unknownReset}</p>
       {/if}
       <div class="row quick">
-        {#if reset}<span class="note">atau tunggu</span>{/if}
+        {#if reset}<span class="note">{t().limit.orWait}</span>{/if}
         {#each [30, 60, 180, 300] as min (min)}
           <button class="small" disabled={!!busy} onclick={() => waitUntil(now + min * 60_000)}>
-            {min < 60 ? `${min} menit` : `${min / 60} jam`}
+            {min < 60 ? t().limit.minutes(min) : t().limit.hours(min / 60)}
           </button>
         {/each}
       </div>
     </section>
 
     <section>
-      <h4><span class="step-n">2</span>Pindah ke akun Claude lain <span class="why">sesi yang sama dilanjutkan</span></h4>
+      <h4><span class="step-n">2</span>{t().limit.otherClaude} <span class="why">{t().limit.sameSession}</span></h4>
       {#each claudeOthers as a (a.id)}
         {@render choice(a)}
       {:else}
-        <p class="note">Belum ada akun Claude lain. <button class="link" onclick={() => addAccount("claude")}>Tambah akun Claude</button></p>
+        <p class="note">{t().limit.noOtherClaude} <button class="link" onclick={() => addAccount("claude")}>{t().limit.addClaude}</button></p>
       {/each}
     </section>
 
     <section>
-      <h4><span class="step-n">3</span>Pindah ke akun ChatGPT <span class="why">riwayat percakapan diteruskan</span></h4>
+      <h4><span class="step-n">3</span>{t().limit.toChatgpt} <span class="why">{t().limit.historyHandedOver}</span></h4>
       {#each codexOthers as a (a.id)}
         {@render choice(a)}
       {:else}
-        <p class="note">Belum ada akun ChatGPT lain. <button class="link" onclick={() => addAccount("codex")}>Tambah akun ChatGPT</button></p>
+        <p class="note">{t().limit.noOtherChatgpt} <button class="link" onclick={() => addAccount("codex")}>{t().limit.addChatgpt}</button></p>
       {/each}
     </section>
   </div>

@@ -3,6 +3,7 @@
   import { api } from "../lib/api";
   import { keyLabel } from "../lib/platform";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n/index.svelte";
 
   const thread = $derived(activeThread());
   const project = $derived(activeProject());
@@ -44,7 +45,7 @@
       />
     {:else}
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-      <span class="title" ondblclick={() => { title = thread.title; editing = true; }} title="Klik dua kali untuk ganti nama">{thread.title}</span>
+      <span class="title" ondblclick={() => { title = thread.title; editing = true; }} title={t().topbar.rename}>{thread.title}</span>
     {/if}
     <span class="path" title={thread.cwd}>
       {project?.name}
@@ -55,15 +56,15 @@
     <span class="path">{project.path}</span>
   {/if}
   <span class="spacer"></span>
-  <div class="seg" role="group" aria-label="Panel">
+  <div class="seg" role="group" aria-label={t().topbar.panels}>
     <button class="ghost" class:on={app.rightPanel === "editor"} aria-pressed={app.rightPanel === "editor"} onclick={() => toggle("editor")} disabled={!project}>
-      <Icon name="code" size={14} />Editor
+      <Icon name="code" size={14} />{t().topbar.editor}
     </button>
     <button class="ghost" class:on={app.rightPanel === "changes"} aria-pressed={app.rightPanel === "changes"} onclick={() => toggle("changes")} disabled={!project}>
-      <Icon name="diff" size={14} />Perubahan
+      <Icon name="diff" size={14} />{t().topbar.changes}
     </button>
     <button class="ghost" class:on={app.terminalOpen} aria-pressed={app.terminalOpen} onclick={newTerminal} title={keyLabel("`")}>
-      <Icon name="terminal" size={14} />Terminal
+      <Icon name="terminal" size={14} />{t().topbar.terminal}
     </button>
   </div>
 </header>

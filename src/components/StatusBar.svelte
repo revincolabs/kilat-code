@@ -3,6 +3,7 @@
   import { app, activeProject, accountsOf, busyCount, fail, toast } from "../lib/state.svelte";
   import { updater, installUpdate } from "../lib/updater.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n/index.svelte";
 
   const project = $derived(activeProject());
   const ghAccounts = $derived(accountsOf("github"));
@@ -28,7 +29,7 @@
       const p = await api.setProjectGithub(project.id, v || null);
       project.githubAccountId = p.githubAccountId;
       const acc = ghAccounts.find((a) => a.id === v);
-      toast(acc ? `GitHub ${project.name} → @${acc.login} (langsung aktif di terminal & agent)` : `GitHub ${project.name}: pakai akun default gh`, "ok");
+      toast(acc ? t().status.ghSet(project.name, acc.login ?? "") : t().status.ghCleared(project.name), "ok");
     } catch (err) {
       fail(err);
     }
@@ -37,31 +38,31 @@
 
 <footer>
   {#if project}
-    <label class="gh" title="Akun GitHub untuk git push/pull & gh di project ini">
+    <label class="gh" title={t().status.ghTitle}>
       <Icon name="github" size={12} />
-      <select value={project.githubAccountId ?? ""} onchange={setGithub} aria-label="Akun GitHub project ini">
-        <option value="">default gh</option>
+      <select value={project.githubAccountId ?? ""} onchange={setGithub} aria-label={t().status.ghLabel}>
+        <option value="">{t().status.ghDefault}</option>
         {#each ghAccounts as a (a.id)}
-          <option value={a.id}>@{a.login}{a.ready ? "" : " (logout)"}</option>
+          <option value={a.id}>@{a.login}{a.ready ? "" : t().status.loggedOut}</option>
         {/each}
-        <option value="__add">+ Tambah akun GitHub…</option>
+        <option value="__add">{t().status.addGithub}</option>
       </select>
     </label>
   {/if}
   <span class="spacer"></span>
   {#if missing.length}
     <button class="ghost warn" onclick={() => { app.accountsTab = "settings"; app.accountsOpen = true; }}>
-      <Icon name="alert" size={12} /> tidak ditemukan: {missing.join(", ")}
+      <Icon name="alert" size={12} /> {t().status.missing(missing.join(", "))}
     </button>
   {/if}
   {#if busyCount() > 0}
-    <span class="run"><span class="dot run"></span>{busyCount()} agent bekerja</span>
+    <span class="run"><span class="dot run"></span>{t().status.busy(busyCount())}</span>
   {/if}
   {#if updater.progress != null}
-    <span class="upd"><Icon name="download" size={12} /> mengunduh update{updater.progress ? ` ${Math.round(updater.progress * 100)}%` : "…"}</span>
+    <span class="upd"><Icon name="download" size={12} /> {t().status.downloading(updater.progress ? ` ${Math.round(updater.progress * 100)}%` : "…")}</span>
   {:else if updater.version}
-    <button class="upd-btn" title={updater.notes || "Unduh, pasang, lalu mulai ulang Kilat"} onclick={installUpdate}>
-      <Icon name="update" size={12} /> Update ke v{updater.version}
+    <button class="upd-btn" title={updater.notes || t().status.updateTitle} onclick={installUpdate}>
+      <Icon name="update" size={12} /> {t().status.updateTo(updater.version)}
     </button>
   {/if}
   <span class="ver">Kilat {app.version}</span>

@@ -3,6 +3,7 @@
   import { api, type Commit, type GitStatus } from "../lib/api";
   import { app, account, activeProject, activeThread, accountsOf, fail, toast } from "../lib/state.svelte";
   import Icon from "./Icon.svelte";
+  import { t as tr } from "../lib/i18n/index.svelte";
 
   let { cwd }: { cwd: string } = $props();
 
@@ -92,7 +93,7 @@
     const paths = allChosen ? [] : chosen.map((f) => f.path);
     const done = await run("commit", () => api.gitCommit(projectId, cwd, message, paths));
     if (!done) return;
-    toast(`Commit: ${done}`, "ok");
+    toast(tr().changes.committed(done), "ok");
     message = "";
     excluded = {};
     await refresh();
@@ -102,7 +103,7 @@
   async function push() {
     const branch = await run("push", () => api.gitPush(projectId, cwd));
     if (branch !== undefined) {
-      toast(`Push ${branch} berhasil${gh?.login ? ` sebagai @${gh.login}` : ""}`, "ok");
+      toast(tr().changes.pushed(branch, gh?.login ?? ""), "ok");
       await refresh();
     }
   }
@@ -112,7 +113,7 @@
     if (!name) return;
     const ok = await run("branch", () => api.gitBranch(projectId, cwd, name).then(() => true));
     if (ok) {
-      toast(`Pindah ke branch baru ${name}`, "ok");
+      toast(tr().changes.branched(name), "ok");
       branchOpen = false;
       branchName = "";
       await refresh();
@@ -130,7 +131,7 @@
     const url = await run("pr", () => api.gitPr(projectId, cwd, prTitle, prBody, prDraft));
     if (!url) return;
     prOpen = false;
-    toast("Pull request dibuat", "ok");
+    toast(tr().changes.prCreated, "ok");
     if (url.startsWith("https://")) openUrl(url).catch(() => {});
     await refresh();
   }
@@ -152,33 +153,33 @@
   <div class="head">
     {#if status?.isRepo}
       <span class="br"><Icon name="branch" size={13} /><b>{status.branch || "(detached)"}</b></span>
-      {#if status.ahead}<span class="num" title="Commit yang belum di-push">↑{status.ahead}</span>{/if}
-      {#if status.behind}<span class="num" title="Commit di remote yang belum ditarik">↓{status.behind}</span>{/if}
-      <span class="num">{files.length} file berubah</span>
+      {#if status.ahead}<span class="num" title={tr().changes.notPushed}>↑{status.ahead}</span>{/if}
+      {#if status.behind}<span class="num" title={tr().changes.notPulled}>↓{status.behind}</span>{/if}
+      <span class="num">{tr().changes.changed(files.length)}</span>
     {:else if status}
-      <span class="muted">Bukan repo git</span>
+      <span class="muted">{tr().changes.notRepo}</span>
     {/if}
     <span class="spacer"></span>
     {#if status?.isRepo}
-      <button class="ghost small" onclick={() => (branchOpen = !branchOpen)} title="Buat branch baru dari posisi sekarang"><Icon name="plus" size={12} />branch</button>
+      <button class="ghost small" onclick={() => (branchOpen = !branchOpen)} title={tr().changes.branchTitle}><Icon name="plus" size={12} />branch</button>
     {/if}
-    <button class="ghost icon" onclick={refresh} title="Muat ulang" aria-label="Muat ulang">{#if loading}<span class="spin"></span>{:else}<Icon name="refresh" size={14} />{/if}</button>
+    <button class="ghost icon" onclick={refresh} title={tr().changes.reload} aria-label={tr().changes.reload}>{#if loading}<span class="spin"></span>{:else}<Icon name="refresh" size={14} />{/if}</button>
   </div>
 
   {#if status?.isRepo}
     {#if branchOpen}
       <div class="inline">
         <!-- svelte-ignore a11y_autofocus -->
-        <input type="text" placeholder="nama-branch-baru" bind:value={branchName} autofocus onkeydown={(e) => e.key === "Enter" && createBranch()} />
-        <button onclick={createBranch} disabled={!branchName.trim() || busy !== ""}>{busy === "branch" ? "…" : "Buat & pindah"}</button>
+        <input type="text" placeholder={tr().changes.branchPlaceholder} bind:value={branchName} autofocus onkeydown={(e) => e.key === "Enter" && createBranch()} />
+        <button onclick={createBranch} disabled={!branchName.trim() || busy !== ""}>{busy === "branch" ? "…" : tr().changes.createSwitch}</button>
       </div>
     {/if}
 
     <div class="commit">
-      <textarea rows="3" placeholder="Pesan commit, atau minta agent membuatkannya" bind:value={message}></textarea>
+      <textarea rows="3" placeholder={tr().changes.messagePlaceholder} bind:value={message}></textarea>
       <div class="row">
-        <button class="ghost" onclick={suggest} disabled={busy !== "" || files.length === 0} title="Buat pesan commit dari diff dengan agent (panggilan singkat tanpa tool)">
-          <Icon name="sparkle" size={13} />{busy === "suggest" ? "Menulis…" : "Buat pesan"}
+        <button class="ghost" onclick={suggest} disabled={busy !== "" || files.length === 0} title={tr().changes.suggestTitle}>
+          <Icon name="sparkle" size={13} />{busy === "suggest" ? tr().changes.writing : tr().changes.suggest}
         </button>
         <span class="spacer"></span>
         <button onclick={() => commit(false)} disabled={busy !== "" || !message.trim() || chosen.length === 0}>
@@ -187,22 +188,22 @@
         <button class="primary" onclick={() => commit(true)} disabled={busy !== "" || !message.trim() || chosen.length === 0}>Commit &amp; Push</button>
       </div>
       <div class="row small">
-        <span class="who"><Icon name="github" size={12} />{gh?.login ? `@${gh.login}` : "akun default gh"}</span>
+        <span class="who"><Icon name="github" size={12} />{gh?.login ? `@${gh.login}` : tr().changes.ghDefault}</span>
         <span class="spacer"></span>
         {#if status.ahead > 0 || files.length === 0}
           <button class="ghost small" onclick={push} disabled={busy !== ""}><Icon name="push" size={12} />{busy === "push" ? "Push…" : "Push"}</button>
         {/if}
-        <button class="ghost small" onclick={openPr} disabled={busy !== "" || onDefault} title={onDefault ? "Buat branch dulu: PR tidak bisa dari branch utama" : "Push lalu buat pull request"}><Icon name="pr" size={12} />Buat PR</button>
+        <button class="ghost small" onclick={openPr} disabled={busy !== "" || onDefault} title={onDefault ? tr().changes.prBlocked : tr().changes.prTitleHint}><Icon name="pr" size={12} />{tr().changes.pr}</button>
       </div>
       {#if prOpen}
         <div class="pr">
-          <input type="text" placeholder="Judul PR" bind:value={prTitle} />
-          <textarea rows="4" placeholder="Deskripsi (opsional)" bind:value={prBody}></textarea>
+          <input type="text" placeholder={tr().changes.prTitle} bind:value={prTitle} />
+          <textarea rows="4" placeholder={tr().changes.prBody} bind:value={prBody}></textarea>
           <div class="row small">
             <label class="check"><input type="checkbox" bind:checked={prDraft} /> draft</label>
             <span class="spacer"></span>
-            <button class="ghost small" onclick={() => (prOpen = false)}>Batal</button>
-            <button class="primary small" onclick={createPr} disabled={busy !== "" || !prTitle.trim()}>{busy === "pr" ? "Membuat…" : "Push & buat PR"}</button>
+            <button class="ghost small" onclick={() => (prOpen = false)}>{tr().common.cancel}</button>
+            <button class="primary small" onclick={createPr} disabled={busy !== "" || !prTitle.trim()}>{busy === "pr" ? tr().changes.creating : tr().changes.pushPr}</button>
           </div>
         </div>
       {/if}
@@ -211,7 +212,7 @@
 
   <div class="files">
     {#if files.length}
-      <label class="file all"><input type="checkbox" checked={allChosen} onchange={toggleAll} /> <span>semua file</span></label>
+      <label class="file all"><input type="checkbox" checked={allChosen} onchange={toggleAll} /> <span>{tr().changes.allFiles}</span></label>
     {/if}
     {#each files as f (f.path)}
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -221,14 +222,14 @@
           checked={!excluded[f.path]}
           onclick={(e) => e.stopPropagation()}
           onchange={(e) => (excluded[f.path] = !(e.target as HTMLInputElement).checked)}
-          title="Ikutkan di commit"
+          title={tr().changes.include}
         />
         <span class="st st-{label[f.status] ?? f.status}">{label[f.status] ?? f.status}</span>
         <span class="mono">{f.path}</span>
       </div>
     {/each}
     {#if status?.isRepo && files.length === 0}
-      <div class="muted pad">Tidak ada perubahan.</div>
+      <div class="muted pad">{tr().changes.none}</div>
     {/if}
   </div>
   <div class="diff">
@@ -237,13 +238,13 @@
 </span>{/each}</pre>
     {:else if recent.length}
       <div class="recent">
-        <div class="label">Commit terakhir</div>
+        <div class="label">{tr().changes.recent}</div>
         {#each recent as c (c.hash)}
           <div class="c"><span class="hash">{c.hash}</span><span class="subj">{c.subject}</span><span class="when">{c.when}</span></div>
         {/each}
       </div>
     {:else}
-      <div class="muted pad">Pilih file untuk melihat diff.</div>
+      <div class="muted pad">{tr().changes.pickFile}</div>
     {/if}
   </div>
 </div>

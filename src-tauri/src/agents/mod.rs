@@ -160,13 +160,20 @@ fn excerpt(text: &str, max: usize) -> String {
 fn handoff_prompt(path: &std::path::Path, from: &[String], limited: bool) -> String {
     let names: Vec<&str> = from.iter().map(|p| transcript::provider_name(p)).collect();
     let tail = if limited {
-        "lanjutkan pekerjaan terakhir yang terhenti karena akun sebelumnya kena limit."
+        crate::i18n::tr(
+            "lanjutkan pekerjaan terakhir yang terhenti karena akun sebelumnya kena limit.",
+            "continue the last task, which stopped because the previous account hit its limit.",
+        )
     } else {
-        "lanjutkan pekerjaan yang belum selesai. Kalau tidak ada yang tertunda, bilang singkat bahwa kamu siap dan tunggu instruksi."
+        crate::i18n::tr(
+            "lanjutkan pekerjaan yang belum selesai. Kalau tidak ada yang tertunda, bilang singkat bahwa kamu siap dan tunggu instruksi.",
+            "continue any unfinished work. If nothing is pending, briefly say you're ready and wait for instructions.",
+        )
     };
-    format!(
+    crate::trf!(
         "Lanjutkan thread ini. Sebelumnya dikerjakan oleh {}; riwayat lengkapnya (pesan, jawaban, dan aksi) ada di file {}. Baca seluruh isi file itu dulu supaya konteksmu sama, lalu {tail}",
-        names.join(" dan "),
+        "Continue this thread. It was previously handled by {}; the full history (messages, replies, and actions) is in the file {}. Read the whole file first so you have the same context, then {tail}",
+        names.join(crate::i18n::tr(" dan ", " and ")),
         util::fwd(path)
     )
 }
@@ -312,7 +319,7 @@ impl AgentManager {
     pub fn write(&self, thread_id: &str, data: &str) -> anyhow::Result<()> {
         let l = self
             .current(thread_id)
-            .ok_or_else(|| anyhow::anyhow!("Agent tidak berjalan"))?;
+            .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Agent tidak berjalan", "The agent isn't running")))?;
         l.write(data.as_bytes())?;
         // Answering a permission prompt in the terminal: back to work.
         let asking = self.store.data.read().threads.iter().any(|t| t.id == thread_id && t.status == "attention");
@@ -367,7 +374,7 @@ impl AgentManager {
         if self.is_live(thread_id) {
             return Ok(());
         }
-        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!("Thread tidak ditemukan"))?;
+        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Thread tidak ditemukan", "Thread not found")))?;
         let plan = self.resume_plan(&t, &t.meta.provider, &t.meta.account_id, &t.meta.model, &t.meta.mode);
         self.launch(&t, plan, cols, rows)
     }
@@ -377,12 +384,12 @@ impl AgentManager {
         let acc = self
             .store
             .account(&plan.account_id)
-            .ok_or_else(|| anyhow::anyhow!("Akun tidak ditemukan"))?;
+            .ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Akun tidak ditemukan", "Account not found")))?;
         if acc.provider != plan.provider {
-            anyhow::bail!("Akun '{}' bukan akun {}", acc.label, transcript::provider_name(&plan.provider));
+            anyhow::bail!(crate::trf!("Akun '{}' bukan akun {}", "The account '{}' isn't a {} account", acc.label, transcript::provider_name(&plan.provider)));
         }
         if !std::path::Path::new(&t.meta.cwd).is_dir() {
-            anyhow::bail!("Folder kerja tidak ditemukan: {}", t.meta.cwd);
+            anyhow::bail!(crate::trf!("Folder kerja tidak ditemukan: {}", "Working folder not found: {}", t.meta.cwd));
         }
         let tools = self.store.tools();
         let mut env = EnvPlan::default();
@@ -414,7 +421,7 @@ impl AgentManager {
                     .ok_or_else(|| anyhow::anyhow!("Codex CLI tidak ditemukan. Install: npm i -g @openai/codex"))?;
                 launch::codex(&exe, &plan)
             }
-            other => anyhow::bail!("Provider tidak dikenal: {other}"),
+            other => anyhow::bail!(crate::trf!("Provider tidak dikenal: {other}", "Unknown provider: {other}")),
         };
         cmd.cwd(&t.meta.cwd);
         env.apply_pty(&mut cmd);
@@ -424,7 +431,7 @@ impl AgentManager {
         let mut child = pair
             .slave
             .spawn_command(cmd)
-            .map_err(|e| anyhow::anyhow!("Gagal menjalankan {}: {e}", transcript::provider_name(&plan.provider)))?;
+            .map_err(|e| anyhow::anyhow!(crate::trf!("Gagal menjalankan {}: {e}", "Couldn't start {}: {e}", transcript::provider_name(&plan.provider))))?;
         drop(pair.slave);
         let mut reader = pair.master.try_clone_reader()?;
         let writer = pair.master.take_writer()?;
@@ -596,12 +603,12 @@ impl AgentManager {
         let tid = req.thread_id.clone();
         let lock = self.lock_for(&tid);
         let _g = lock.lock();
-        let acc = self.store.account(&req.account_id).ok_or_else(|| anyhow::anyhow!("Akun tidak ditemukan"))?;
+        let acc = self.store.account(&req.account_id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Akun tidak ditemukan", "Account not found")))?;
         if acc.provider != req.provider {
-            anyhow::bail!("Akun '{}' bukan akun {}", acc.label, transcript::provider_name(&req.provider));
+            anyhow::bail!(crate::trf!("Akun '{}' bukan akun {}", "The account '{}' isn't a {} account", acc.label, transcript::provider_name(&req.provider)));
         }
         if !acc.ready {
-            anyhow::bail!("Akun '{}' belum siap. Login dulu di Akun & Pengaturan.", acc.label);
+            anyhow::bail!(crate::trf!("Akun '{}' belum siap. Login dulu di Akun & Pengaturan.", "The account '{}' isn't ready. Sign in first in Accounts & Settings.", acc.label));
         }
         // Fail before stopping anything when the account cannot run.
         accounts::agent_env(&self.store, &req.account_id)?;
@@ -616,9 +623,9 @@ impl AgentManager {
             t.meta.limit = None;
             t.meta.wait_until = None;
         });
-        let t = self.store.thread(&tid).ok_or_else(|| anyhow::anyhow!("Thread tidak ditemukan"))?;
+        let t = self.store.thread(&tid).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Thread tidak ditemukan", "Thread not found")))?;
         let limited = req.reason == "limit";
-        let continue_text = self.store.data.read().settings.continue_prompt.clone();
+        let continue_text = self.store.data.read().settings.continue_text();
         let mut plan = self.resume_plan(&t, &req.provider, &req.account_id, &req.model, &req.mode);
         let resumed = plan.resume.then(|| plan.session.clone()).flatten();
         if t.meta.provider == req.provider {
@@ -670,7 +677,7 @@ impl AgentManager {
             t.meta.status = "limited".into();
         });
         let label = acc.map(|a| a.label).unwrap_or_default();
-        self.alert(thread_id, "limited", format!("Akun \"{label}\" kena limit. Pilih: tunggu atau pindah akun."));
+        self.alert(thread_id, "limited", crate::trf!("Akun \"{label}\" kena limit. Pilih: tunggu atau pindah akun.", "The account \"{label}\" hit its limit. Choose: wait or switch accounts."));
     }
 
     /// Wait for the limit to reset, then continue automatically.
@@ -714,7 +721,7 @@ impl AgentManager {
             .collect();
         for tid in due {
             if let Err(e) = self.continue_now(&tid) {
-                self.alert(&tid, "error", format!("Gagal melanjutkan setelah limit: {e}"));
+                self.alert(&tid, "error", crate::trf!("Gagal melanjutkan setelah limit: {e}", "Couldn't continue after the limit: {e}"));
                 self.update(&tid, |t| t.meta.wait_until = None);
             }
         }
@@ -725,7 +732,7 @@ impl AgentManager {
     pub fn continue_now(self: &Arc<Self>, thread_id: &str) -> anyhow::Result<()> {
         let lock = self.lock_for(thread_id);
         let _g = lock.lock();
-        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!("Thread tidak ditemukan"))?;
+        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Thread tidak ditemukan", "Thread not found")))?;
         let account_id = t.meta.limit.as_ref().map(|l| l.account_id.clone()).unwrap_or(t.meta.account_id.clone());
         self.store.update_account(&account_id, |a| a.limited_until = None);
         let _ = self.app.emit("accounts-changed", account_id.clone());
@@ -735,10 +742,10 @@ impl AgentManager {
             t.meta.limit = None;
             t.meta.wait_until = None;
         });
-        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!("Thread tidak ditemukan"))?;
+        let t = self.store.thread(thread_id).ok_or_else(|| anyhow::anyhow!(crate::i18n::tr("Thread tidak ditemukan", "Thread not found")))?;
         let mut plan = self.resume_plan(&t, &t.meta.provider, &t.meta.account_id, &t.meta.model, &t.meta.mode);
         if plan.resume {
-            plan.prompt = Some(self.store.data.read().settings.continue_prompt.clone());
+            plan.prompt = Some(self.store.data.read().settings.continue_text());
         }
         self.launch(&t, plan, cols, rows)
     }
@@ -769,7 +776,7 @@ impl AgentManager {
                     t.meta.status = "running".into();
                     t.meta.limit = None;
                     t.meta.wait_until = None;
-                    if (t.meta.title.is_empty() || t.meta.title == "Thread baru") && !prompt.trim().is_empty() {
+                    if (t.meta.title.is_empty() || t.meta.title == "Thread baru" || t.meta.title == "New thread") && !prompt.trim().is_empty() {
                         t.meta.title = title_from(&prompt);
                     }
                 });
@@ -799,7 +806,7 @@ impl AgentManager {
                 let asks = kind == "permission_prompt" || (kind.is_empty() && msg.to_lowercase().contains("permission"));
                 if asks {
                     self.set_status(thread_id, "attention");
-                    self.alert(thread_id, "attention", if msg.is_empty() { "Butuh izin".into() } else { msg });
+                    self.alert(thread_id, "attention", if msg.is_empty() { crate::i18n::tr("Butuh izin", "Needs permission").into() } else { msg });
                 }
             }
             _ => {}
@@ -836,7 +843,7 @@ impl AgentManager {
         }
         if let Some(u) = &acc.usage {
             for w in u.windows.iter().take(2) {
-                parts.push(format!("{} {:.0}%", w.label, w.used_percent));
+                parts.push(format!("{} {:.0}%", crate::i18n::window(&w.label), w.used_percent));
             }
         }
         parts.join(" · ")
@@ -924,7 +931,7 @@ impl AgentManager {
                 self.alert(thread_id, "attention", msg);
             }
             Signal::UserText(text) => self.update(thread_id, |t| {
-                if (t.meta.title.is_empty() || t.meta.title == "Thread baru") && !text.trim().is_empty() {
+                if (t.meta.title.is_empty() || t.meta.title == "Thread baru" || t.meta.title == "New thread") && !text.trim().is_empty() {
                     t.meta.title = title_from(&text);
                 }
             }),

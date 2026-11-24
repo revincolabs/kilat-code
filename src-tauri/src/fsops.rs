@@ -44,11 +44,11 @@ pub fn list_dir(path: &str) -> anyhow::Result<Vec<Entry>> {
 pub fn read_file(path: &str) -> anyhow::Result<String> {
     let meta = fs::metadata(path)?;
     if meta.len() > 8 * 1024 * 1024 {
-        anyhow::bail!("File terlalu besar untuk dibuka (> 8 MB)");
+        anyhow::bail!(crate::i18n::tr("File terlalu besar untuk dibuka (> 8 MB)", "The file is too large to open (> 8 MB)"));
     }
     let bytes = fs::read(path)?;
     if bytes.iter().take(8000).any(|b| *b == 0) {
-        anyhow::bail!("File biner tidak bisa dibuka di editor");
+        anyhow::bail!(crate::i18n::tr("File biner tidak bisa dibuka di editor", "Binary files can't be opened in the editor"));
     }
     Ok(String::from_utf8_lossy(&bytes).into_owned())
 }
@@ -143,7 +143,7 @@ pub fn diff(cwd: &str, path: &str) -> anyhow::Result<String> {
 /// Create a git worktree for a thread so parallel agents don't collide.
 pub fn add_worktree(repo: &str, dest: &Path, branch: &str) -> anyhow::Result<()> {
     if git(repo, &["rev-parse", "--verify", "HEAD"]).is_err() {
-        anyhow::bail!("Repo belum punya commit — worktree butuh minimal 1 commit");
+        anyhow::bail!(crate::i18n::tr("Repo belum punya commit — worktree butuh minimal 1 commit", "The repository has no commits yet: a worktree needs at least one commit"));
     }
     if let Some(parent) = dest.parent() {
         fs::create_dir_all(parent)?;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t as tr } from "../lib/i18n/index.svelte";
   import { app, activeProject, activeThread, listFiles } from "../lib/state.svelte";
   import { fuzzy } from "../lib/fuzzy";
 
@@ -59,11 +60,11 @@
 {#if app.quickOpen}
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
   <div class="backdrop" onclick={close}>
-    <div class="qo" role="dialog" tabindex="-1" aria-label="Buka file" onclick={(e) => e.stopPropagation()}>
+    <div class="qo" role="dialog" tabindex="-1" aria-label={tr().quickOpen.label} onclick={(e) => e.stopPropagation()}>
       {#if !root}
-        <p class="muted pad">Buka project dulu.</p>
+        <p class="muted pad">{tr().quickOpen.noProject}</p>
       {:else}
-        <input bind:this={input} type="text" placeholder="Ketik nama file…" bind:value={query} onkeydown={onKey} />
+        <input bind:this={input} type="text" placeholder={tr().quickOpen.placeholder} bind:value={query} onkeydown={onKey} />
         <div class="list">
           {#each matches as m, i (m)}
             {@const s = split(m)}
@@ -74,9 +75,9 @@
             </div>
           {/each}
           {#if loading}
-            <p class="muted pad">Memuat daftar file…</p>
+            <p class="muted pad">{tr().quickOpen.loading}</p>
           {:else if matches.length === 0}
-            <p class="muted pad">Tidak ada file yang cocok.</p>
+            <p class="muted pad">{tr().quickOpen.noMatch}</p>
           {/if}
         </div>
       {/if}

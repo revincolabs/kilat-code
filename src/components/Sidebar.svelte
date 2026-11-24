@@ -2,6 +2,7 @@
   import { open } from "@tauri-apps/plugin-dialog";
   import { api, type ThreadMeta } from "../lib/api";
   import Icon from "./Icon.svelte";
+  import { t as tr } from "../lib/i18n/index.svelte";
   import {
     app,
     addProject,
@@ -31,11 +32,12 @@
   });
 
   function statusTitle(t: ThreadMeta) {
-    if (t.status === "running") return "Agent bekerja";
-    if (t.status === "attention") return "Agent butuh izin";
-    if (t.status === "limited") return t.waitUntil ? "Menunggu limit reset" : "Akun kena limit";
-    if (t.status === "ready") return "Agent siap, menunggu kamu";
-    return "Agent tidak berjalan";
+    const s = tr().sidebar.status;
+    if (t.status === "running") return s.running;
+    if (t.status === "attention") return s.attention;
+    if (t.status === "limited") return t.waitUntil ? s.waiting : s.limited;
+    if (t.status === "ready") return s.ready;
+    return s.off;
   }
 
   function projectName(id: string) {
@@ -62,7 +64,7 @@
 
   async function pickFolder() {
     try {
-      const dir = await open({ directory: true, multiple: false, title: "Pilih folder project" });
+      const dir = await open({ directory: true, multiple: false, title: tr().sidebar.pickFolder });
       if (typeof dir === "string") await addProject(dir);
     } catch (e) {
       fail(e);
@@ -83,10 +85,11 @@
 
   function ago(ms: number) {
     const s = (Date.now() - ms) / 1000;
-    if (s < 60) return "baru";
-    if (s < 3600) return `${Math.floor(s / 60)}m`;
-    if (s < 86400) return `${Math.floor(s / 3600)}j`;
-    return `${Math.floor(s / 86400)}h`;
+    const a = tr().fmt.ago;
+    if (s < 60) return a.now;
+    if (s < 3600) return `${Math.floor(s / 60)}${a.m}`;
+    if (s < 86400) return `${Math.floor(s / 3600)}${a.h}`;
+    return `${Math.floor(s / 86400)}${a.d}`;
   }
 </script>
 
@@ -100,14 +103,14 @@
 
   <div class="actions">
     <button class="primary wide" disabled={!app.activeProjectId} onclick={() => app.activeProjectId && newThread(app.activeProjectId)}>
-      <Icon name="plus" size={14} /> Thread baru
+      <Icon name="plus" size={14} /> {tr().common.newThread}
     </button>
-    <button class="icon box" title="Buka folder project" aria-label="Buka folder project" onclick={pickFolder}><Icon name="folder" /></button>
+    <button class="icon box" title={tr().sidebar.openFolder} aria-label={tr().sidebar.openFolder} onclick={pickFolder}><Icon name="folder" /></button>
   </div>
 
   <label class="searchbox">
     <Icon name="search" size={13} />
-    <input type="search" placeholder="Cari thread" aria-label="Cari thread" bind:value={query} onkeydown={onSearchKey} />
+    <input type="search" placeholder={tr().sidebar.search} aria-label={tr().sidebar.search} bind:value={query} onkeydown={onSearchKey} />
   </label>
 
   {#snippet threadRow(t: ThreadMeta, snippet: string, showProject: boolean)}
@@ -123,27 +126,27 @@
         ></span>
         <span class="ttitle">{t.title}</span>
         {#if t.status === "limited"}<span class="flag warn" title={statusTitle(t)}><Icon name="clock" size={12} /></span>{/if}
-        {#if t.pinned}<span class="flag" title="Disematkan"><Icon name="pin" size={12} /></span>{/if}
-        {#if t.worktreeBranch}<span class="flag" title="Worktree: {t.worktreeBranch}"><Icon name="branch" size={12} /></span>{/if}
+        {#if t.pinned}<span class="flag" title={tr().sidebar.pinned}><Icon name="pin" size={12} /></span>{/if}
+        {#if t.worktreeBranch}<span class="flag" title={tr().sidebar.worktree(t.worktreeBranch)}><Icon name="branch" size={12} /></span>{/if}
         <span class="prov {t.provider}" title={t.provider === "claude" ? "Claude" : "ChatGPT / Codex"}>{t.provider === "claude" ? "C" : "G"}</span>
         <span class="when">{ago(t.updatedAt)}</span>
         <span class="tacts">
           {#if !t.archived}
-            <button class="ghost icon" title={t.pinned ? "Lepas sematan" : "Sematkan di atas"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { pinned: !t.pinned }); }}><Icon name="pin" size={13} /></button>
+            <button class="ghost icon" title={t.pinned ? tr().sidebar.unpin : tr().sidebar.pin} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { pinned: !t.pinned }); }}><Icon name="pin" size={13} /></button>
           {/if}
-          <button class="ghost icon" title={t.archived ? "Keluarkan dari arsip" : "Arsipkan"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { archived: !t.archived }); }}><Icon name={t.archived ? "unarchive" : "archive"} size={13} /></button>
+          <button class="ghost icon" title={t.archived ? tr().sidebar.unarchive : tr().sidebar.archive} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { archived: !t.archived }); }}><Icon name={t.archived ? "unarchive" : "archive"} size={13} /></button>
           <button
             class="ghost icon"
-            title="Hapus thread"
+            title={tr().sidebar.deleteThread}
             onclick={(e) => {
               e.stopPropagation();
-              if (confirm(`Hapus thread "${t.title}"? Agent-nya dihentikan. Sesi aslinya tetap ada di ~/.claude / ~/.codex.`)) deleteThread(t.id).catch(fail);
+              if (confirm(tr().sidebar.confirmDelete(t.title))) deleteThread(t.id).catch(fail);
             }}><Icon name="trash" size={13} /></button
           >
         </span>
       </div>
       {#if showProject}
-        <div class="sub">{projectName(t.projectId)}{t.archived ? " · arsip" : ""}{snippet ? ` · ${snippet}` : ""}</div>
+        <div class="sub">{projectName(t.projectId)}{t.archived ? tr().sidebar.archivedTag : ""}{snippet ? ` · ${snippet}` : ""}</div>
       {/if}
     </div>
   {/snippet}
@@ -154,10 +157,10 @@
         {@render threadRow(r.t, r.snippet, true)}
       {/each}
       {#if results.length === 0}
-        <p class="empty">Tidak ada thread yang cocok.</p>
+        <p class="empty">{tr().sidebar.noMatch}</p>
       {/if}
     {:else if app.data.projects.length === 0}
-      <p class="empty">Belum ada project. Buka folder dengan tombol folder di atas.</p>
+      <p class="empty">{tr().sidebar.noProjects}</p>
     {/if}
     {#each app.data.projects as p (p.id)}
       <div class="project" class:active={p.id === app.activeProjectId}>
@@ -165,7 +168,7 @@
         <div class="prow" onclick={() => selectProject(p.id)} title={p.path}>
           <button
             class="ghost icon caret"
-            aria-label={collapsed[p.id] ? "Buka" : "Tutup"}
+            aria-label={collapsed[p.id] ? tr().sidebar.expand : tr().sidebar.collapse}
             onclick={(e) => {
               e.stopPropagation();
               collapsed[p.id] = !collapsed[p.id];
@@ -173,11 +176,11 @@
           >
           <span class="pname">{p.name}</span>
           {#if p.githubAccountId}
-            <span class="gh" title="GitHub: {account(p.githubAccountId)?.label}">@{account(p.githubAccountId)?.login}</span>
+            <span class="gh" title={tr().sidebar.github(account(p.githubAccountId)?.label ?? "")}>@{account(p.githubAccountId)?.login}</span>
           {/if}
           <button
             class="ghost icon more"
-            title="Thread baru di project ini"
+            title={tr().sidebar.newInProject}
             onclick={(e) => {
               e.stopPropagation();
               newThread(p.id);
@@ -185,7 +188,7 @@
           >
           <button
             class="ghost icon more"
-            title="Opsi"
+            title={tr().sidebar.options}
             onclick={(e) => {
               e.stopPropagation();
               menuFor = menuFor === p.id ? null : p.id;
@@ -194,8 +197,8 @@
           {#if menuFor === p.id}
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
             <div class="menu" onclick={(e) => e.stopPropagation()}>
-              <button class="ghost" onclick={() => { menuFor = null; newThread(p.id, true); }}><Icon name="branch" size={13} /> Thread baru di worktree terpisah</button>
-              <button class="ghost danger" onclick={() => removeProject(p.id)}><Icon name="x" size={13} /> Hapus dari daftar</button>
+              <button class="ghost" onclick={() => { menuFor = null; newThread(p.id, true); }}><Icon name="branch" size={13} /> {tr().sidebar.newInWorktree}</button>
+              <button class="ghost danger" onclick={() => removeProject(p.id)}><Icon name="x" size={13} /> {tr().sidebar.removeProject}</button>
             </div>
           {/if}
         </div>
@@ -206,7 +209,7 @@
           {@const archived = archivedThreads(p.id)}
           {#if archived.length}
             <button class="ghost archive-toggle" onclick={() => (showArchived[p.id] = !showArchived[p.id])}>
-              <Icon name={showArchived[p.id] ? "chevronDown" : "chevronRight"} size={11} /> Arsip <span class="mono">{archived.length}</span>
+              <Icon name={showArchived[p.id] ? "chevronDown" : "chevronRight"} size={11} /> {tr().sidebar.archived} <span class="mono">{archived.length}</span>
             </button>
             {#if showArchived[p.id]}
               {#each archived as t (t.id)}
@@ -222,7 +225,7 @@
   <div class="foot">
     <button class="ghost acct" onclick={() => { app.accountsTab = "claude"; app.accountsOpen = true; }}>
       <Icon name="user" size={14} />
-      <span>Akun &amp; Pengaturan</span>
+      <span>{tr().sidebar.accounts}</span>
       <span class="spacer"></span>
       <span class="count">{app.data.accounts.length}</span>
     </button>

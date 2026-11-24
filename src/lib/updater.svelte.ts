@@ -1,6 +1,7 @@
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { busyCount, fail, toast } from "./state.svelte";
+import { t as tr } from "./i18n/index.svelte";
 
 /** Auto-update from GitHub Releases (latest.json, signed). */
 export const updater = $state({
@@ -23,8 +24,8 @@ export async function checkForUpdate(manual = false) {
     pending = u;
     updater.version = u?.version ?? null;
     updater.notes = u?.body ?? "";
-    if (manual && !u) toast("Kilat sudah versi terbaru", "ok");
-    if (manual && u) toast(`Versi ${u.version} tersedia. Klik "Update" di status bar.`, "info");
+    if (manual && !u) toast(tr().updater.upToDate, "ok");
+    if (manual && u) toast(tr().updater.available(u.version), "info");
   } catch (e) {
     // Offline, or no release published yet: stay quiet unless asked.
     if (manual) fail(e);
@@ -37,7 +38,7 @@ export async function checkForUpdate(manual = false) {
 export async function installUpdate() {
   if (!pending) return;
   const busy = busyCount();
-  if (busy > 0 && !confirm(`${busy} agent sedang bekerja dan akan berhenti saat Kilat dimulai ulang (sesinya tetap tersimpan). Update sekarang?`)) {
+  if (busy > 0 && !confirm(tr().updater.confirmBusy(busy))) {
     return;
   }
   let total = 0;
