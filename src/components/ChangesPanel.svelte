@@ -2,6 +2,7 @@
   import { openUrl } from "@tauri-apps/plugin-opener";
   import { api, type Commit, type GitStatus } from "../lib/api";
   import { app, account, activeProject, activeThread, accountsOf, fail, toast } from "../lib/state.svelte";
+  import Icon from "./Icon.svelte";
 
   let { cwd }: { cwd: string } = $props();
 
@@ -150,18 +151,18 @@
 <div class="changes">
   <div class="head">
     {#if status?.isRepo}
-      <span>⑂ <b>{status.branch || "(detached)"}</b></span>
-      {#if status.ahead}<span class="muted" title="Commit yang belum di-push">↑{status.ahead}</span>{/if}
-      {#if status.behind}<span class="muted" title="Commit di remote yang belum ditarik">↓{status.behind}</span>{/if}
-      <span class="muted">· {files.length} file berubah</span>
+      <span class="br"><Icon name="branch" size={13} /><b>{status.branch || "(detached)"}</b></span>
+      {#if status.ahead}<span class="num" title="Commit yang belum di-push">↑{status.ahead}</span>{/if}
+      {#if status.behind}<span class="num" title="Commit di remote yang belum ditarik">↓{status.behind}</span>{/if}
+      <span class="num">{files.length} file berubah</span>
     {:else if status}
       <span class="muted">Bukan repo git</span>
     {/if}
     <span class="spacer"></span>
     {#if status?.isRepo}
-      <button class="ghost small" onclick={() => (branchOpen = !branchOpen)} title="Buat branch baru dari posisi sekarang">+ branch</button>
+      <button class="ghost small" onclick={() => (branchOpen = !branchOpen)} title="Buat branch baru dari posisi sekarang"><Icon name="plus" size={12} />branch</button>
     {/if}
-    <button class="ghost icon" onclick={refresh} title="Muat ulang">{loading ? "…" : "↻"}</button>
+    <button class="ghost icon" onclick={refresh} title="Muat ulang" aria-label="Muat ulang">{#if loading}<span class="spin"></span>{:else}<Icon name="refresh" size={14} />{/if}</button>
   </div>
 
   {#if status?.isRepo}
@@ -174,10 +175,10 @@
     {/if}
 
     <div class="commit">
-      <textarea rows="3" placeholder="Pesan commit… (✨ minta agent membuatkannya)" bind:value={message}></textarea>
+      <textarea rows="3" placeholder="Pesan commit, atau minta agent membuatkannya" bind:value={message}></textarea>
       <div class="row">
         <button class="ghost" onclick={suggest} disabled={busy !== "" || files.length === 0} title="Buat pesan commit dari diff dengan agent (panggilan singkat tanpa tool)">
-          {busy === "suggest" ? "Menulis…" : "✨ Buat pesan"}
+          <Icon name="sparkle" size={13} />{busy === "suggest" ? "Menulis…" : "Buat pesan"}
         </button>
         <span class="spacer"></span>
         <button onclick={() => commit(false)} disabled={busy !== "" || !message.trim() || chosen.length === 0}>
@@ -186,12 +187,12 @@
         <button class="primary" onclick={() => commit(true)} disabled={busy !== "" || !message.trim() || chosen.length === 0}>Commit &amp; Push</button>
       </div>
       <div class="row small">
-        <span class="muted">{gh?.login ? `GitHub: @${gh.login}` : "GitHub: akun default gh"}</span>
+        <span class="who"><Icon name="github" size={12} />{gh?.login ? `@${gh.login}` : "akun default gh"}</span>
         <span class="spacer"></span>
         {#if status.ahead > 0 || files.length === 0}
-          <button class="ghost small" onclick={push} disabled={busy !== ""}>{busy === "push" ? "Push…" : "⇡ Push"}</button>
+          <button class="ghost small" onclick={push} disabled={busy !== ""}><Icon name="push" size={12} />{busy === "push" ? "Push…" : "Push"}</button>
         {/if}
-        <button class="ghost small" onclick={openPr} disabled={busy !== "" || onDefault} title={onDefault ? "Buat branch dulu: PR tidak bisa dari branch utama" : "Push lalu buat pull request"}>⤴ Buat PR</button>
+        <button class="ghost small" onclick={openPr} disabled={busy !== "" || onDefault} title={onDefault ? "Buat branch dulu: PR tidak bisa dari branch utama" : "Push lalu buat pull request"}><Icon name="pr" size={12} />Buat PR</button>
       </div>
       {#if prOpen}
         <div class="pr">
@@ -210,7 +211,7 @@
 
   <div class="files">
     {#if files.length}
-      <label class="file all"><input type="checkbox" checked={allChosen} onchange={toggleAll} /> <span class="muted">semua file</span></label>
+      <label class="file all"><input type="checkbox" checked={allChosen} onchange={toggleAll} /> <span>semua file</span></label>
     {/if}
     {#each files as f (f.path)}
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -236,9 +237,9 @@
 </span>{/each}</pre>
     {:else if recent.length}
       <div class="recent">
-        <div class="muted small">Commit terakhir</div>
+        <div class="label">Commit terakhir</div>
         {#each recent as c (c.hash)}
-          <div class="c"><span class="mono muted">{c.hash}</span> <span>{c.subject}</span> <span class="muted">· {c.when}</span></div>
+          <div class="c"><span class="hash">{c.hash}</span><span class="subj">{c.subject}</span><span class="when">{c.when}</span></div>
         {/each}
       </div>
     {:else}
@@ -257,15 +258,29 @@
   .head {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
+    gap: 10px;
+    height: 38px;
+    flex: none;
+    padding: 0 6px 0 12px;
     border-bottom: 1px solid var(--line);
-    font-size: 12px;
+    font-size: 12.5px;
+  }
+  .br {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .br b {
+    font: 600 12px/1 var(--mono);
+  }
+  .num {
+    font: 400 11px/1 var(--mono);
+    color: var(--muted);
   }
   .inline {
     display: flex;
     gap: 6px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--line);
   }
   .inline input {
@@ -274,8 +289,8 @@
   .commit {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 8px 10px;
+    gap: 8px;
+    padding: 12px;
     border-bottom: 1px solid var(--line);
   }
   .commit textarea,
@@ -283,67 +298,77 @@
   .pr input {
     width: 100%;
     resize: vertical;
-    background: var(--bg-2);
-    border: 1px solid var(--line-2);
-    border-radius: 6px;
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 7px 9px;
+    font-size: 12.5px;
+    line-height: 1.5;
   }
   .row {
     display: flex;
     align-items: center;
     gap: 6px;
   }
-  .small {
-    font-size: 11px;
+  .row.small {
+    font-size: 11.5px;
   }
-  button.small {
-    padding: 1px 8px;
+  .who {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    color: var(--muted);
   }
   .pr {
     display: flex;
     flex-direction: column;
     gap: 6px;
     border: 1px solid var(--line-2);
-    border-radius: 8px;
-    padding: 8px;
+    border-radius: var(--radius);
+    padding: 10px;
+    background: var(--bg);
   }
   .check {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
   .files {
     max-height: 35%;
     overflow: auto;
     border-bottom: 1px solid var(--line);
     flex: none;
+    padding: 4px 0;
   }
   .file {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 2px 10px;
+    gap: 9px;
+    height: 24px;
+    padding: 0 12px;
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
-  }
-  .file input {
-    margin: 0;
+    color: var(--fg-2);
   }
   .file.all {
-    padding-top: 4px;
+    color: var(--muted);
   }
   .file:hover {
     background: var(--bg-2);
+    color: var(--fg);
   }
   .file.sel {
     background: var(--bg-3);
+    color: var(--fg);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .file .mono {
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .st {
-    width: 14px;
-    font-weight: 700;
-    font-family: var(--mono);
+    width: 12px;
+    font: 600 11px/1 var(--mono);
     flex: none;
   }
   .st-M {
@@ -360,25 +385,26 @@
     flex: 1;
     overflow: auto;
     min-height: 0;
+    background: var(--bg);
   }
   pre {
     margin: 0;
     padding: 8px 0;
     font-size: 12px;
-    line-height: 1.45;
+    line-height: 1.5;
   }
   pre span {
     display: block;
-    padding: 0 10px;
+    padding: 0 12px;
     white-space: pre;
   }
   .add {
-    background: rgba(74, 222, 128, 0.1);
-    color: #a6f3c0;
+    background: rgba(111, 201, 139, 0.09);
+    color: #a9e3bb;
   }
   .del {
-    background: rgba(248, 113, 113, 0.1);
-    color: #fbb4b4;
+    background: rgba(242, 104, 93, 0.09);
+    color: #f4b1ab;
   }
   .hunk {
     color: var(--codex);
@@ -387,19 +413,40 @@
     color: var(--muted);
   }
   .pad {
-    padding: 10px;
+    padding: 12px;
     font-size: 12px;
   }
   .recent {
-    padding: 10px;
+    padding: 14px 12px;
     font-size: 12px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+  }
+  .recent .label {
+    margin-bottom: 8px;
   }
   .c {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--line);
     white-space: nowrap;
+    min-width: 0;
+  }
+  .hash {
+    font: 400 11px/1 var(--mono);
+    color: var(--accent);
+    flex: none;
+  }
+  .subj {
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .when {
+    font: 400 11px/1 var(--mono);
+    color: var(--muted);
+    flex: none;
   }
 </style>

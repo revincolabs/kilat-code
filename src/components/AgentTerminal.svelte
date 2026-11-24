@@ -5,6 +5,7 @@
   import { api, errMsg, type TermEvent, type ThreadMeta } from "../lib/api";
   import { app, providerLabel } from "../lib/state.svelte";
   import { isMac } from "../lib/platform";
+  import Icon from "./Icon.svelte";
 
   /**
    * The real `claude` / `codex` terminal UI of one thread. The process lives
@@ -64,12 +65,13 @@
       scrollback: 10000,
       allowProposedApi: false,
       theme: {
-        background: "#0c0c0e",
-        foreground: "#e7e7ea",
+        background: "#0f0f0e",
+        foreground: "#ecebe5",
         cursor: "#ffc83d",
-        selectionBackground: "#3a3a48",
-        black: "#1c1c22",
-        brightBlack: "#5c5c68",
+        cursorAccent: "#0f0f0e",
+        selectionBackground: "#4a4128",
+        black: "#1d1d1b",
+        brightBlack: "#6b6a63",
       },
     });
     fit = new FitAddon();
@@ -134,9 +136,9 @@
   <div class="term" bind:this={el}></div>
   {#if ended}
     <div class="ended">
-      <span>Agent {providerLabel(thread.provider)} tidak berjalan.</span>
-      <button class="primary" disabled={starting} onclick={start}>{starting ? "Memulai…" : "▶ Jalankan lagi"}</button>
-      <span class="muted small">Sesi sebelumnya dilanjutkan.</span>
+      <span class="dot"></span>
+      <span>Agent {providerLabel(thread.provider)} tidak berjalan. <span class="muted">Sesi sebelumnya akan dilanjutkan.</span></span>
+      <button class="primary" disabled={starting} onclick={start}><Icon name="play" size={12} />{starting ? "Memulai…" : "Jalankan lagi"}</button>
     </div>
   {/if}
 </div>
@@ -150,7 +152,7 @@
   .term {
     width: 100%;
     height: 100%;
-    padding: 6px 0 0 10px;
+    padding: 8px 0 0 12px;
   }
   .term :global(.xterm) {
     height: 100%;
@@ -166,15 +168,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px 8px 14px;
+    padding: 6px 6px 6px 12px;
     background: var(--bg-2);
     border: 1px solid var(--line-2);
-    border-radius: 10px;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
-    font-size: 12px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-pop);
+    font-size: 12.5px;
     white-space: nowrap;
-  }
-  .small {
-    font-size: 11px;
   }
 </style>

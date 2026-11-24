@@ -89,7 +89,7 @@
     position: fixed;
     inset: 0;
     z-index: 95;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(10, 10, 9, 0.45);
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -99,18 +99,22 @@
     width: min(620px, 92vw);
     background: var(--bg-1);
     border: 1px solid var(--line-2);
-    border-radius: 12px;
-    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-pop);
     overflow: hidden;
   }
   input {
     width: 100%;
     border: none;
     border-bottom: 1px solid var(--line);
+    border-radius: 0;
     background: transparent;
-    padding: 10px 14px;
+    padding: 12px 14px;
     font-size: 14px;
     outline: none;
+  }
+  input:focus {
+    border-color: var(--line);
   }
   .list {
     max-height: 50vh;
@@ -119,27 +123,28 @@
   }
   .qo-item {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: baseline;
-    padding: 5px 10px;
-    border-radius: 6px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     white-space: nowrap;
   }
   .qo-item.sel {
     background: var(--bg-3);
+    box-shadow: inset 2px 0 0 var(--accent);
   }
   .name {
     font-family: var(--mono);
     font-size: 12.5px;
   }
   .dir {
-    font-size: 11px;
+    font-size: 11.5px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .pad {
-    padding: 8px 12px;
+    padding: 10px 12px;
     margin: 0;
     font-size: 12px;
   }

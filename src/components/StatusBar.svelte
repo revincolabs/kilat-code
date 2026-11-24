@@ -2,6 +2,7 @@
   import { api } from "../lib/api";
   import { app, activeProject, accountsOf, busyCount, fail, toast } from "../lib/state.svelte";
   import { updater, installUpdate } from "../lib/updater.svelte";
+  import Icon from "./Icon.svelte";
 
   const project = $derived(activeProject());
   const ghAccounts = $derived(accountsOf("github"));
@@ -37,8 +38,8 @@
 <footer>
   {#if project}
     <label class="gh" title="Akun GitHub untuk git push/pull & gh di project ini">
-      <span class="muted">GitHub</span>
-      <select value={project.githubAccountId ?? ""} onchange={setGithub}>
+      <Icon name="github" size={12} />
+      <select value={project.githubAccountId ?? ""} onchange={setGithub} aria-label="Akun GitHub project ini">
         <option value="">default gh</option>
         {#each ghAccounts as a (a.id)}
           <option value={a.id}>@{a.login}{a.ready ? "" : " (logout)"}</option>
@@ -50,20 +51,20 @@
   <span class="spacer"></span>
   {#if missing.length}
     <button class="ghost warn" onclick={() => { app.accountsTab = "settings"; app.accountsOpen = true; }}>
-      ⚠ tidak ditemukan: {missing.join(", ")}
+      <Icon name="alert" size={12} /> tidak ditemukan: {missing.join(", ")}
     </button>
   {/if}
   {#if busyCount() > 0}
-    <span class="run"><span class="dot run"></span> {busyCount()} agent bekerja</span>
+    <span class="run"><span class="dot run"></span>{busyCount()} agent bekerja</span>
   {/if}
   {#if updater.progress != null}
-    <span class="upd">⬇ Mengunduh update{updater.progress ? ` ${Math.round(updater.progress * 100)}%` : "…"}</span>
+    <span class="upd"><Icon name="download" size={12} /> mengunduh update{updater.progress ? ` ${Math.round(updater.progress * 100)}%` : "…"}</span>
   {:else if updater.version}
-    <button class="ghost upd" title={updater.notes || "Unduh, pasang, lalu mulai ulang Kilat"} onclick={installUpdate}>
-      ⬆ Update ke v{updater.version}
+    <button class="upd-btn" title={updater.notes || "Unduh, pasang, lalu mulai ulang Kilat"} onclick={installUpdate}>
+      <Icon name="update" size={12} /> Update ke v{updater.version}
     </button>
   {/if}
-  <span class="muted">Kilat {app.version}</span>
+  <span class="ver">Kilat {app.version}</span>
 </footer>
 
 <style>
@@ -72,38 +73,62 @@
     flex: none;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 10px;
+    gap: 14px;
+    padding: 0 6px 0 10px;
     border-top: 1px solid var(--line);
     background: var(--bg-1);
-    font-size: 11px;
+    font: 400 11px/1 var(--mono);
+    color: var(--muted);
   }
   .gh {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 2px;
   }
   .gh select {
-    font-size: 11px;
-    padding: 0 4px;
+    font: inherit;
     height: 20px;
-    background: var(--bg-2);
+    padding: 0 20px 0 4px;
+    border-color: transparent;
+    background-color: transparent;
+    background-position: right 5px center;
+    color: var(--fg-2);
+  }
+  .gh select:hover {
+    border-color: var(--line-2);
+  }
+  footer button {
+    min-height: 20px;
+    font: inherit;
+    padding: 0 6px;
+    gap: 5px;
   }
   .run {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+  }
+  .upd {
     display: flex;
     align-items: center;
     gap: 5px;
     color: var(--accent);
   }
-  .upd {
-    color: var(--accent);
-    font-size: 11px;
-    padding: 0 6px;
+  footer .upd-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
     font-weight: 600;
+  }
+  footer .upd-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
   }
   .warn {
     color: var(--warn);
-    font-size: 11px;
-    padding: 0 6px;
+  }
+  .ver {
+    padding-right: 4px;
   }
 </style>

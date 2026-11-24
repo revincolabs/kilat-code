@@ -8,6 +8,8 @@
   import { api } from "../lib/api";
   import { app, fail, toast } from "../lib/state.svelte";
   import FileTree from "./FileTree.svelte";
+  import Icon from "./Icon.svelte";
+  import { keyLabel } from "../lib/platform";
 
   let { root }: { root: string } = $props();
 
@@ -50,9 +52,12 @@
   }
 
   const theme = EditorView.theme({
-    "&": { height: "100%", fontSize: `${app.data.settings.fontSize || 13}px`, backgroundColor: "#121215" },
+    "&": { height: "100%", fontSize: `${app.data.settings.fontSize || 13}px`, backgroundColor: "#0f0f0e" },
     ".cm-scroller": { fontFamily: "var(--mono)" },
-    ".cm-gutters": { backgroundColor: "#121215", borderRight: "1px solid #26262d" },
+    ".cm-gutters": { backgroundColor: "#0f0f0e", borderRight: "1px solid #262624", color: "#5f5d57" },
+    ".cm-activeLine, .cm-activeLineGutter": { backgroundColor: "#171715" },
+    "&.cm-focused .cm-cursor": { borderLeftColor: "#ffc83d" },
+    "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection": { backgroundColor: "#3d3622 !important" },
   });
 
   function baseExtensions(path: string, langExt: Extension): Extension[] {
@@ -160,7 +165,7 @@
 
 <div class="editor">
   <div class="tree">
-    <div class="tree-head muted" title={root}>{root.split(/[\\/]/).pop()}</div>
+    <div class="tree-head" title={root}><span class="label">{root.split(/[\\/]/).pop()}</span></div>
     <div class="tree-body">
       <FileTree path={root} onopen={openFile} depth={0} />
     </div>
@@ -171,14 +176,14 @@
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <div class="tab" class:sel={t.path === current} onclick={() => activate(t.path)} title={t.path}>
           <span>{t.name}</span>
-          {#if t.dirty}<span class="dirty">●</span>{/if}
-          <button class="ghost icon x" onclick={(e) => { e.stopPropagation(); close(t.path); }}>×</button>
+          {#if t.dirty}<span class="dirty" title="Belum disimpan"></span>{/if}
+          <button class="ghost icon x" aria-label="Tutup" onclick={(e) => { e.stopPropagation(); close(t.path); }}><Icon name="x" size={12} /></button>
         </div>
       {/each}
     </div>
     <div class="cm" class:empty={!current} bind:this={host}></div>
     {#if !current}
-      <div class="placeholder muted">Pilih file di kiri. <kbd>Ctrl</kbd>+<kbd>S</kbd> untuk simpan.</div>
+      <div class="placeholder"><p>Pilih file di kiri. <kbd>{keyLabel("S")}</kbd> menyimpan, <kbd>{keyLabel("P")}</kbd> mencari file.</p></div>
     {/if}
   </div>
 </div>
@@ -198,13 +203,17 @@
     min-height: 0;
   }
   .tree-head {
-    padding: 8px 10px 4px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    height: 34px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .tree-head .label {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
   .tree-body {
     flex: 1;
@@ -223,31 +232,37 @@
     overflow-x: auto;
     border-bottom: 1px solid var(--line);
     flex: none;
-    min-height: 31px;
+    height: 34px;
   }
   .tab {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 4px 4px 10px;
+    gap: 6px;
+    padding: 0 4px 0 12px;
     font-size: 12px;
     border-right: 1px solid var(--line);
     cursor: pointer;
-    color: var(--fg-2);
+    color: var(--muted);
     white-space: nowrap;
   }
+  .tab:hover {
+    color: var(--fg);
+  }
   .tab.sel {
-    background: #121215;
+    background: var(--bg);
     color: var(--fg);
     box-shadow: inset 0 -2px 0 var(--accent);
   }
   .dirty {
-    color: var(--accent);
-    font-size: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
   }
   .x {
-    min-width: 18px;
-    padding: 0 4px;
+    width: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
   .cm {
     flex: 1;
@@ -258,15 +273,10 @@
   }
   .placeholder {
     position: absolute;
-    inset: 32px 0 0;
+    inset: 34px 0 0;
     display: grid;
     place-items: center;
     font-size: 12px;
-  }
-  kbd {
-    border: 1px solid var(--line-2);
-    border-radius: 4px;
-    padding: 0 4px;
-    font-size: 11px;
+    color: var(--muted);
   }
 </style>

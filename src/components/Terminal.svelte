@@ -43,12 +43,13 @@
       scrollback: 5000,
       allowProposedApi: false,
       theme: {
-        background: "#0c0c0e",
-        foreground: "#e7e7ea",
+        background: "#0f0f0e",
+        foreground: "#ecebe5",
         cursor: "#ffc83d",
-        selectionBackground: "#3a3a48",
-        black: "#1c1c22",
-        brightBlack: "#5c5c68",
+        cursorAccent: "#0f0f0e",
+        selectionBackground: "#4a4128",
+        black: "#1d1d1b",
+        brightBlack: "#6b6a63",
       },
     });
     fit = new FitAddon();
@@ -108,7 +109,7 @@
   .term {
     width: 100%;
     height: 100%;
-    padding: 4px 0 0 8px;
+    padding: 6px 0 0 12px;
   }
   .term :global(.xterm) {
     height: 100%;

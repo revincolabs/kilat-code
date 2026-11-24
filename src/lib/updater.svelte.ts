@@ -23,7 +23,7 @@ export async function checkForUpdate(manual = false) {
     pending = u;
     updater.version = u?.version ?? null;
     updater.notes = u?.body ?? "";
-    if (manual && !u) toast("Kilat sudah versi terbaru ✓", "ok");
+    if (manual && !u) toast("Kilat sudah versi terbaru", "ok");
     if (manual && u) toast(`Versi ${u.version} tersedia. Klik "Update" di status bar.`, "info");
   } catch (e) {
     // Offline, or no release published yet: stay quiet unless asked.

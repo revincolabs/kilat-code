@@ -3,6 +3,7 @@
   import { api, type Account, type Settings } from "../lib/api";
   import { app, accountsOf, isLimited, accountIdentity, fail, toast, reloadData } from "../lib/state.svelte";
   import Terminal from "./Terminal.svelte";
+  import Icon from "./Icon.svelte";
   import { chime } from "../lib/sound";
   import { fmtReset } from "../lib/format";
   import { updater, checkForUpdate, installUpdate } from "../lib/updater.svelte";
@@ -50,12 +51,12 @@
   $effect(() => {
     if (!setup || setup.provider === "github" || identityStep || !setupAccount?.ready) return;
     if (setupAccount.provider === "claude" && setupAccount.kind === "oauth" && !setupAccount.email) {
-      toast(`Token "${setupAccount.label}" tersimpan ✓ Lanjut deteksi email.`, "ok");
+      toast(`Token "${setupAccount.label}" tersimpan. Lanjut deteksi email.`, "ok");
       pasteToken = "";
       setup = { ...setup, command: `claude-identity:${setupAccount.id}` };
       return;
     }
-    toast(`Akun "${setupAccount.label}" siap dipakai ✓`, "ok");
+    toast(`Akun "${setupAccount.label}" siap dipakai`, "ok");
     endSetup();
   });
 
@@ -91,7 +92,7 @@
     try {
       const r = await api.claudeIdentity(id);
       putAccount(r.account);
-      toast(`Akun "${r.account.label}" siap: ${accountIdentity(r.account)} ✓`, "ok");
+      toast(`Akun "${r.account.label}" siap: ${accountIdentity(r.account)}`, "ok");
       if (r.warning) toast(r.warning, "error");
       endSetup();
     } catch (e) {
@@ -146,7 +147,7 @@
       acc = await api.addAccount(provider, "apikey", newLabel);
       const ready = await api.setSecret(acc.id, apiKey);
       app.data.accounts.push(ready);
-      toast(`Akun "${ready.label}" tersimpan ✓`, "ok");
+      toast(`Akun "${ready.label}" tersimpan`, "ok");
       apiKey = "";
       newLabel = "";
       showKeyFor = null;
@@ -241,28 +242,31 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 <div class="overlay" onclick={close}>
-  <div class="modal" onclick={(e) => e.stopPropagation()}>
+  <div class="modal" role="dialog" tabindex="-1" aria-label="Akun & Pengaturan" onclick={(e) => e.stopPropagation()}>
     <div class="top">
       <b>Akun &amp; Pengaturan</b>
       <span class="spacer"></span>
-      <button class="ghost icon" onclick={close}>×</button>
+      <button class="ghost icon" aria-label="Tutup" onclick={close}><Icon name="x" size={15} /></button>
     </div>
-    <div class="tabs">
+    <div class="tabs" role="tablist">
       {#each tabs as t}
-        <button class="ghost" class:sel={app.accountsTab === t.id} onclick={() => { app.accountsTab = t.id; endSetup(); }}>{t.label}</button>
+        <button class="ghost" role="tab" aria-selected={app.accountsTab === t.id} class:sel={app.accountsTab === t.id} onclick={() => { app.accountsTab = t.id; endSetup(); }}>
+          {t.label}
+          {#if t.id !== "settings"}<span class="n">{accountsOf(t.id).length}</span>{/if}
+        </button>
       {/each}
     </div>
 
     <div class="content">
       {#if app.accountsTab === "claude" || app.accountsTab === "codex"}
         {@const provider = app.accountsTab}
-        <p class="muted intro">
+        <p class="intro">
           {#if provider === "claude"}
-            Setup tiap akun Claude <b>sekali saja</b>. Token disimpan di Windows Credential Manager. Semua akun memakai
+            Setup tiap akun Claude <b>sekali saja</b>. Token disimpan di penyimpan rahasia sistem. Semua akun memakai
             penyimpanan sesi yang sama, jadi ganti akun di tengah thread langsung melanjutkan sesi tanpa kehilangan konteks.
           {:else}
             Tiap akun ChatGPT punya folder login sendiri, sedangkan folder <code>sessions</code> dipakai bersama, jadi
-            <code>codex resume</code> jalan dari akun mana pun. Login sekali, selanjutnya cukup pilih akun di composer.
+            <code>codex resume</code> jalan dari akun mana pun. Login sekali, selanjutnya cukup pilih akun di bar atas terminal.
           {/if}
         </p>
 
@@ -273,18 +277,19 @@
               <div class="who">
                 <input
                   type="text"
-                  class="label"
+                  class="name-input"
                   value={a.label}
+                  aria-label="Nama akun"
                   title="Klik untuk ganti nama"
                   onchange={(e) => rename(a, e.target as HTMLInputElement)}
                 />
-                <span class="muted email">
+                <span class="email">
                   {accountIdentity(a) || (a.ready ? "email belum terdeteksi" : "belum di-setup")}
                   {#if a.displayName && a.email}· {a.displayName}{/if}
                 </span>
                 {#if a.usage?.windows?.length || isLimited(a)}
                   <span class="usage">
-                    {#if isLimited(a)}<span class="lim">⏳ limit sampai {fmtReset(a.limitedUntil)}</span>{/if}
+                    {#if isLimited(a)}<span class="lim"><Icon name="clock" size={11} /> limit sampai {fmtReset(a.limitedUntil)}</span>{/if}
                     {#each a.usage?.windows ?? [] as w (w.label)}
                       <span class="uw" class:hot={w.usedPercent >= 80} title="Diperbarui {fmtReset(a.usage?.updatedAt)}">
                         <span class="ubar"><span style:width="{Math.min(100, w.usedPercent)}%"></span></span>
@@ -294,20 +299,20 @@
                   </span>
                 {/if}
               </div>
-              <span class="badge">{kindLabel(a)}</span>
               <span class="spacer"></span>
+              <span class="badge">{kindLabel(a)}</span>
               {#if isLimited(a)}
-                <button class="ghost" onclick={() => clearLimit(a)} title="Limit sudah reset?">⏳ reset limit</button>
+                <button class="ghost small" onclick={() => clearLimit(a)} title="Limit sudah reset?">Hapus tanda limit</button>
               {/if}
               {#if !a.ready && a.kind !== "apikey" && a.kind !== "default"}
-                <button onclick={() => resetup(a)}>Setup</button>
+                <button class="small" onclick={() => resetup(a)}>Setup</button>
               {:else if a.provider === "claude" && a.kind === "oauth" && !a.email}
-                <button onclick={() => detectEmail(a)} title="Login sekali lagi di browser untuk membaca email & paket akun ini">
+                <button class="small" onclick={() => detectEmail(a)} title="Login sekali lagi di browser untuk membaca email & paket akun ini">
                   Deteksi email
                 </button>
               {/if}
               {#if a.kind !== "default"}
-                <button class="ghost icon danger" title="Hapus" onclick={() => remove(a)}>🗑</button>
+                <button class="ghost icon del" title="Hapus akun" aria-label="Hapus akun" onclick={() => remove(a)}><Icon name="trash" size={14} /></button>
               {/if}
             </div>
           {/each}
@@ -318,9 +323,9 @@
             <div class="row">
               <b>Setup: {setupAccount?.label}</b>
               <span class="spacer"></span>
-              <button class="ghost" onclick={endSetup}>Tutup</button>
+              <button class="ghost small" onclick={endSetup}>Tutup</button>
             </div>
-            <p class="muted small">
+            <p class="small">
               {#if provider === "claude" && identityStep}
                 <b>Langkah 2 dari 2: deteksi email.</b> Browser terbuka sekali lagi. Pakai akun Claude yang
                 <b>sama</b>, lalu izinkan. Login ini hanya dibaca untuk email &amp; paket, lalu langsung dihapus. Agent tetap
@@ -342,7 +347,7 @@
             {#if provider === "claude" && identityStep}
               {#if identityFailed}
                 <div class="row">
-                  <span class="muted small grow">Email belum terdeteksi. Akun tetap bisa dipakai.</span>
+                  <span class="small grow">Email belum terdeteksi. Akun tetap bisa dipakai.</span>
                   <button onclick={retryIdentity}>Ulangi</button>
                   <button class="ghost" onclick={endSetup}>Lewati</button>
                 </div>
@@ -355,17 +360,22 @@
             {/if}
           </div>
         {:else}
+          <div class="label">Tambah akun</div>
           <div class="add">
             <input
               type="text"
               class:invalid={newLabel.trim() !== "" && !!nameError}
               placeholder={provider === "claude" ? "Nama akun (wajib), mis. Claude Kantor" : "Nama akun (wajib), mis. GPT Pribadi"}
+              aria-label="Nama akun baru"
               bind:value={newLabel}
             />
             <button class="primary" disabled={!!nameError} title={nameError} onclick={() => startLogin(provider)}>
-              + {provider === "claude" ? "Login langganan (Pro/Max)" : "Login ChatGPT"}
+              <Icon name="plus" size={13} />
+              {provider === "claude" ? "Login langganan (Pro/Max)" : "Login ChatGPT"}
             </button>
-            <button disabled={!!nameError} title={nameError} onclick={() => (showKeyFor = showKeyFor === provider ? null : provider)}>Pakai API key</button>
+            <button disabled={!!nameError} title={nameError} onclick={() => (showKeyFor = showKeyFor === provider ? null : provider)}>
+              <Icon name="key" size={13} /> Pakai API key
+            </button>
           </div>
           {#if newLabel.trim() && nameError}<p class="name-err">{nameError}</p>{/if}
           {#if showKeyFor === provider}
@@ -374,6 +384,7 @@
                 type="password"
                 class="grow"
                 placeholder={provider === "claude" ? "sk-ant-api…" : "sk-…"}
+                aria-label="API key"
                 bind:value={apiKey}
                 onkeydown={(e) => e.key === "Enter" && addWithKey(provider)}
               />
@@ -382,8 +393,8 @@
           {/if}
         {/if}
       {:else if app.accountsTab === "github"}
-        <p class="muted intro">
-          Akun GitHub disimpan oleh GitHub CLI (<code>gh</code>) di keyring Windows. Login tiap akun <b>sekali</b>, lalu pilih
+        <p class="intro">
+          Akun GitHub disimpan oleh GitHub CLI (<code>gh</code>) di keyring sistem. Login tiap akun <b>sekali</b>, lalu pilih
           akun per project di status bar bawah. Push, pull, dan <code>gh</code> di terminal maupun agent langsung pakai akun
           itu, termasuk yang sedang berjalan.
         </p>
@@ -393,20 +404,20 @@
               <div class="row">
                 <span class="dot" class:ok={a.ready} class:err={!a.ready}></span>
                 <b>@{a.login}</b>
-                {#if !a.ready}<span class="muted">(tidak login di gh)</span>{/if}
+                {#if !a.ready}<span class="muted small">tidak login di gh</span>{/if}
                 <span class="spacer"></span>
-                <button class="ghost icon danger" title="Hapus dari Kilat" onclick={() => remove(a)}>🗑</button>
+                <button class="ghost icon del" title="Hapus dari Kilat" aria-label="Hapus dari Kilat" onclick={() => remove(a)}><Icon name="trash" size={14} /></button>
               </div>
               <div class="grid">
                 <label>Nama commit <input type="text" bind:value={a.gitName} /></label>
                 <label>Email commit <input type="text" bind:value={a.gitEmail} /></label>
-                <label class="full">SSH key (opsional, untuk remote git@) <input type="text" placeholder="C:\Users\…\.ssh\id_ed25519_kerja" bind:value={a.sshKey} /></label>
+                <label class="full">SSH key (opsional, untuk remote git@) <input type="text" placeholder="~/.ssh/id_ed25519_kerja" bind:value={a.sshKey} /></label>
               </div>
-              <div class="row"><span class="spacer"></span><button onclick={() => saveGit(a)}>Simpan</button></div>
+              <div class="row"><span class="spacer"></span><button class="small" onclick={() => saveGit(a)}>Simpan</button></div>
             </div>
           {/each}
           {#if list.length === 0}
-            <p class="muted small">Belum ada. Klik "Impor dari gh" kalau kamu sudah pernah <code>gh auth login</code>.</p>
+            <p class="small muted">Belum ada. Klik "Impor dari gh" kalau kamu sudah pernah <code>gh auth login</code>.</p>
           {/if}
         </div>
         {#if setup && setup.provider === "github"}
@@ -414,7 +425,7 @@
             <div class="row">
               <b>Login akun GitHub baru</b>
               <span class="spacer"></span>
-              <button class="ghost" onclick={() => { endSetup(); ghImport(); }}>Selesai</button>
+              <button class="ghost small" onclick={() => { endSetup(); ghImport(); }}>Selesai</button>
             </div>
             <div class="setup-term">
               <Terminal setup="gh-login" onexit={() => { endSetup(); ghImport(); }} />
@@ -422,26 +433,29 @@
           </div>
         {:else}
           <div class="add">
-            <button class="primary" onclick={() => (setup = { accountId: null, provider: "github", command: "gh-login" })}>+ Login akun GitHub baru</button>
-            <button disabled={busy} onclick={ghImport}>{busy ? "…" : "↻ Impor dari gh"}</button>
+            <button class="primary" onclick={() => (setup = { accountId: null, provider: "github", command: "gh-login" })}><Icon name="plus" size={13} /> Login akun GitHub baru</button>
+            <button disabled={busy} onclick={ghImport}><Icon name="refresh" size={13} /> {busy ? "Mengimpor…" : "Impor dari gh"}</button>
           </div>
         {/if}
       {:else}
         <div class="settings">
+          <div class="label">Notifikasi</div>
           <label class="check">
             <input type="checkbox" bind:checked={settings.notify} />
-            Notifikasi Windows saat agent selesai, butuh izin, atau kena limit (ketika jendela Kilat tidak aktif)
+            Notifikasi sistem saat agent selesai, butuh izin, atau kena limit (ketika jendela Kilat tidak aktif)
           </label>
           <div class="checkrow">
             <label class="check">
               <input type="checkbox" bind:checked={settings.sound} />
               Bunyikan suara juga
             </label>
-            <button class="ghost small" onclick={() => chime("done")}>▶ coba</button>
+            <button class="ghost small" onclick={() => chime("done")}><Icon name="sound" size={12} /> coba</button>
           </div>
+
+          <div class="label">Agent</div>
           <label class="check">
             <input type="checkbox" bind:checked={settings.claudeChrome} />
-            Claude in Chrome: agent Claude bisa membuka & mengendalikan Chrome lewat extension Claude
+            Claude in Chrome: agent Claude bisa membuka &amp; mengendalikan Chrome lewat extension Claude
           </label>
           <label>Pesan yang dikirim ke agent saat melanjutkan setelah limit
             <input type="text" bind:value={settings.continuePrompt} />
@@ -452,26 +466,35 @@
           <label>Ukuran font terminal
             <input type="number" min="10" max="22" bind:value={settings.fontSize} />
           </label>
-          <h4>Lokasi program <span class="muted">(kosongkan = deteksi otomatis)</span></h4>
-          <label>Bash <input type="text" placeholder={app.tools.bash ?? "tidak ditemukan"} bind:value={settings.bashPath} /></label>
-          <label>Claude Code <input type="text" placeholder={app.tools.claude ?? "tidak ditemukan"} bind:value={settings.claudePath} /></label>
-          <label>Codex <input type="text" placeholder={app.tools.codex ?? "tidak ditemukan"} bind:value={settings.codexPath} /></label>
-          <label>GitHub CLI <input type="text" placeholder={app.tools.gh ?? "tidak ditemukan"} bind:value={settings.ghPath} /></label>
-          <p class="muted small">Data aplikasi: <code>{app.dataDir}</code></p>
+
+          <div class="label">Lokasi program <span class="hint">kosongkan untuk deteksi otomatis</span></div>
+          <div class="grid">
+            <label>Bash <input type="text" placeholder={app.tools.bash ?? "tidak ditemukan"} bind:value={settings.bashPath} /></label>
+            <label>Claude Code <input type="text" placeholder={app.tools.claude ?? "tidak ditemukan"} bind:value={settings.claudePath} /></label>
+            <label>Codex <input type="text" placeholder={app.tools.codex ?? "tidak ditemukan"} bind:value={settings.codexPath} /></label>
+            <label>GitHub CLI <input type="text" placeholder={app.tools.gh ?? "tidak ditemukan"} bind:value={settings.ghPath} /></label>
+          </div>
+
+          <div class="label">Tentang</div>
+          <p class="small muted">Data aplikasi: <code>{app.dataDir}</code></p>
           <div class="checkrow">
-            <span class="muted small">Kilat Code v{app.version}{updater.version ? ` · versi ${updater.version} tersedia` : ""}</span>
+            <span class="small muted">Kilat Code v{app.version}{updater.version ? ` · versi ${updater.version} tersedia` : ""}</span>
             {#if updater.version}
-              <button class="small" onclick={installUpdate} disabled={updater.progress != null}>⬆ Update sekarang</button>
+              <button class="small primary" onclick={installUpdate} disabled={updater.progress != null}><Icon name="update" size={12} /> Update sekarang</button>
             {:else}
               <button class="ghost small" onclick={() => checkForUpdate(true)} disabled={updater.checking}>
                 {updater.checking ? "Memeriksa…" : "Periksa update"}
               </button>
             {/if}
           </div>
-          <div class="row"><span class="spacer"></span><button class="primary" onclick={saveSettings}>Simpan pengaturan</button></div>
         </div>
       {/if}
     </div>
+    {#if app.accountsTab === "settings"}
+      <div class="foot">
+        <button class="primary" onclick={saveSettings}>Simpan pengaturan</button>
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -479,7 +502,7 @@
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(10, 10, 9, 0.6);
     display: grid;
     place-items: center;
     z-index: 50;
@@ -489,86 +512,115 @@
     max-height: calc(100vh - 48px);
     background: var(--bg-1);
     border: 1px solid var(--line-2);
-    border-radius: 12px;
+    border-radius: var(--radius);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-pop);
   }
   .top {
     display: flex;
     align-items: center;
-    padding: 12px 14px 6px;
+    padding: 12px 10px 4px 18px;
+  }
+  .top b {
+    font-size: 15px;
+    font-weight: 700;
+    font-stretch: 90%;
   }
   .tabs {
     display: flex;
-    gap: 4px;
-    padding: 0 10px;
+    gap: 2px;
+    padding: 0 12px;
     border-bottom: 1px solid var(--line);
   }
   .tabs button {
-    border-radius: 6px 6px 0 0;
+    min-height: 34px;
+    border-radius: 0;
     color: var(--muted);
+    padding: 0 10px;
+  }
+  .tabs button:hover:not(:disabled) {
+    background: transparent;
+    color: var(--fg);
   }
   .tabs button.sel {
     color: var(--fg);
     box-shadow: inset 0 -2px 0 var(--accent);
   }
+  .tabs .n {
+    font: 500 10.5px/1 var(--mono);
+    color: var(--muted);
+  }
   .content {
-    padding: 14px;
+    padding: 16px 18px 18px;
     overflow-y: auto;
   }
   .intro {
-    margin-top: 0;
-    font-size: 12px;
+    margin: 0 0 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--fg-2);
+    max-width: 70ch;
   }
   .small {
     font-size: 12px;
   }
+  .label {
+    margin: 4px 0 8px;
+  }
+  .label .hint {
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 6px;
+  }
   .list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
+    border-top: 1px solid var(--line);
   }
   .acc {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--bg);
+    gap: 10px;
+    padding: 10px 4px 10px 6px;
+    border-bottom: 1px solid var(--line);
   }
   .who {
     display: flex;
     flex-direction: column;
+    gap: 2px;
     min-width: 0;
   }
   .name-err {
     color: var(--warn);
     font-size: 12px;
-    margin: -4px 0 8px;
+    margin: -2px 0 8px;
   }
   input.invalid {
     border-color: var(--warn);
   }
-  .acc .label {
-    width: 240px;
+  .acc .name-input {
+    width: 260px;
     font-weight: 600;
-    padding: 1px 6px;
+    padding: 2px 6px;
+    margin-left: -6px;
     background: transparent;
     border-color: transparent;
   }
-  .acc .label:hover:not(:disabled),
-  .acc .label:focus {
+  .acc .name-input:hover,
+  .acc .name-input:focus {
     border-color: var(--line-2);
   }
   .email {
-    font-size: 11px;
-    padding-left: 7px;
+    font-size: 11.5px;
+    color: var(--muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .del:hover:not(:disabled) {
+    color: var(--err);
   }
   .add {
     display: flex;
@@ -578,46 +630,51 @@
   .add input {
     flex: 1;
   }
+  .add button {
+    min-height: 30px;
+  }
   .grow {
     flex: 1;
   }
   .setup {
-    border: 1px solid rgba(255, 200, 61, 0.3);
-    border-radius: 10px;
-    padding: 10px;
+    border: 1px solid var(--line-2);
+    box-shadow: inset 2px 0 0 var(--accent);
+    border-radius: var(--radius);
+    padding: 12px 12px 12px 14px;
     background: var(--bg);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
   .setup p {
     margin: 0;
+    line-height: 1.6;
+    color: var(--fg-2);
   }
   .setup-term {
     height: 260px;
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
+    background: var(--bg);
   }
   .gh-acc {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 8px 10px;
-    background: var(--bg);
+    padding: 10px 4px 12px 6px;
+    border-bottom: 1px solid var(--line);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px 10px;
+    gap: 8px 12px;
   }
   .grid label,
   .settings label {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     font-size: 12px;
     color: var(--fg-2);
   }
@@ -629,49 +686,68 @@
     flex-direction: column;
     gap: 10px;
   }
+  .settings .label {
+    margin: 10px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .settings .label:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
   .settings label.check {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    font-size: 12.5px;
   }
   .settings input[type="number"] {
     width: 100px;
   }
-  h4 {
-    margin: 8px 0 0;
-    font-size: 12px;
+  .settings p {
+    margin: 0;
   }
   .checkrow {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  button.small {
-    padding: 1px 8px;
-    font-size: 11px;
+  .foot {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 18px;
+    border-top: 1px solid var(--line);
+  }
+  .foot button {
+    min-height: 30px;
   }
   .usage {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 12px;
-    font-size: 11px;
+    gap: 4px 14px;
+    margin-top: 2px;
+    font: 400 11px/1.4 var(--mono);
     color: var(--fg-2);
   }
   .lim {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     color: var(--warn);
   }
   .uw {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
   }
   .uw.hot {
     color: var(--warn);
   }
   .ubar {
-    width: 46px;
+    width: 48px;
     height: 4px;
-    border-radius: 2px;
+    border-radius: 1px;
     background: var(--bg-3);
     overflow: hidden;
   }

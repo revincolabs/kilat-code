@@ -3,6 +3,7 @@
   import FileTree from "./FileTree.svelte";
   import { api, type Entry } from "../lib/api";
   import { app } from "../lib/state.svelte";
+  import Icon from "./Icon.svelte";
 
   let { path, depth, onopen }: { path: string; depth: number; onopen: (p: string) => void } = $props();
 
@@ -42,7 +43,7 @@
     onclick={() => (e.isDir ? (open[e.path] = !open[e.path]) : onopen(e.path))}
     title={e.path}
   >
-    <span class="ic">{e.isDir ? (open[e.path] ? "▾" : "▸") : ""}</span>
+    <span class="ic">{#if e.isDir}<Icon name={open[e.path] ? "chevronDown" : "chevronRight"} size={11} />{/if}</span>
     <span class:dir={e.isDir}>{e.name}</span>
   </div>
   {#if e.isDir && open[e.path]}
@@ -55,12 +56,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    height: 23px;
     padding-right: 8px;
     cursor: pointer;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 12.5px;
     color: var(--fg-2);
   }
   .node:hover {
@@ -68,8 +68,7 @@
     color: var(--fg);
   }
   .ic {
-    width: 10px;
-    font-size: 9px;
+    width: 12px;
     color: var(--muted);
     flex: none;
   }

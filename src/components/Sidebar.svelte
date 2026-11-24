@@ -1,6 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/plugin-dialog";
   import { api, type ThreadMeta } from "../lib/api";
+  import Icon from "./Icon.svelte";
   import {
     app,
     addProject,
@@ -9,7 +10,6 @@
     newThread,
     openThread,
     deleteThread,
-    busyCount,
     fail,
     account,
     setThreadFlags,
@@ -94,20 +94,21 @@
 
 <nav>
   <div class="brand">
-    <span class="bolt">⚡</span>
-    <b>Kilat</b><span class="muted">Code</span>
+    <svg class="bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2L4 14h7l-1.5 8L20 9.5h-7.2z" /></svg>
+    <b>Kilat Code</b>
   </div>
 
   <div class="actions">
     <button class="primary wide" disabled={!app.activeProjectId} onclick={() => app.activeProjectId && newThread(app.activeProjectId)}>
-      + Thread baru
+      <Icon name="plus" size={14} /> Thread baru
     </button>
-    <button class="icon" title="Buka folder project" onclick={pickFolder}>📁</button>
+    <button class="icon box" title="Buka folder project" aria-label="Buka folder project" onclick={pickFolder}><Icon name="folder" /></button>
   </div>
 
-  <div class="searchbox">
-    <input type="search" placeholder="🔍 Cari thread…" bind:value={query} onkeydown={onSearchKey} />
-  </div>
+  <label class="searchbox">
+    <Icon name="search" size={13} />
+    <input type="search" placeholder="Cari thread" aria-label="Cari thread" bind:value={query} onkeydown={onSearchKey} />
+  </label>
 
   {#snippet threadRow(t: ThreadMeta, snippet: string, showProject: boolean)}
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -120,29 +121,29 @@
           class:warn={t.status === "attention" || t.status === "limited"}
           class:ok={t.status === "ready"}
         ></span>
-        {#if t.status === "limited"}<span class="lim" title={statusTitle(t)}>⏳</span>{/if}
-        {#if t.pinned}<span class="pin" title="Disematkan">📌</span>{/if}
         <span class="ttitle">{t.title}</span>
-        {#if t.worktreeBranch}<span class="wt" title={t.worktreeBranch}>⑂</span>{/if}
-        <span class="prov {t.provider}">{t.provider === "claude" ? "C" : "G"}</span>
-        <span class="muted when">{ago(t.updatedAt)}</span>
+        {#if t.status === "limited"}<span class="flag warn" title={statusTitle(t)}><Icon name="clock" size={12} /></span>{/if}
+        {#if t.pinned}<span class="flag" title="Disematkan"><Icon name="pin" size={12} /></span>{/if}
+        {#if t.worktreeBranch}<span class="flag" title="Worktree: {t.worktreeBranch}"><Icon name="branch" size={12} /></span>{/if}
+        <span class="prov {t.provider}" title={t.provider === "claude" ? "Claude" : "ChatGPT / Codex"}>{t.provider === "claude" ? "C" : "G"}</span>
+        <span class="when">{ago(t.updatedAt)}</span>
         <span class="tacts">
           {#if !t.archived}
-            <button class="ghost icon" title={t.pinned ? "Lepas sematan" : "Sematkan di atas"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { pinned: !t.pinned }); }}>{t.pinned ? "◌" : "📌"}</button>
+            <button class="ghost icon" title={t.pinned ? "Lepas sematan" : "Sematkan di atas"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { pinned: !t.pinned }); }}><Icon name="pin" size={13} /></button>
           {/if}
-          <button class="ghost icon" title={t.archived ? "Keluarkan dari arsip" : "Arsipkan"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { archived: !t.archived }); }}>{t.archived ? "↩" : "🗄"}</button>
+          <button class="ghost icon" title={t.archived ? "Keluarkan dari arsip" : "Arsipkan"} onclick={(e) => { e.stopPropagation(); setThreadFlags(t.id, { archived: !t.archived }); }}><Icon name={t.archived ? "unarchive" : "archive"} size={13} /></button>
           <button
             class="ghost icon"
             title="Hapus thread"
             onclick={(e) => {
               e.stopPropagation();
               if (confirm(`Hapus thread "${t.title}"? Agent-nya dihentikan. Sesi aslinya tetap ada di ~/.claude / ~/.codex.`)) deleteThread(t.id).catch(fail);
-            }}>×</button
+            }}><Icon name="trash" size={13} /></button
           >
         </span>
       </div>
       {#if showProject}
-        <div class="sub muted">{projectName(t.projectId)}{t.archived ? " · arsip" : ""}{snippet ? ` · ${snippet}` : ""}</div>
+        <div class="sub">{projectName(t.projectId)}{t.archived ? " · arsip" : ""}{snippet ? ` · ${snippet}` : ""}</div>
       {/if}
     </div>
   {/snippet}
@@ -153,10 +154,10 @@
         {@render threadRow(r.t, r.snippet, true)}
       {/each}
       {#if results.length === 0}
-        <p class="muted empty">Tidak ada thread yang cocok.</p>
+        <p class="empty">Tidak ada thread yang cocok.</p>
       {/if}
     {:else if app.data.projects.length === 0}
-      <p class="muted empty">Belum ada project. Klik 📁 untuk membuka folder.</p>
+      <p class="empty">Belum ada project. Buka folder dengan tombol folder di atas.</p>
     {/if}
     {#each app.data.projects as p (p.id)}
       <div class="project" class:active={p.id === app.activeProjectId}>
@@ -164,10 +165,11 @@
         <div class="prow" onclick={() => selectProject(p.id)} title={p.path}>
           <button
             class="ghost icon caret"
+            aria-label={collapsed[p.id] ? "Buka" : "Tutup"}
             onclick={(e) => {
               e.stopPropagation();
               collapsed[p.id] = !collapsed[p.id];
-            }}>{collapsed[p.id] ? "▸" : "▾"}</button
+            }}><Icon name={collapsed[p.id] ? "chevronRight" : "chevronDown"} size={12} /></button
           >
           <span class="pname">{p.name}</span>
           {#if p.githubAccountId}
@@ -179,7 +181,7 @@
             onclick={(e) => {
               e.stopPropagation();
               newThread(p.id);
-            }}>+</button
+            }}><Icon name="plus" size={13} /></button
           >
           <button
             class="ghost icon more"
@@ -187,13 +189,13 @@
             onclick={(e) => {
               e.stopPropagation();
               menuFor = menuFor === p.id ? null : p.id;
-            }}>⋯</button
+            }}><Icon name="more" size={13} /></button
           >
           {#if menuFor === p.id}
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
             <div class="menu" onclick={(e) => e.stopPropagation()}>
-              <button class="ghost" onclick={() => { menuFor = null; newThread(p.id, true); }}>Thread baru (worktree terpisah)</button>
-              <button class="ghost danger" onclick={() => removeProject(p.id)}>Hapus dari daftar</button>
+              <button class="ghost" onclick={() => { menuFor = null; newThread(p.id, true); }}><Icon name="branch" size={13} /> Thread baru di worktree terpisah</button>
+              <button class="ghost danger" onclick={() => removeProject(p.id)}><Icon name="x" size={13} /> Hapus dari daftar</button>
             </div>
           {/if}
         </div>
@@ -204,7 +206,7 @@
           {@const archived = archivedThreads(p.id)}
           {#if archived.length}
             <button class="ghost archive-toggle" onclick={() => (showArchived[p.id] = !showArchived[p.id])}>
-              {showArchived[p.id] ? "▾" : "▸"} 🗄 Arsip ({archived.length})
+              <Icon name={showArchived[p.id] ? "chevronDown" : "chevronRight"} size={11} /> Arsip <span class="mono">{archived.length}</span>
             </button>
             {#if showArchived[p.id]}
               {#each archived as t (t.id)}
@@ -218,19 +220,18 @@
   </div>
 
   <div class="foot">
-    {#if busyCount() > 0}
-      <div class="running"><span class="dot run"></span> {busyCount()} agent bekerja</div>
-    {/if}
-    <button class="ghost wide left" onclick={() => { app.accountsTab = "claude"; app.accountsOpen = true; }}>
-      👤 Akun &amp; Pengaturan
-      <span class="muted">({app.data.accounts.length})</span>
+    <button class="ghost acct" onclick={() => { app.accountsTab = "claude"; app.accountsOpen = true; }}>
+      <Icon name="user" size={14} />
+      <span>Akun &amp; Pengaturan</span>
+      <span class="spacer"></span>
+      <span class="count">{app.data.accounts.length}</span>
     </button>
   </div>
 </nav>
 
 <style>
   nav {
-    width: 260px;
+    width: 252px;
     flex: none;
     background: var(--bg-1);
     border-right: 1px solid var(--line);
@@ -239,60 +240,97 @@
     min-height: 0;
   }
   .brand {
+    height: 40px;
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 12px 14px 8px;
-    font-size: 15px;
+    gap: 8px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand b {
+    font-size: 14px;
+    font-weight: 750;
+    font-stretch: 85%;
+    letter-spacing: -0.01em;
   }
   .bolt {
-    color: var(--accent);
+    width: 15px;
+    height: 15px;
+    fill: var(--accent);
   }
   .actions {
     display: flex;
     gap: 6px;
-    padding: 4px 10px 10px;
+    padding: 12px 10px 8px;
+  }
+  .actions button {
+    min-height: 30px;
+  }
+  .actions .box {
+    width: 30px;
+    border-color: var(--line-2);
+    background: var(--bg-2);
   }
   .wide {
     flex: 1;
   }
-  .left {
-    text-align: left;
+  .searchbox {
+    position: relative;
+    display: block;
+    margin: 0 10px 10px;
+    color: var(--muted);
+  }
+  .searchbox :global(svg) {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .searchbox input {
+    width: 100%;
+    height: 28px;
+    padding: 0 8px 0 28px;
+    font-size: 12.5px;
+    background: var(--bg);
+    border-color: var(--line);
   }
   .list {
     flex: 1;
     overflow-y: auto;
-    padding: 0 6px 8px;
+    padding: 0 6px 10px;
   }
   .empty {
-    padding: 8px;
+    padding: 8px 10px;
+    margin: 0;
     font-size: 12px;
+    color: var(--muted);
   }
   .project {
-    margin-bottom: 4px;
+    margin-top: 6px;
   }
   .prow {
     position: relative;
     display: flex;
     align-items: center;
     gap: 2px;
-    padding: 3px 4px;
-    border-radius: 6px;
+    height: 26px;
+    padding: 0 2px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    color: var(--fg-2);
-    font-weight: 600;
-    font-size: 12px;
+    color: var(--muted);
+    font: 500 11.5px/1 var(--mono);
   }
-  .prow:hover {
-    background: var(--bg-2);
-  }
+  .prow:hover,
   .project.active .prow {
-    color: var(--fg);
+    color: var(--fg-2);
   }
   .caret {
-    font-size: 10px;
+    width: 18px;
     min-width: 18px;
-    padding: 0 2px;
+    min-height: 20px;
+    color: inherit;
   }
   .pname {
     flex: 1;
@@ -301,104 +339,81 @@
     white-space: nowrap;
   }
   .gh {
-    font-weight: 400;
     font-size: 11px;
     color: var(--muted);
     max-width: 90px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .more {
-    opacity: 0;
+    width: 22px;
     min-width: 22px;
+    min-height: 22px;
+    opacity: 0;
   }
-  .prow:hover .more {
+  .prow:hover .more,
+  .more:focus-visible {
     opacity: 1;
   }
   .menu {
     position: absolute;
-    right: 4px;
+    right: 2px;
     top: 26px;
     z-index: 10;
     background: var(--bg-2);
     border: 1px solid var(--line-2);
-    border-radius: 8px;
+    border-radius: var(--radius);
     padding: 4px;
     display: flex;
     flex-direction: column;
-    min-width: 220px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    min-width: 236px;
+    box-shadow: var(--shadow-pop);
+    font-family: var(--sans);
   }
   .menu button {
-    text-align: left;
-    font-weight: 400;
+    justify-content: flex-start;
+    font-size: 12.5px;
+    min-height: 28px;
+    color: var(--fg);
   }
-  .searchbox {
-    padding: 0 10px 8px;
-  }
-  .searchbox input {
-    width: 100%;
-    font-size: 12px;
-    padding: 4px 8px;
-    background: var(--bg-2);
-    border: 1px solid var(--line-2);
-    border-radius: 6px;
+  .menu button.danger {
+    color: var(--err);
   }
   .thread {
-    padding: 4px 6px 4px 22px;
-    border-radius: 6px;
+    position: relative;
+    padding: 0 6px 0 22px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     color: var(--fg-2);
   }
-  .lim {
-    font-size: 10px;
-  }
   .thread.result {
-    padding-left: 8px;
+    padding-left: 10px;
   }
   .tline {
     display: flex;
     align-items: center;
     gap: 7px;
     min-width: 0;
-  }
-  .sub {
-    font-size: 11px;
-    padding-left: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .pin {
-    font-size: 10px;
-  }
-  .tacts {
-    display: none;
-    gap: 0;
-  }
-  .tacts button {
-    min-width: 18px;
-    padding: 0 3px;
-    font-size: 11px;
-  }
-  .thread:hover .tacts {
-    display: inline-flex;
-  }
-  .archive-toggle {
-    display: block;
-    width: 100%;
-    text-align: left;
-    font-size: 11px;
-    color: var(--muted);
-    padding: 3px 6px 3px 22px;
-    font-weight: 400;
+    height: 28px;
   }
   .thread:hover {
     background: var(--bg-2);
+    color: var(--fg);
   }
   .thread.sel {
     background: var(--bg-3);
     color: var(--fg);
+  }
+  .thread.sel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--accent);
   }
   .ttitle {
     flex: 1;
@@ -406,10 +421,24 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .sub {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 0 0 6px 14px;
+    margin-top: -4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .flag {
+    color: var(--muted);
+  }
+  .flag.warn {
+    color: var(--warn);
+  }
   .prov {
-    font-size: 10px;
-    font-weight: 700;
-    width: 14px;
+    font: 600 10px/1 var(--mono);
+    width: 12px;
     text-align: center;
   }
   .prov.claude {
@@ -418,28 +447,56 @@
   .prov.codex {
     color: var(--codex);
   }
-  .wt {
-    color: var(--muted);
-    font-size: 11px;
-  }
   .when {
-    font-size: 11px;
-    min-width: 22px;
+    font: 400 10.5px/1 var(--mono);
+    color: var(--muted);
+    min-width: 24px;
     text-align: right;
   }
-  .thread:hover .when {
+  .tacts {
     display: none;
+  }
+  .tacts button {
+    width: 22px;
+    min-width: 22px;
+    min-height: 22px;
+  }
+  .thread:hover .tacts {
+    display: inline-flex;
+  }
+  .thread:hover .when,
+  .thread:hover .prov {
+    display: none;
+  }
+  .archive-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 5px;
+    min-height: 24px;
+    font-size: 11.5px;
+    color: var(--muted);
+    padding: 0 6px 0 22px;
   }
   .foot {
     border-top: 1px solid var(--line);
     padding: 8px;
   }
-  .running {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    padding: 0 6px 6px;
-    color: var(--accent);
+  .acct {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    min-height: 30px;
+    padding: 0 8px;
+    color: var(--fg-2);
+  }
+  .acct:hover:not(:disabled) {
+    color: var(--fg);
+  }
+  .count {
+    font: 500 10.5px/1 var(--mono);
+    color: var(--muted);
+    background: var(--bg-3);
+    border-radius: 3px;
+    padding: 3px 5px;
   }
 </style>
