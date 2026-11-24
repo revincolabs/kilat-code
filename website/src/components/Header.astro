@@ -1,4 +1,6 @@
 ---
+import Icon from "./Icon.astro";
+import { REPO_URL } from "../site";
 
 interface Props {
   current: "home" | "docs";
@@ -7,8 +9,7 @@ const { current } = Astro.props;
 const links = [
   { href: "/#fitur", label: "Fitur" },
   { href: "/#limit", label: "Saat kena limit" },
-  { href: "/#mulai", label: "Mulai" },
-  { href: "/#download", label: "Download" },
+  { href: "/#bandingkan", label: "Bandingkan" },
   { href: "/docs", label: "Dokumentasi", page: "docs" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -16,8 +17,11 @@ const links = [
 
 <header class="nav">
   <div class="wrap">
-    <a class="brand" href="/"><img src="/icon.png" alt="" width="28" height="28" />Kilat <span>Code</span></a>
-    <nav class="nav-links" aria-label="Navigasi utama">
+    <a class="brand" href="/" aria-label="Kilat Code, beranda">
+      <img src="/icon.png" alt="" width="30" height="30" />
+      <span>Kilat Code<span class="by">by revincolabs</span></span>
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
       {
         links.map((l) => (
           <a href={l.href} aria-current={l.page === current ? "page" : undefined}>
@@ -26,7 +30,10 @@ const links = [
         ))
       }
     </nav>
+    <a class="nav-gh" href={REPO_URL} aria-label="Kode sumber di GitHub"><Icon name="github" /></a>
     <a class="btn small primary" href="/#download">Download</a>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
+      <Icon name="menu" />
+    </button>
   </div>
 </header>

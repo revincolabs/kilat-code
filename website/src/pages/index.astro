@@ -3,83 +3,55 @@ import Base from "../layouts/Base.astro";
 import AppMockup from "../components/AppMockup.astro";
 import DownloadButton from "../components/DownloadButton.astro";
 import DownloadBox from "../components/DownloadBox.astro";
-import { VERSION } from "../site";
+import Icon from "../components/Icon.astro";
+import { REPO_URL, VERSION } from "../site";
 
-// Feature cards: icon = SVG path data (24×24, stroke).
-const features = [
+const trust = [
+  "Terminal Claude Code & Codex asli",
+  "Update otomatis yang ditandatangani",
+  "Token & data tetap di komputermu",
+  "Windows · macOS · Linux",
+];
+
+// Problem statement → how Kilat answers it.
+const problems = [
   {
-    icon: '<path d="M4 17l6-5-6-5M12 19h8"/>',
-    title: "Terminal agent asli",
-    text: "Claude Code dan Codex berjalan apa adanya. Slash command, <code>/model</code>, izin, dan semua fiturnya tetap bekerja.",
+    title: "Kuota habis di tengah pekerjaan",
+    text: "Agent berhenti persis saat sedang memperbaiki test, dan kamu harus menunggu berjam-jam.",
+    fix: "Tunggu otomatis sampai reset, atau lanjut dengan akun lain dalam satu klik.",
   },
   {
-    icon: '<rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/>',
-    title: "Banyak agent paralel",
-    text: "Jalankan beberapa thread sekaligus. Agent tetap bekerja di belakang saat kamu pindah thread. Opsi worktree git terpisah per thread.",
+    title: "Ganti akun berarti login ulang",
+    text: "Akun kantor, akun pribadi, Claude, ChatGPT: logout, login, dan konteks percakapan hilang.",
+    fix: "Login sekali per akun. Pilih dari dropdown, sesi dan konteks ikut pindah.",
   },
   {
-    icon: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.3 0 4 1.5 4.6 4"/>',
-    title: "Banyak akun, login sekali",
-    text: "Simpan beberapa akun Claude, ChatGPT, dan GitHub. Ganti dari dropdown di atas terminal, tanpa login ulang.",
-  },
-  {
-    icon: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
-    title: "Kena limit? Ada pilihan",
-    text: "Tunggu sampai reset lalu lanjut otomatis, atau pindah ke akun lain. Jam reset dibaca langsung dari CLI.",
-  },
-  {
-    icon: '<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
-    title: "Claude ↔ ChatGPT",
-    text: "Pindah provider di tengah pekerjaan. Riwayat yang belum dilihat agent baru diteruskan sebagai konteks.",
-  },
-  {
-    icon: '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>',
-    title: "Pemakaian per akun",
-    text: "Persentase limit 5 jam dan 7 hari beserta jam resetnya, langsung di statusline terminal dan daftar akun.",
-  },
-  {
-    icon: '<path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 004 0"/>',
-    title: "Notifikasi",
-    text: "Notifikasi sistem dan suara saat agent selesai, butuh izin, atau kena limit, ketika kamu sedang di aplikasi lain.",
-  },
-  {
-    icon: '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M18 10.5c0 4-6 3-11.2 6"/>',
-    title: "Git & GitHub bawaan",
-    text: "Editor, diff, commit, push, buat branch dan PR. Akun GitHub dipilih per project dan langsung berlaku.",
-  },
-  {
-    icon: '<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>',
-    title: "Ringan",
-    text: "Dibangun dengan Tauri dan Rust di atas webview bawaan sistem, bukan Electron. Installer Windows sekitar 3 MB, update otomatis.",
+    title: "Terminal agent berserakan",
+    text: "Lima jendela terminal, tidak tahu mana yang selesai, mana yang menunggu izin.",
+    fix: "Semua agent di satu jendela, dengan status dan notifikasi.",
   },
 ];
 
-const limitPoints = [
-  [
-    "Tunggu, lalu lanjut sendiri.",
-    "Jam reset dibaca dari CLI. Saat waktunya tiba, Kilat menjalankan ulang agent dan mengirim pesan lanjutan, walau kamu sedang tidur (selama Kilat tetap terbuka).",
-  ],
-  ["Akun Claude lain.", "Sesi yang sama dilanjutkan dengan akun berbeda, lengkap dengan seluruh percakapannya."],
-  ["Akun ChatGPT.", "Riwayat percakapan (pesan, jawaban, perintah yang dijalankan) diteruskan ke Codex supaya ia paham konteksnya."],
-  ["Kamu yang memutuskan.", "Tidak ada yang dipindah diam-diam."],
+const more = [
+  { icon: "git", title: "Git & GitHub bawaan", text: "Editor, diff, commit, push, branch, dan pull request. Pesan commit bisa ditulis agent." },
+  { icon: "users", title: "GitHub multi-akun", text: "Akun GitHub dipilih per project dan langsung berlaku, termasuk di terminal yang sedang jalan." },
+  { icon: "chart", title: "Pemakaian kuota", text: "Persentase limit 5 jam dan 7 hari beserta jam resetnya, di statusline dan daftar akun." },
+  { icon: "bell", title: "Notifikasi", text: "Notifikasi sistem dan suara saat agent selesai, butuh izin, atau kena limit." },
+  { icon: "puzzle", title: "Skill, plugin & MCP", text: "Semua yang sudah kamu pasang di Claude Code dan Codex tetap jalan di setiap akun." },
+  { icon: "zap", title: "Ringan & selalu baru", text: "Tauri + Rust, bukan Electron. Installer Windows sekitar 3 MB, update otomatis." },
 ];
 
-const flow = [
-  { title: "Agent bekerja", text: 'Claude Code mengerjakan refactor di akun "Kerja".' },
-  { title: "Akun kena limit", text: "Kilat menangkapnya dari hook Claude atau file sesi Codex, lalu memberi tahu kamu.", hot: true },
-  { title: "Pilih: tunggu, Claude lain, atau ChatGPT", text: "Satu klik. Agent dijalankan ulang dengan akun pilihanmu dan diminta melanjutkan." },
-  { title: "Lanjut dari titik yang sama", text: "Konteks utuh, file tidak tersentuh, thread yang sama." },
-];
-
-const switches = [
-  ["Claude → Claude", "Semua akun Claude berbagi penyimpanan sesi. Agent dijalankan ulang dengan <code>--resume</code> di sesi yang sama, cukup ganti tokennya."],
-  ["ChatGPT → ChatGPT", "Tiap akun punya login sendiri, tapi folder sesinya dibagi. <code>codex resume</code> melanjutkan thread yang sama."],
-  ["Claude ↔ ChatGPT", "Bagian percakapan yang belum dilihat agent tujuan dibaca dari transkrip asli, ditulis ke file, lalu agent baru membacanya dulu."],
-  ["Model atau mode izin", "Agent dijalankan ulang di sesi yang sama dengan setelan baru. Bisa juga lewat <code>/model</code> langsung di terminal."],
-];
+const compare = [
+  ["Agent Claude Code / Codex yang asli", true, true],
+  ["Banyak akun tanpa login ulang", false, true],
+  ["Pilihan saat kena limit + lanjut otomatis", false, true],
+  ["Pindah Claude ↔ ChatGPT dengan konteks", false, true],
+  ["Status semua agent + notifikasi", false, true],
+  ["Editor, diff, commit, dan PR di satu tempat", false, true],
+] as const;
 
 const steps = [
-  ["Unduh & pasang", "Jalankan installer. Terpasang untuk akunmu saja, tidak butuh hak admin."],
+  ["Unduh & pasang", "Installer untuk Windows, macOS, atau Linux. Di Windows terpasang per pengguna, tanpa hak admin."],
   ["Tambah akun", "Buka <b>Akun &amp; Pengaturan</b>, login Claude, ChatGPT, dan GitHub. Masing-masing satu klik di browser."],
   ["Buka folder, buat thread", "Pilih folder project, klik <b>+ Thread baru</b>. Terminal agent langsung siap dipakai."],
 ];
@@ -96,11 +68,11 @@ const faq = [
   ],
   [
     "Di mana token dan data saya disimpan?",
-    "Semuanya di komputermu. Token disimpan di penyimpan rahasia sistem (Credential Manager di Windows, Keychain di macOS, Secret Service di Linux), data aplikasi di folder data Kilat. Kilat tidak punya server sendiri.",
+    "Semuanya di komputermu. Token disimpan di penyimpan rahasia sistem (Credential Manager di Windows, Keychain di macOS, Secret Service di Linux). Kilat tidak punya server sendiri.",
   ],
   [
     "Muncul peringatan keamanan saat memasang. Aman?",
-    "Installer Kilat belum ditandatangani secara digital. Di Windows, klik <b>More info</b> lalu <b>Run anyway</b> pada SmartScreen. Di macOS, klik kanan aplikasi lalu <b>Open</b>. Kodenya terbuka di GitHub kalau kamu ingin memeriksanya.",
+    "Installer Kilat belum ditandatangani secara digital. Di Windows, klik <b>More info</b> lalu <b>Run anyway</b> pada SmartScreen. Di macOS, klik kanan aplikasi lalu <b>Open</b>. Kodenya bisa kamu periksa di GitHub.",
   ],
   [
     "Bisa dipakai di macOS atau Linux?",
@@ -115,47 +87,52 @@ const faq = [
 
 <Base current="home">
   <main id="isi">
+    <!-- ================================================================ hero -->
     <section class="hero">
       <div class="wrap">
-        <span class="pill"><b>v{VERSION}</b> Windows · macOS · Linux · gratis</span>
-        <h1>Banyak agent coding. Banyak akun. <em>Satu jendela kilat.</em></h1>
+        <span class="eyebrow"><b>v{VERSION}</b><span class="dot ok"></span> Gratis untuk Windows, macOS &amp; Linux</span>
+        <h1><span class="l">Banyak agent coding.</span> <span class="l">Banyak akun.</span> <em class="l">Satu jendela kilat.</em></h1>
         <p class="lead">
-          Kilat Code menjalankan terminal <strong>Claude Code</strong> dan <strong>Codex</strong> yang asli, berdampingan. Saat satu akun kena limit,
-          tunggu sampai reset atau lanjutkan dengan akun Claude atau ChatGPT lain. Konteksnya tetap utuh.
+          Kilat Code menjalankan terminal Claude Code dan Codex yang asli, berdampingan. Saat satu akun kena limit, tunggu sampai reset atau lanjutkan
+          dengan akun Claude atau ChatGPT lain. Konteksnya tetap utuh.
         </p>
         <div class="cta">
           <DownloadButton />
-          <a class="btn" href="/docs">Baca dokumentasi</a>
+          <a class="btn" href={REPO_URL}><Icon name="github" /> Lihat di GitHub</a>
         </div>
-        <p class="cta-note">Ringan, tanpa Electron · <a href="#download">download untuk OS lain</a> · butuh Claude Code dan/atau Codex CLI</p>
+        <ul class="trust">
+          {
+            trust.map((t) => (
+              <li>
+                <Icon name="check" />
+                {t}
+              </li>
+            ))
+          }
+        </ul>
         <AppMockup />
       </div>
     </section>
 
-    <div class="logos">
+    <!-- ===================================================== problem → solution -->
+    <section class="section-line">
       <div class="wrap">
-        <span>Bekerja dengan</span>
-        <b>Claude Code CLI</b>
-        <b>Codex CLI</b>
-        <b>Git</b>
-        <b>GitHub CLI</b>
-      </div>
-    </div>
-
-    <section id="fitur">
-      <div class="wrap">
-        <p class="kicker">Fitur</p>
-        <h2>Semua yang kamu butuhkan untuk kerja bareng banyak agent</h2>
-        <p class="sub">Bukan chat tiruan. Tiap thread adalah terminal agent yang asli, ditambah hal-hal yang tidak dimiliki terminal biasa.</p>
-        <div class="grid">
+        <p class="kicker">masalahnya</p>
+        <h2>Kerja dengan banyak agent itu melelahkan</h2>
+        <p class="sub">Tiga hal yang membuat kita berhenti di tengah jalan, dan bagaimana Kilat menyelesaikannya.</p>
+        <div class="problems">
           {
-            features.map((f) => (
-              <article class="card">
+            problems.map((p) => (
+              <article class="problem">
                 <div class="ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={f.icon} />
+                  <Icon name="alert" />
                 </div>
-                <h3>{f.title}</h3>
-                <p set:html={f.text} />
+                <h3>{p.title}</h3>
+                <p>{p.text}</p>
+                <div class="fix">
+                  <Icon name="check" />
+                  <span>{p.fix}</span>
+                </div>
               </article>
             ))
           }
@@ -163,58 +140,184 @@ const faq = [
       </div>
     </section>
 
-    <section id="limit" class="band">
-      <div class="wrap split">
-        <div>
-          <p class="kicker">Saat kena limit</p>
-          <h2>Pekerjaan tidak berhenti hanya karena kuota habis</h2>
-          <p class="sub tight">Kilat tahu saat sebuah akun kena limit dan langsung menawarkan jalan keluar, tepat di atas terminal agent itu.</p>
-          <ul class="checks">
-            {
-              limitPoints.map(([b, t]) => (
-                <li>
-                  <span>
-                    <b>{b}</b> {t}
-                  </span>
-                </li>
-              ))
-            }
-          </ul>
+    <!-- ========================================================= feature rows -->
+    <section id="fitur" class="band">
+      <div class="wrap">
+        <div class="center">
+          <p class="kicker">fitur</p>
+          <h2>Dibuat untuk orang yang menjalankan banyak agent</h2>
+          <p class="sub">Bukan chat tiruan. Tiap thread adalah terminal agent yang asli, ditambah hal-hal yang tidak dimiliki terminal biasa.</p>
         </div>
-        <div class="flow">
-          {
-            flow.map((s, i) => (
-              <div class:list={["step", { hot: s.hot }]}>
-                <span class="n">{i + 1}</span>
-                <div>
-                  <h4>{s.title}</h4>
-                  <p>{s.text}</p>
+
+        <div class="rows">
+          <!-- limit -->
+          <div class="row" id="limit">
+            <div class="copy">
+              <p class="kicker">saat kena limit</p>
+              <h3>Kuota habis? Pekerjaan tetap jalan</h3>
+              <p>Kilat menangkap limit dari hook Claude Code dan file sesi Codex, lalu langsung menawarkan jalan keluar di atas terminal agent itu.</p>
+              <ul class="checks">
+                <li>
+                  <Icon name="check" /><span><b>Tunggu, lalu lanjut sendiri.</b> Jam reset dibaca dari CLI; saat waktunya tiba agent dijalankan ulang dan diminta melanjutkan (selama Kilat terbuka).</span>
+                </li>
+                <li><Icon name="check" /><span><b>Akun Claude lain.</b> Sesi yang sama dilanjutkan, lengkap dengan seluruh percakapannya.</span></li>
+                <li><Icon name="check" /><span><b>Akun ChatGPT.</b> Riwayat percakapan diteruskan ke Codex sebagai konteks.</span></li>
+              </ul>
+            </div>
+            <div class="panel" aria-hidden="true">
+              <div class="limit">
+                <h4>Akun Claude "Kerja" kena limit</h4>
+                <div class="m">You've hit your session limit · resets 3pm</div>
+                <div class="w">Tunggu sampai 15.00, lalu lanjut otomatis</div>
+                <div class="k">Pindah ke akun Claude lain <span>· sesi sama</span></div>
+                <div class="a"><b>Pribadi</b><span>PRO · 5 jam 12%</span></div>
+                <div class="k">Pindah ke akun ChatGPT <span>· riwayat diteruskan</span></div>
+                <div class="a"><b>Tim</b><span>PLUS · 18%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- real terminal -->
+          <div class="row flip">
+            <div class="copy">
+              <p class="kicker">terminal asli</p>
+              <h3>Claude Code dan Codex apa adanya</h3>
+              <p>Tidak ada antarmuka chat buatan. Slash command, <code>/model</code>, izin, mode bash: semua jalan persis seperti di terminalmu.</p>
+              <ul class="checks">
+                <li><Icon name="check" /><span><b>Agent tetap jalan di belakang</b> saat kamu pindah thread.</span></li>
+                <li><Icon name="check" /><span><b>Statusline menunjukkan akun</b> yang sedang dipakai beserta sisa kuotanya.</span></li>
+                <li><Icon name="check" /><span><b>Model & mode izin</b> bisa diganti dari bar di atas terminal.</span></li>
+              </ul>
+            </div>
+            <div class="panel" aria-hidden="true">
+              <div class="term">
+                <div><span class="c">▐▛███▜▌</span>  Claude Code</div>
+                <div class="g">        Opus · Claude Max · ~/toko-online</div>
+                <div class="p">❯ tambahkan validasi email di form daftar</div>
+                <div>● Membaca <span class="y">src/auth/register.ts</span></div>
+                <div class="g">  Edit src/auth/register.ts (+18 -2)</div>
+                <div>● Bash(npm test -- register)</div>
+                <div class="okc">  ⎿ 12 passed</div>
+                <div>● Validasi email selesai, semua test lulus.</div>
+                <div class="g">────────────────────────────────────</div>
+                <div class="g">  <span class="y">⚡ Kilat</span> · Kerja · MAX · 5 jam 41% · 7 hari 53%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- switching -->
+          <div class="row">
+            <div class="copy">
+              <p class="kicker">konteks tetap utuh</p>
+              <h3>Ganti akun atau provider tanpa mulai dari nol</h3>
+              <p>Kilat mencatat akun dan sesi asli di setiap bagian percakapan, jadi tiap jenis perpindahan memakai cara yang paling setia.</p>
+              <ul class="checks">
+                <li><Icon name="check" /><span><b>Claude → Claude:</b> sesi yang sama di-<code>--resume</code>, hanya tokennya yang berganti.</span></li>
+                <li><Icon name="check" /><span><b>ChatGPT → ChatGPT:</b> folder sesi dibagi, <code>codex resume</code> melanjutkan thread.</span></li>
+                <li><Icon name="check" /><span><b>Claude ↔ ChatGPT:</b> bagian yang belum dilihat agent baru diteruskan sebagai riwayat.</span></li>
+              </ul>
+            </div>
+            <div class="panel" aria-hidden="true">
+              <div class="flowline">
+                <div class="seg">
+                  <span class="who claude">Claude</span>
+                  <span><b>Kerja</b><small>refactor modul pembayaran</small></span>
+                  <span class="how warn">kena limit</span>
+                </div>
+                <div class="arrow"><Icon name="arrowDown" /> resume sesi yang sama</div>
+                <div class="seg">
+                  <span class="who claude">Claude</span>
+                  <span><b>Pribadi</b><small>melanjutkan perbaikan test</small></span>
+                  <span class="how">lanjut</span>
+                </div>
+                <div class="arrow"><Icon name="arrowDown" /> riwayat diteruskan</div>
+                <div class="seg">
+                  <span class="who codex">ChatGPT</span>
+                  <span><b>Tim</b><small>review dan rapikan kode</small></span>
+                  <span class="how">konteks utuh</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- parallel -->
+          <div class="row flip">
+            <div class="copy">
+              <p class="kicker">paralel</p>
+              <h3>Banyak agent, satu jendela</h3>
+              <p>Jalankan beberapa thread sekaligus di project yang sama atau berbeda. Kilat memberi tahu saat ada yang selesai atau butuh kamu.</p>
+              <ul class="checks">
+                <li><Icon name="check" /><span><b>Worktree git terpisah</b> per thread, supaya agent tidak saling menimpa file.</span></li>
+                <li><Icon name="check" /><span><b>Status sekilas:</b> bekerja, siap, butuh izin, atau kena limit.</span></li>
+                <li><Icon name="check" /><span><b>Notifikasi</b> saat jendela Kilat sedang tidak aktif.</span></li>
+              </ul>
+            </div>
+            <div class="panel" aria-hidden="true">
+              <div class="agents">
+                <div class="agent"><i class="d run"></i><span>Halaman checkout baru</span><span class="tag" style="color: var(--codex)">ChatGPT</span><span class="state">bekerja</span></div>
+                <div class="agent"><i class="d run"></i><span>Migrasi database</span><span class="tag" style="color: var(--claude)">Claude</span><span class="state">bekerja</span></div>
+                <div class="agent"><i class="d warn"></i><span>Refactor pembayaran</span><span class="tag" style="color: var(--claude)">Claude</span><span class="state">butuh izin</span></div>
+                <div class="agent"><i class="d ok"></i><span>Tulis dokumentasi API</span><span class="tag" style="color: var(--codex)">ChatGPT</span><span class="state">siap</span></div>
+              </div>
+              <div class="toast"><Icon name="bell" /><span><b>Perbaiki bug login:</b> agent selesai</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ more grid -->
+    <section>
+      <div class="wrap">
+        <p class="kicker">dan juga</p>
+        <h2>Semua yang dibutuhkan di sekitar agent</h2>
+        <p class="sub">Supaya kamu tidak perlu bolak-balik ke aplikasi lain.</p>
+        <div class="grid">
+          {
+            more.map((f) => (
+              <article class="card">
+                <div class="ic">
+                  <Icon name={f.icon as any} />
+                </div>
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </article>
             ))
           }
         </div>
       </div>
     </section>
 
-    <section>
+    <!-- ============================================================ compare -->
+    <section id="bandingkan" class="section-line">
       <div class="wrap">
-        <p class="kicker">Konteks tetap utuh</p>
-        <h2>Ganti apa saja, kapan saja</h2>
-        <p class="sub">
-          Kilat mencatat akun dan sesi asli yang dipakai di setiap bagian percakapan, jadi tiap jenis perpindahan memakai cara yang paling setia.
-        </p>
+        <p class="kicker">bandingkan</p>
+        <h2>Terminal biasa vs Kilat Code</h2>
+        <p class="sub">Agent yang sama, ditambah hal-hal yang biasanya harus kamu urus sendiri.</p>
         <div class="table-wrap">
-          <table>
+          <table class="compare">
             <thead>
-              <tr><th>Perpindahan</th><th>Yang terjadi</th></tr>
+              <tr>
+                <th scope="col">Kemampuan</th>
+                <th scope="col">Terminal biasa</th>
+                <th scope="col" class="us">Kilat Code</th>
+              </tr>
             </thead>
             <tbody>
               {
-                switches.map(([a, b]) => (
+                compare.map(([what, plain, kilat]) => (
                   <tr>
-                    <td>{a}</td>
-                    <td set:html={b} />
+                    <td>{what}</td>
+                    <td>
+                      <span class={plain ? "yes" : "no"}>
+                        <Icon name={plain ? "check" : "minus"} label={plain ? "ada" : "tidak ada"} />
+                      </span>
+                    </td>
+                    <td>
+                      <span class={kilat ? "yes" : "no"}>
+                        <Icon name={kilat ? "check" : "minus"} label={kilat ? "ada" : "tidak ada"} />
+                      </span>
+                    </td>
                   </tr>
                 ))
               }
@@ -224,12 +327,13 @@ const faq = [
       </div>
     </section>
 
-    <section id="mulai" class="no-top">
+    <!-- ============================================================== start -->
+    <section id="mulai" class="section-line">
       <div class="wrap">
-        <p class="kicker">Mulai dalam 3 langkah</p>
+        <p class="kicker">mulai</p>
         <h2>Pasang sekali, langsung kerja</h2>
         <p class="sub">
-          Yang kamu perlukan: Windows, macOS, atau Linux, ditambah Git dan Claude Code CLI atau Codex CLI. <a href="/docs#persyaratan">Lihat persyaratan lengkap</a>.
+          Yang kamu perlukan: Git dan Claude Code CLI atau Codex CLI. <a href="/docs#persyaratan">Lihat persyaratan lengkap</a>.
         </p>
         <div class="install">
           {
@@ -244,21 +348,23 @@ const faq = [
       </div>
     </section>
 
-    <section id="download" class="line-top">
+    <!-- =========================================================== download -->
+    <section id="download" class="band">
       <div class="wrap">
         <div class="center">
-          <p class="kicker">Download</p>
+          <p class="kicker">download</p>
           <h2>Pilih sistem operasimu</h2>
-          <p class="sub center-sub">Gratis. Aplikasi memeriksa update sendiri, jadi cukup unduh sekali.</p>
+          <p class="sub">Gratis. Aplikasi memeriksa update sendiri, jadi cukup unduh sekali.</p>
         </div>
         <DownloadBox />
       </div>
     </section>
 
-    <section id="faq" class="line-top">
+    <!-- ================================================================ faq -->
+    <section id="faq">
       <div class="wrap">
         <div class="center">
-          <p class="kicker">FAQ</p>
+          <p class="kicker">faq</p>
           <h2>Pertanyaan yang sering muncul</h2>
         </div>
         <div class="faq">
@@ -274,15 +380,17 @@ const faq = [
       </div>
     </section>
 
+    <!-- ============================================================== final -->
     <section class="final">
       <div class="wrap">
-        <img src="/icon.png" alt="" width="72" height="72" />
+        <img src="/icon.png" alt="" width="76" height="76" loading="lazy" />
         <h2>Siap kerja lebih kilat?</h2>
-        <p class="sub center-sub">Unduh Kilat Code dan jalankan agent pertamamu dalam beberapa menit.</p>
+        <p class="sub center">Unduh Kilat Code dan jalankan agent pertamamu dalam beberapa menit.</p>
         <div class="cta">
           <DownloadButton label={`Download v${VERSION}`} />
-          <a class="btn" href="/docs#mulai-cepat">Panduan mulai cepat</a>
+          <a class="btn" href="/docs#mulai-cepat"><Icon name="book" /> Panduan mulai cepat</a>
         </div>
+        <div class="maker">Dibuat dan dirawat oleh <b>revincolabs</b></div>
       </div>
     </section>
   </main>
