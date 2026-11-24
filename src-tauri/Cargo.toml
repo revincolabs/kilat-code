@@ -1,6 +1,6 @@
 [package]
 name = "kilat"
-version = "0.2.0"
+version = "0.2.1"
 description = "Kilat Code - editor ringan untuk multi-agent (Claude, Codex) dengan multi akun"
 edition = "2021"
 
