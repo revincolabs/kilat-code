@@ -1,11 +1,11 @@
 import Note from "../components/Note.astro";
 import DownloadBox from "../components/DownloadBox.astro";
-import { DOWNLOAD_URL, INSTALLER } from "../site";
+import { RELEASES_URL } from "../site";
 
 ## Mulai cepat
 
-1. Pastikan [persyaratan](#persyaratan) sudah terpasang, minimal Git for Windows dan salah satu dari Claude Code CLI atau Codex CLI.
-2. <a href={DOWNLOAD_URL} download>Unduh installer</a>, jalankan, lalu buka **Kilat Code** dari Start menu.
+1. Pastikan [persyaratan](#persyaratan) sudah terpasang, minimal Git dan salah satu dari Claude Code CLI atau Codex CLI.
+2. [Unduh Kilat Code](#instalasi) untuk Windows, macOS, atau Linux, pasang, lalu buka.
 3. Klik **👤 Akun & Pengaturan** di kiri bawah. Akun bawaan sudah ada: *Claude (login bawaan)* dan *ChatGPT (login bawaan)* memakai login CLI yang sudah ada di komputermu. Tambahkan akun lain kalau perlu.
 4. Klik **📁** untuk membuka folder project.
 5. Klik **+ Thread baru**. Terminal agent langsung berjalan di folder itu. Ketik tugasmu seperti biasa.
@@ -18,9 +18,10 @@ import { DOWNLOAD_URL, INSTALLER } from "../site";
 
 | Komponen | Wajib? | Keterangan |
 |---|---|---|
-| Windows 10 / 11, 64-bit | Ya | Versi sekarang khusus Windows. |
-| Microsoft Edge WebView2 | Ya | Sudah bawaan di Windows 11 dan kebanyakan Windows 10. Kalau belum ada, pasang dari situs Microsoft. |
-| Git for Windows | Ya | Untuk Git Bash, worktree, diff, dan commit. |
+| Sistem operasi | Ya | Windows 10/11 (64-bit), macOS 11 atau lebih baru (Apple Silicon & Intel), atau Linux x86_64. Versi Windows yang paling banyak diuji; macOS dan Linux masih tahap awal. |
+| Webview sistem | Ya | Windows: Microsoft Edge WebView2 (bawaan Windows 11 dan kebanyakan Windows 10). macOS: sudah bawaan. Linux: WebKitGTK 4.1 (`libwebkit2gtk-4.1-0`). |
+| Git | Ya | Untuk worktree, diff, dan commit. Di Windows pasang Git for Windows, yang sekaligus menyediakan Git Bash. |
+| Penyimpan rahasia | Linux saja | GNOME Keyring atau KWallet (Secret Service) untuk menyimpan token. Windows memakai Credential Manager, macOS memakai Keychain. |
 | Claude Code CLI | Salah satu | Untuk agent Claude. Perintah `claude` harus bisa dijalankan. |
 | Codex CLI | Salah satu | Untuk agent ChatGPT. Perintah `codex` harus bisa dijalankan. |
 | GitHub CLI (`gh`) | Opsional | Untuk banyak akun GitHub dan membuat pull request. |
@@ -32,11 +33,45 @@ Kilat mencari program-program itu secara otomatis. Kalau ada yang tidak ketemu, 
 
 <DownloadBox />
 
-1. Jalankan <code>{INSTALLER}</code>.
-2. Kalau muncul *"Windows protected your PC"*, klik **More info** lalu **Run anyway**. Peringatan ini muncul karena installer belum ditandatangani secara digital.
-3. Kilat terpasang untuk akun Windows-mu saja di `%LOCALAPPDATA%\Kilat Code`, tanpa hak admin.
+Semua file juga ada di halaman <a href={RELEASES_URL}>GitHub Releases</a>.
 
-**Update:** unduh installer versi baru dan jalankan. Akun, pengaturan, dan thread tidak hilang karena disimpan terpisah dari program.
+### Windows
+
+1. Jalankan file `-setup.exe`.
+2. Kalau muncul *"Windows protected your PC"*, klik **More info** lalu **Run anyway**. Peringatan ini muncul karena installer belum ditandatangani secara digital.
+3. Kilat terpasang untuk akun Windows-mu saja di `%LOCALAPPDATA%\Kilat Code`, tanpa hak admin. Buka dari Start menu.
+
+### macOS
+
+1. Buka file `.dmg`, lalu seret **Kilat Code** ke folder **Applications**.
+2. Aplikasi belum dinotarisasi Apple, jadi saat pertama kali dibuka: klik kanan **Kilat Code** di Applications → **Open** → **Open**. Kalau macOS menyebut aplikasi "rusak", jalankan di Terminal:
+
+   ```bash
+   xattr -cr "/Applications/Kilat Code.app"
+   ```
+
+3. Kilat membaca PATH dari shell login-mu (zsh/bash), jadi `claude`, `codex`, dan `gh` yang terpasang lewat Homebrew atau npm tetap ketemu walau Kilat dibuka dari Dock.
+
+### Linux
+
+- **AppImage** (semua distro): beri izin jalan lalu buka.
+
+  ```bash
+  chmod +x KilatCode_*.AppImage
+  ./KilatCode_*.AppImage
+  ```
+
+- **.deb** (Ubuntu, Debian, dan turunannya):
+
+  ```bash
+  sudo apt install ./KilatCode_*.deb
+  ```
+
+Token disimpan lewat Secret Service, jadi pastikan GNOME Keyring atau KWallet berjalan di sesi desktopmu.
+
+### Update
+
+Kilat memeriksa versi baru sendiri (beberapa detik setelah dibuka, lalu tiap 6 jam). Kalau ada, muncul tombol **⬆ Update ke vX** di status bar bawah: klik, Kilat mengunduh, memasang, lalu mulai ulang. Bisa juga lewat **Pengaturan → Periksa update**. Paket update ditandatangani, jadi hanya update resmi yang diterima. Di Linux, update otomatis berlaku untuk versi AppImage; pengguna `.deb` cukup memasang `.deb` versi baru. Akun, pengaturan, dan thread tidak hilang. Agent yang sedang berjalan berhenti saat Kilat dimulai ulang, tapi sesinya dilanjutkan saat thread dibuka lagi.
 
 ## Menambah akun
 
@@ -94,6 +129,8 @@ Isi thread adalah terminal `claude` atau `codex` yang asli. Semua yang bisa dila
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | Tempel teks. |
 | <kbd>Ctrl</kbd>+<kbd>C</kbd> | Salin kalau ada teks terpilih. Kalau tidak, dikirim ke agent (menghentikan proses yang sedang jalan). |
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Selalu salin. |
+
+Di macOS, salin dan tempel memakai <kbd>⌘</kbd>+<kbd>C</kbd> / <kbd>⌘</kbd>+<kbd>V</kbd>, sedangkan <kbd>Ctrl</kbd>+<kbd>C</kbd> selalu dikirim ke agent.
 
 ## Model dan mode izin
 
@@ -180,17 +217,17 @@ Caranya: setiap proses di project itu memakai `GIT_CONFIG_GLOBAL` khusus yang me
 
 ## Terminal bash
 
-Selain terminal agent, ada panel Git Bash di bawah. Buka/tutup dengan <kbd>Ctrl</kbd>+<kbd>{"`"}</kbd> atau tombol **Terminal**. Bisa banyak tab. Terminal ini juga memakai akun GitHub project.
+Selain terminal agent, ada panel terminal di bawah: Git Bash di Windows, shell bawaanmu (zsh/bash) di macOS dan Linux. Buka/tutup dengan <kbd>Ctrl</kbd>+<kbd>{"`"}</kbd> (<kbd>⌘</kbd>+<kbd>{"`"}</kbd> di macOS) atau tombol **Terminal**. Bisa banyak tab. Terminal ini juga memakai akun GitHub project.
 
 ## Notifikasi
 
-Saat jendela Kilat tidak aktif, kamu mendapat notifikasi Windows (dan suara, kalau diaktifkan) ketika agent **selesai**, **butuh izin**, atau **kena limit**. Kalau Kilat aktif tapi kamu sedang di thread lain, muncul toast kecil.
+Saat jendela Kilat tidak aktif, kamu mendapat notifikasi sistem (dan suara, kalau diaktifkan) ketika agent **selesai**, **butuh izin**, atau **kena limit**. Kalau Kilat aktif tapi kamu sedang di thread lain, muncul toast kecil.
 
 ## Pengaturan
 
 | Setelan | Fungsi |
 |---|---|
-| Notifikasi Windows | Notifikasi saat agent selesai, butuh izin, atau kena limit. |
+| Notifikasi sistem | Notifikasi saat agent selesai, butuh izin, atau kena limit. |
 | Bunyikan suara | Suara pendek bersama notifikasi. Ada tombol ▶ coba. |
 | Claude in Chrome | Agent Claude dijalankan dengan `--chrome` supaya bisa mengendalikan Chrome lewat extension Claude. |
 | Pesan lanjutan setelah limit | Pesan yang dikirim ke agent saat pekerjaan dilanjutkan. |
@@ -210,14 +247,14 @@ Saat jendela Kilat tidak aktif, kamu mendapat notifikasi Windows (dan suara, kal
 ## Data dan privasi
 
 - Kilat **tidak punya server**. Tidak ada akun Kilat, tidak ada telemetri.
-- Token Claude dan API key disimpan di **Windows Credential Manager**, bukan di file biasa.
-- Data aplikasi (project, daftar akun tanpa rahasia, thread, pengaturan) ada di `%APPDATA%\dev.kilat.code`.
+- Token Claude dan API key disimpan di **penyimpan rahasia sistem**, bukan di file biasa: Credential Manager (Windows), Keychain (macOS), atau Secret Service seperti GNOME Keyring / KWallet (Linux).
+- Data aplikasi (project, daftar akun tanpa rahasia, thread, pengaturan) ada di `%APPDATA%\dev.kilat.code` (Windows), `~/Library/Application Support/dev.kilat.code` (macOS), atau `~/.local/share/dev.kilat.code` (Linux).
 - Percakapan disimpan oleh CLI masing-masing di `~/.claude` dan `~/.codex`, persis seperti tanpa Kilat. File oper konteks Claude ↔ ChatGPT ada di folder `handoff` di data Kilat.
 - Kilat sendiri hanya menghubungi Anthropic untuk memeriksa token Claude yang kamu simpan (apakah valid dan milik siapa), dan GitHub lewat `gh` untuk profil akun. Selebihnya semua lalu lintas berasal dari CLI resmi.
 
 ## Cara kerja di balik layar
 
-- Tiap thread menjalankan `claude` atau `codex` di pseudo-console Windows (ConPTY). Tampilannya memakai xterm.js. Prosesnya milik aplikasi, bukan milik tampilan, jadi tetap jalan saat kamu pindah thread.
+- Tiap thread menjalankan `claude` atau `codex` di pseudo-terminal (ConPTY di Windows, PTY di macOS/Linux). Tampilannya memakai xterm.js. Prosesnya milik aplikasi, bukan milik tampilan, jadi tetap jalan saat kamu pindah thread.
 - **Claude:** Kilat menambahkan file setelan lewat `--settings` berisi hook `SessionStart`, `UserPromptSubmit`, `Stop`, `StopFailure`, `Notification` dan statusline. Hook-hook itu memanggil `kilat.exe --kilat-hook`, proses kecil yang meneruskan datanya ke Kilat lewat socket lokal `127.0.0.1` dengan kunci acak, lalu langsung keluar.
 - **Codex:** Kilat membaca file sesi (rollout) yang ditulis Codex untuk mengetahui id sesi, status kerja, pemakaian, dan limit. Codex dijalankan dengan `--no-daemon` supaya setiap akun benar-benar memakai login-nya sendiri.
 - **Akun:** akun Claude dibedakan lewat `CLAUDE_CODE_OAUTH_TOKEN` / `ANTHROPIC_API_KEY`; akun ChatGPT lewat `CODEX_HOME` masing-masing.
@@ -250,4 +287,8 @@ Ubah ukuran jendela sedikit atau klik **↻**. Agent akan menggambar ulang layar
 
 ## Menghapus Kilat
 
-Buka **Settings → Apps → Installed apps**, cari *Kilat Code*, lalu **Uninstall**. Data di `%APPDATA%\dev.kilat.code` dan token di Credential Manager (entri yang mengandung `kilat-code`) bisa dihapus manual kalau ingin bersih total. Sesi di `~/.claude` dan `~/.codex` tidak disentuh.
+- **Windows:** Settings → Apps → Installed apps → *Kilat Code* → **Uninstall**.
+- **macOS:** seret *Kilat Code* dari Applications ke Trash.
+- **Linux:** hapus file AppImage-nya, atau `sudo apt remove kilat-code` untuk versi `.deb`.
+
+Folder data Kilat (lihat [Data dan privasi](#data-dan-privasi)) dan token di penyimpan rahasia sistem (entri yang mengandung `kilat-code`) bisa dihapus manual kalau ingin bersih total. Sesi di `~/.claude` dan `~/.codex` tidak disentuh.

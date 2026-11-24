@@ -1,16 +1,48 @@
 ---
-import { DOWNLOAD_URL } from "../site";
+import { PLATFORMS } from "../site";
 
 interface Props {
+  /** text after "Download untuk" is the visitor's OS; `label` replaces all of it */
   label?: string;
   small?: boolean;
 }
-const { label = "Download untuk Windows", small = false } = Astro.props;
+const { label, small = false } = Astro.props;
+const fallback = PLATFORMS[0];
+// The browser swaps in the visitor's OS (script below); without JS it stays Windows.
+const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].url, name: p.name }]));
 ---
 
-<a class:list={["btn", "primary", { small }]} href={DOWNLOAD_URL} download>
+<a
+  class:list={["btn", "primary", { small }]}
+  href={fallback.files[0].url}
+  data-os-download={JSON.stringify(links)}
+  data-os-label={label ? "" : "1"}
+>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"></path>
   </svg>
-  {label}
+  <span>{label ?? (small ? "Download" : `Download untuk ${fallback.name}`)}</span>
 </a>
+
+<script>
+  function visitorOs(): "windows" | "mac" | "linux" | null {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const p = `${nav.userAgentData?.platform ?? ""} ${navigator.platform ?? ""} ${navigator.userAgent}`.toLowerCase();
+    if (/iphone|ipad|android/.test(p)) return null; // phones: keep the default, the download section lists all
+    if (/mac/.test(p)) return "mac";
+    if (/win/.test(p)) return "windows";
+    if (/linux|x11|cros/.test(p)) return "linux";
+    return null;
+  }
+  const os = visitorOs();
+  if (os) {
+    document.querySelectorAll<HTMLAnchorElement>("a[data-os-download]").forEach((a) => {
+      const links = JSON.parse(a.dataset.osDownload ?? "{}");
+      const pick = links[os];
+      if (!pick) return;
+      a.href = pick.url;
+      const text = a.querySelector("span");
+      if (text && a.dataset.osLabel && !a.classList.contains("small")) text.textContent = `Download untuk ${pick.name}`;
+    });
+  }
+</script>

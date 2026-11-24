@@ -834,6 +834,65 @@ details p {
   filter: drop-shadow(0 10px 30px rgba(255, 200, 61, 0.35));
 }
 
+/* ---------------------------------------------------------- downloads */
+
+.dl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 10px;
+  text-align: left;
+}
+.dl-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dl-card.mine {
+  border-color: rgba(255, 200, 61, 0.45);
+  background: linear-gradient(180deg, rgba(255, 200, 61, 0.06), var(--bg-1));
+}
+.dl-card p {
+  margin: 0;
+}
+.dl-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.dl-head b {
+  font-size: 17px;
+}
+.dl-ic {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--bg-3);
+  color: var(--fg);
+}
+.dl-ic svg {
+  width: 20px;
+  height: 20px;
+}
+.dl-files {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dl-foot {
+  margin: 4px 0 0;
+}
+.small {
+  font-size: 13px;
+}
+
 /* ------------------------------------------------------------- footer */
 
 footer {
@@ -996,22 +1055,6 @@ ol.steps li {
   padding-left: 4px;
   margin: 8px 0;
 }
-.dl {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--bg-1);
-  padding: 18px 20px;
-  margin: 18px 0;
-}
-.dl .meta {
-  color: var(--muted);
-  font-size: 14px;
-}
-
 /* section variants used by the home page */
 .band {
   background: var(--bg-1);
@@ -1038,6 +1081,9 @@ section.line-top {
   .grid,
   .install {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .dl-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .split {
     grid-template-columns: 1fr;

@@ -1,5 +1,4 @@
 ---
-import { DOWNLOAD_URL } from "../site";
 
 interface Props {
   current: "home" | "docs";
@@ -9,6 +8,7 @@ const links = [
   { href: "/#fitur", label: "Fitur" },
   { href: "/#limit", label: "Saat kena limit" },
   { href: "/#mulai", label: "Mulai" },
+  { href: "/#download", label: "Download" },
   { href: "/docs", label: "Dokumentasi", page: "docs" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -26,7 +26,7 @@ const links = [
         ))
       }
     </nav>
-    <a class="btn small primary" href={DOWNLOAD_URL} download>Download</a>
+    <a class="btn small primary" href="/#download">Download</a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
   </div>
 </header>
