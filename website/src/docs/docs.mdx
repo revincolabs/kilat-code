@@ -6,9 +6,9 @@ import { RELEASES_URL } from "../site";
 
 1. Pastikan [persyaratan](#persyaratan) sudah terpasang, minimal Git dan salah satu dari Claude Code CLI atau Codex CLI.
 2. [Unduh Kilat Code](#instalasi) untuk Windows, macOS, atau Linux, pasang, lalu buka.
-3. Klik **👤 Akun & Pengaturan** di kiri bawah. Akun bawaan sudah ada: *Claude (login bawaan)* dan *ChatGPT (login bawaan)* memakai login CLI yang sudah ada di komputermu. Tambahkan akun lain kalau perlu.
-4. Klik **📁** untuk membuka folder project.
-5. Klik **+ Thread baru**. Terminal agent langsung berjalan di folder itu. Ketik tugasmu seperti biasa.
+3. Klik **Akun & Pengaturan** di kiri bawah. Akun bawaan sudah ada: *Claude (login bawaan)* dan *ChatGPT (login bawaan)* memakai login CLI yang sudah ada di komputermu. Tambahkan akun lain kalau perlu.
+4. Klik tombol folder di samping **Thread baru** untuk membuka folder project.
+5. Klik **Thread baru**. Terminal agent langsung berjalan di folder itu. Ketik tugasmu seperti biasa.
 
 <Note>
 **Tip:** thread baru memakai akun, model, dan mode yang terakhir kamu pakai. Semuanya bisa diganti dari bar di atas terminal.
@@ -71,11 +71,11 @@ Token disimpan lewat Secret Service, jadi pastikan GNOME Keyring atau KWallet be
 
 ### Update
 
-Kilat memeriksa versi baru sendiri (beberapa detik setelah dibuka, lalu tiap 6 jam). Kalau ada, muncul tombol **⬆ Update ke vX** di status bar bawah: klik, Kilat mengunduh, memasang, lalu mulai ulang. Bisa juga lewat **Pengaturan → Periksa update**. Paket update ditandatangani, jadi hanya update resmi yang diterima. Di Linux, update otomatis berlaku untuk versi AppImage; pengguna `.deb` cukup memasang `.deb` versi baru. Akun, pengaturan, dan thread tidak hilang. Agent yang sedang berjalan berhenti saat Kilat dimulai ulang, tapi sesinya dilanjutkan saat thread dibuka lagi.
+Kilat memeriksa versi baru sendiri (beberapa detik setelah dibuka, lalu tiap 6 jam). Kalau ada, muncul tombol kuning **Update ke vX** di status bar bawah: klik, Kilat mengunduh, memasang, lalu mulai ulang. Bisa juga lewat **Pengaturan → Periksa update**. Paket update ditandatangani, jadi hanya update resmi yang diterima. Di Linux, update otomatis berlaku untuk versi AppImage; pengguna `.deb` cukup memasang `.deb` versi baru. Akun, pengaturan, dan thread tidak hilang. Agent yang sedang berjalan berhenti saat Kilat dimulai ulang, tapi sesinya dilanjutkan saat thread dibuka lagi.
 
 ## Menambah akun
 
-Semua akun diatur di **👤 Akun & Pengaturan**. Setiap akun wajib punya **nama unik** (mis. "Claude Kantor"). Email dan paket (Pro, Max, Plus, …) dideteksi otomatis, jadi kamu selalu tahu akun mana yang sedang dipakai.
+Semua akun diatur di **Akun & Pengaturan** (kiri bawah). Setiap akun wajib punya **nama unik** (mis. "Claude Kantor"). Email dan paket (Pro, Max, Plus, …) dideteksi otomatis, jadi kamu selalu tahu akun mana yang sedang dipakai.
 
 ### Claude (langganan Pro/Max)
 
@@ -97,17 +97,17 @@ Buka tab **ChatGPT / Codex**, isi nama, klik **+ Login ChatGPT**. Kilat menjalan
 
 ### GitHub
 
-Klik **+ Login akun GitHub baru** (menjalankan `gh auth login`) atau **↻ Impor dari gh** kalau kamu sudah pernah login lewat `gh`. Nama dan email commit serta SSH key bisa diatur per akun.
+Klik **+ Login akun GitHub baru** (menjalankan `gh auth login`) atau **Impor dari gh** kalau kamu sudah pernah login lewat `gh`. Nama dan email commit serta SSH key bisa diatur per akun.
 
 ## Project dan thread
 
 Sebuah **project** adalah folder di komputermu. Sebuah **thread** adalah satu percakapan dengan agent di project itu, ditampilkan sebagai terminal.
 
-- **+ Thread baru** membuat thread di project aktif. Tombol **+** di samping nama project juga bisa.
+- **Thread baru** membuat thread di project aktif. Tombol **+** di samping nama project juga bisa.
 - **Thread di worktree terpisah** (menu **⋯** di project): Kilat membuat git worktree dan branch `kilat/…` khusus untuk thread itu, jadi beberapa agent bisa mengubah file tanpa saling menimpa.
 - Judul thread terisi otomatis dari pesan pertamamu. Klik dua kali judul di bar atas untuk menggantinya.
-- Di daftar thread: 📌 sematkan di atas, 🗄 arsipkan, × hapus. Kotak cari menyaring berdasarkan judul.
-- Titik di samping thread menunjukkan status: kuning berkedip = bekerja, hijau = siap, kuning = butuh izin atau kena limit (⏳), abu-abu = agent tidak berjalan.
+- Arahkan kursor ke thread untuk tombol sematkan (pin), arsipkan, dan hapus. Kotak cari menyaring berdasarkan judul.
+- Titik di samping thread menunjukkan status: kuning berkedip = bekerja, hijau = siap, oranye = butuh izin atau kena limit (kena limit juga diberi ikon jam), abu-abu = agent tidak berjalan. Huruf **C** / **G** menandai Claude atau ChatGPT.
 
 Menghapus thread menghentikan agent-nya. Sesi asli Claude/Codex tetap ada di `~/.claude` / `~/.codex`.
 
@@ -116,8 +116,8 @@ Menghapus thread menghentikan agent-nya. Sesi asli Claude/Codex tetap ada di `~/
 Isi thread adalah terminal `claude` atau `codex` yang asli. Semua yang bisa dilakukan di terminal biasa bisa dilakukan di sini: slash command, `/model`, menyetujui izin, mode bash, dan seterusnya.
 
 - **Agent tetap jalan di belakang.** Pindah ke thread lain tidak menghentikannya. Saat kembali, layar digambar ulang.
-- **↻** menjalankan ulang agent dan melanjutkan sesi yang sama. **⏹** menghentikannya.
-- Kalau agent berhenti (misalnya kamu mengetik `/exit`), muncul tombol **▶ Jalankan lagi** yang melanjutkan sesi sebelumnya.
+- Tombol panah melingkar di kanan bar atas terminal menjalankan ulang agent dan melanjutkan sesi yang sama. Tombol kotak di sebelahnya menghentikan agent.
+- Kalau agent berhenti (misalnya kamu mengetik `/exit`), muncul tombol **Jalankan lagi** yang melanjutkan sesi sebelumnya.
 - Statusline Claude di bagian bawah terminal menampilkan `⚡ Kilat · nama akun · paket · pemakaian`, jadi kamu selalu tahu sedang memakai akun apa.
 
 ### Keyboard di terminal
@@ -161,11 +161,11 @@ Kilat mencatat akun dan sesi asli di setiap bagian percakapan. Saat kembali ke p
 
 ## Saat kena limit
 
-Kilat mendeteksi limit secara otomatis: dari hook `StopFailure` Claude Code, atau dari file sesi Codex. Thread ditandai ⏳, kamu mendapat notifikasi, dan dialog berisi tiga pilihan muncul di atas terminal.
+Kilat mendeteksi limit secara otomatis: dari hook `StopFailure` Claude Code, atau dari file sesi Codex. Thread ditandai ikon jam oranye, kamu mendapat notifikasi, dan dialog berisi tiga pilihan muncul di atas terminal.
 
 ### 1. Tunggu
 
-Kilat menampilkan jam reset, dibaca dari data pemakaian CLI atau dari pesan limitnya (mis. *"resets 3pm"*, *"try again at …"*). Pilih **Tunggu sampai …** atau durasi lain (30 menit, 1, 3, atau 5 jam). Saat waktunya tiba, Kilat menjalankan ulang agent di sesi yang sama dan mengirim pesan lanjutan. Ini berjalan selama Kilat terbuka; kalau Kilat ditutup, pekerjaan dilanjutkan begitu Kilat dibuka lagi. Selama menunggu, bar kuning di atas terminal punya tombol **Lanjut sekarang** dan **Batal**.
+Kilat menampilkan jam reset, dibaca dari data pemakaian CLI atau dari pesan limitnya (mis. *"resets 3pm"*, *"try again at …"*). Pilih **Tunggu sampai …** atau durasi lain (30 menit, 1, 3, atau 5 jam). Saat waktunya tiba, Kilat menjalankan ulang agent di sesi yang sama dan mengirim pesan lanjutan. Ini berjalan selama Kilat terbuka; kalau Kilat ditutup, pekerjaan dilanjutkan begitu Kilat dibuka lagi. Selama menunggu, bar oranye di atas terminal punya tombol **Lanjut sekarang** dan **Batal**.
 
 ### 2. Pindah ke akun Claude lain
 
@@ -184,7 +184,7 @@ Pesan lanjutan bisa diubah di [Pengaturan](#pengaturan) (bawaan: *"Lanjutkan pek
 - **Claude:** persentase jendela 5 jam dan 7 hari, dilaporkan Claude Code lewat statusline.
 - **Codex:** jendela limit dari file sesi Codex.
 
-Pemakaian tampil di dropdown akun, dialog limit, dan daftar akun di Pengaturan, lengkap dengan jam reset. Akun yang sedang limit ditandai ⏳. Kalau limitnya ternyata sudah lewat, klik **⏳ reset limit** di daftar akun.
+Pemakaian tampil di dropdown akun, dialog limit, dan daftar akun di Pengaturan, lengkap dengan jam reset. Akun yang sedang limit ditandai ikon jam. Kalau limitnya ternyata sudah lewat, klik **Hapus tanda limit** di daftar akun.
 
 <Note>
 Kalau kamu memasang `statusLine` sendiri di `~/.claude/settings.json`, Kilat tidak menimpanya. Akibatnya pemakaian Claude tidak terbaca, tapi limit tetap terdeteksi.
@@ -205,9 +205,9 @@ Tombol di kanan atas membuka panel samping:
 
 - **Editor:** file explorer dan editor (CodeMirror) untuk melihat atau mengubah file cepat. <kbd>Ctrl</kbd>+<kbd>P</kbd> mencari file.
 - **Perubahan:** git status, diff per file, dan centang file yang ikut di commit.
-  - **✨ Buat pesan**: agent menulis pesan commit dari diff, memakai akun thread aktif.
-  - **Commit**, **Commit & Push**, **⇡ Push**, **+ branch**.
-  - **⤴ Buat PR**: push lalu buat pull request lewat `gh`, bisa sebagai draft.
+  - **Buat pesan**: agent menulis pesan commit dari diff, memakai akun thread aktif.
+  - **Commit**, **Commit & Push**, **Push**, **+ branch**.
+  - **Buat PR**: push lalu buat pull request lewat `gh`, bisa sebagai draft.
 
 ## GitHub multi-akun
 
@@ -283,7 +283,7 @@ Angkanya muncul setelah agent mengirim permintaan pertama. Kalau kamu punya `sta
 
 ### Tampilan terminal berantakan setelah pindah thread
 
-Ubah ukuran jendela sedikit atau klik **↻**. Agent akan menggambar ulang layarnya.
+Ubah ukuran jendela sedikit atau klik tombol mulai ulang (panah melingkar) di bar atas terminal. Agent akan menggambar ulang layarnya.
 
 ## Menghapus Kilat
 

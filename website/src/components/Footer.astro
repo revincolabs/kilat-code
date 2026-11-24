@@ -1,24 +1,30 @@
 ---
-import { REPO_URL } from "../site";
+import { REPO_URL, VERSION } from "../site";
 const year = new Date().getFullYear();
 ---
 
 <footer>
   <div class="wrap">
-    <div class="made">
-      <span><b>Kilat Code</b> · dibuat oleh <b>revincolabs</b></span>
-      <span>© {year} revincolabs</span>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <b>Kilat Code</b>
+        <p>Terminal Claude Code dan Codex asli, banyak akun, satu jendela. Dibuat dan dirawat oleh revincolabs.</p>
+      </div>
+      <nav aria-label="Tautan bawah">
+        <a href="/#fitur">Fitur</a>
+        <a href="/docs">Dokumentasi</a>
+        <a href="/docs#pemecahan-masalah">Bantuan</a>
+        <a href="/#download">Download</a>
+        <a href={`${REPO_URL}/releases`}>Catatan rilis</a>
+        <a href={REPO_URL}>GitHub</a>
+      </nav>
     </div>
-    <nav aria-label="Tautan bawah">
-      <a href="/#fitur">Fitur</a>
-      <a href="/docs">Dokumentasi</a>
-      <a href="/docs#pemecahan-masalah">Bantuan</a>
-      <a href="/#download">Download</a>
-      <a href={REPO_URL}>GitHub</a>
-    </nav>
-    <p class="disclaimer">
-      Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI.
-      Claude dan Claude Code adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
-    </p>
+    <div class="disclaimer">
+      <p>
+        Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI. Claude dan
+        Claude Code adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
+      </p>
+      <span class="mono">© {year} revincolabs · v{VERSION}</span>
+    </div>
   </div>
 </footer>

@@ -9,7 +9,6 @@ const { current } = Astro.props;
 const links = [
   { href: "/#fitur", label: "Fitur" },
   { href: "/#limit", label: "Saat kena limit" },
-  { href: "/#bandingkan", label: "Bandingkan" },
   { href: "/docs", label: "Dokumentasi", page: "docs" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -18,8 +17,9 @@ const links = [
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Kilat Code, beranda">
-      <img src="/icon.png" alt="" width="30" height="30" />
-      <span>Kilat Code<span class="by">by revincolabs</span></span>
+      <img src="/icon.png" alt="" width="28" height="28" />
+      <b>Kilat Code</b>
+      <span class="by">by revincolabs</span>
     </a>
     <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
       {

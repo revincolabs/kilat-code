@@ -20,17 +20,20 @@ const sections = getHeadings().filter((h) => h.depth === 2);
 >
   <div class="wrap docs">
     <aside class="toc" aria-label="Daftar isi">
-      {
-        sections.map((h) => (
-          <>
-            {groupStarts[h.slug] && <h5>{groupStarts[h.slug]}</h5>}
-            <a href={`#${h.slug}`}>{h.text}</a>
-          </>
-        ))
-      }
+      <details open>
+        <summary>Daftar isi</summary>
+        {
+          sections.map((h) => (
+            <>
+              {groupStarts[h.slug] && <h5>{groupStarts[h.slug]}</h5>}
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </>
+          ))
+        }
+      </details>
     </aside>
     <main class="doc" id="isi">
-      <p class="kicker">dokumentasi</p>
+      <p class="label">Dokumentasi</p>
       <h1>Panduan Kilat Code</h1>
       <p class="lead">
         Kilat Code menjalankan terminal <strong>Claude Code</strong> dan <strong>Codex</strong> yang asli di dalam satu aplikasi, dengan banyak akun yang bisa
@@ -42,6 +45,11 @@ const sections = getHeadings().filter((h) => h.depth === 2);
 </Base>
 
 <script>
+  // On narrow screens the table of contents starts folded.
+  const toc = document.querySelector<HTMLDetailsElement>(".toc details");
+  if (toc && matchMedia("(max-width: 900px)").matches) toc.open = false;
+  toc?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => matchMedia("(max-width: 900px)").matches && (toc.open = false)));
+
   // Highlight the section being read in the table of contents.
   const links = [...document.querySelectorAll<HTMLAnchorElement>(".toc a[href^='#']")];
   const byId = new Map(links.map((a) => [a.hash.slice(1), a]));
