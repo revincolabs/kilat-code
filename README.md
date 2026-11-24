@@ -6,7 +6,7 @@ Editor desktop ringan untuk menjalankan banyak agent coding sekaligus, dengan ba
 
 ## Download
 
-Ambil installer di [Releases terbaru](https://github.com/galuhdpranoto/kilat-code/releases/latest):
+Ambil installer di [Releases terbaru](https://github.com/revincolabs/kilat-code/releases/latest):
 
 | OS | File | Catatan |
 |---|---|---|

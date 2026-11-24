@@ -45,7 +45,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc5M0JBMDU2RkEzRkMwRjUKUldUMXdELzZWcUE3ZWJSRUNwWXZNRndnVy9BK3lmQS83R25xNjRRL3d2bGZXWi9SZWRLWXFUNzIK",
-      "endpoints": ["https://github.com/galuhdpranoto/kilat-code/releases/latest/download/latest.json"],
+      "endpoints": ["https://github.com/revincolabs/kilat-code/releases/latest/download/latest.json"],
       "windows": { "installMode": "passive" }
     }
   }

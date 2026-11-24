@@ -2,7 +2,7 @@
 
 export const VERSION = "0.2.0";
 
-export const REPO = "galuhdpranoto/kilat-code";
+export const REPO = "revincolabs/kilat-code";
 export const REPO_URL = `https://github.com/${REPO}`;
 export const RELEASES_URL = `${REPO_URL}/releases/latest`;
 
