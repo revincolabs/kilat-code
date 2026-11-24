@@ -1,5 +1,4 @@
 ---
-import Icon from "./Icon.astro";
 import { REPO_URL } from "../site";
 
 interface Props {
@@ -14,12 +13,11 @@ const links = [
 ];
 ---
 
-<header class="nav">
+<header class="site-header">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Kilat Code, beranda">
-      <img src="/icon.png" alt="" width="28" height="28" />
-      <b>Kilat Code</b>
-      <span class="by">by revincolabs</span>
+      <img src="/icon.png" alt="" width="30" height="30" />
+      <span>Kilat Code</span>
     </a>
     <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
       {
@@ -29,11 +27,15 @@ const links = [
           </a>
         ))
       }
+      <a class="nav-gh-m" href={REPO_URL}>GitHub</a>
     </nav>
-    <a class="nav-gh" href={REPO_URL} aria-label="Kode sumber di GitHub"><Icon name="github" /></a>
-    <a class="btn small primary" href="/#download">Download</a>
-    <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
-      <Icon name="menu" />
-    </button>
+    <div class="nav-end">
+      <a class="nav-gh" href={REPO_URL}>GitHub</a>
+      <a class="btn btn-ink" href="/#download">Download <span class="arr" aria-hidden="true">→</span></a>
+      <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
+        Menu
+        <span class="bars" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
   </div>
 </header>

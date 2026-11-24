@@ -2,26 +2,18 @@
 import { PLATFORMS } from "../site";
 
 interface Props {
-  /** text after "Download untuk" is the visitor's OS; `label` replaces all of it */
-  label?: string;
-  small?: boolean;
+  /** "ink" on light backgrounds, "light" on the dark bands */
+  tone?: "ink" | "light";
 }
-const { label, small = false } = Astro.props;
+const { tone = "ink" } = Astro.props;
 const fallback = PLATFORMS[0];
 // The browser swaps in the visitor's OS (script below); without JS it stays Windows.
 const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].url, name: p.name }]));
 ---
 
-<a
-  class:list={["btn", "primary", { small }]}
-  href={fallback.files[0].url}
-  data-os-download={JSON.stringify(links)}
-  data-os-label={label ? "" : "1"}
->
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"></path>
-  </svg>
-  <span>{label ?? (small ? "Download" : `Download untuk ${fallback.name}`)}</span>
+<a class:list={["btn", tone === "light" ? "btn-light" : "btn-ink"]} href={fallback.files[0].url} data-os-download={JSON.stringify(links)}>
+  <span class="os-label">Download untuk {fallback.name}</span>
+  <span class="arr" aria-hidden="true">→</span>
 </a>
 
 <script>
@@ -37,12 +29,11 @@ const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].u
   const os = visitorOs();
   if (os) {
     document.querySelectorAll<HTMLAnchorElement>("a[data-os-download]").forEach((a) => {
-      const links = JSON.parse(a.dataset.osDownload ?? "{}");
-      const pick = links[os];
+      const pick = JSON.parse(a.dataset.osDownload ?? "{}")[os];
       if (!pick) return;
       a.href = pick.url;
-      const text = a.querySelector("span");
-      if (text && a.dataset.osLabel && !a.classList.contains("small")) text.textContent = `Download untuk ${pick.name}`;
+      const text = a.querySelector(".os-label");
+      if (text) text.textContent = `Download untuk ${pick.name}`;
     });
   }
 </script>

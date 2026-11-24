@@ -1,30 +1,68 @@
 ---
 import { REPO_URL, VERSION } from "../site";
 const year = new Date().getFullYear();
+
+const cols = [
+  {
+    title: "Produk",
+    links: [
+      ["Fitur", "/#fitur"],
+      ["Saat kena limit", "/#limit"],
+      ["Download", "/#download"],
+      ["Catatan rilis", `${REPO_URL}/releases`],
+    ],
+  },
+  {
+    title: "Dokumentasi",
+    links: [
+      ["Mulai cepat", "/docs#mulai-cepat"],
+      ["Menambah akun", "/docs#menambah-akun"],
+      ["Pemecahan masalah", "/docs#pemecahan-masalah"],
+    ],
+  },
+  {
+    title: "Kode",
+    links: [
+      ["GitHub", REPO_URL],
+      ["Lapor masalah", `${REPO_URL}/issues`],
+    ],
+  },
+];
 ---
 
-<footer>
+<footer class="site-footer">
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <b>Kilat Code</b>
-        <p>Terminal Claude Code dan Codex asli, banyak akun, satu jendela. Dibuat dan dirawat oleh revincolabs.</p>
+        <a class="brand" href="/" aria-label="Kilat Code, beranda">
+          <img src="/icon.png" alt="" width="30" height="30" />
+          <span>Kilat Code</span>
+        </a>
+        <p>
+          Terminal Claude Code dan Codex yang asli, banyak akun, satu jendela. Dibuat dan dirawat oleh <a href="https://revincolabs.com">revincolabs</a>.
+        </p>
       </div>
-      <nav aria-label="Tautan bawah">
-        <a href="/#fitur">Fitur</a>
-        <a href="/docs">Dokumentasi</a>
-        <a href="/docs#pemecahan-masalah">Bantuan</a>
-        <a href="/#download">Download</a>
-        <a href={`${REPO_URL}/releases`}>Catatan rilis</a>
-        <a href={REPO_URL}>GitHub</a>
-      </nav>
+      {
+        cols.map((c) => (
+          <nav class="foot-col" aria-label={c.title}>
+            <h2>{c.title}</h2>
+            <ul>
+              {c.links.map(([label, href]) => (
+                <li>
+                  <a href={href}>{label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
     </div>
-    <div class="disclaimer">
+    <div class="foot-bottom">
       <p>
-        Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI. Claude dan
-        Claude Code adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
+        Kilat Code adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh Anthropic maupun OpenAI. Claude dan Claude Code
+        adalah merek dagang Anthropic. ChatGPT dan Codex adalah merek dagang OpenAI.
       </p>
-      <span class="mono">© {year} revincolabs · v{VERSION}</span>
+      <span>© {year} revincolabs · v{VERSION}</span>
     </div>
   </div>
 </footer>

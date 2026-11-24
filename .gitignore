@@ -8,3 +8,6 @@ website/.astro/
 website/.vercel/
 website/.env*
 backup/
+
+# designmd working data
+.designmd/

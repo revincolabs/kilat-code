@@ -1,0 +1,25 @@
+---
+// A numbered section: "— 01" marker and heading on the left (sticky), content
+// on the right. `wide` puts the heading on top and the content full width.
+interface Props {
+  id?: string;
+  num: string;
+  title: string;
+  wide?: boolean;
+}
+const { id, num, title, wide = false } = Astro.props;
+---
+
+<section class:list={["sec", { "sec-wide": wide }]} id={id}>
+  <div class="wrap">
+    <div class="sec-side">
+      <div>
+        <p class="kicker">{num}</p>
+        <h2>{title}</h2>
+      </div>
+    </div>
+    <div class="sec-main">
+      <slot />
+    </div>
+  </div>
+</section>
