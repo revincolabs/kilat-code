@@ -67,19 +67,19 @@ Semua file juga ada di halaman <a href={RELEASES_URL}>GitHub Releases</a>.
   sudo apt install ./KilatCode_*.deb
   ```
 
-- **.rpm** (Fedora dan turunannya, mulai v0.2.1). `dnf` ikut memasang WebKitGTK yang dibutuhkan:
+- **.rpm** (Fedora dan turunannya). `dnf` ikut memasang WebKitGTK yang dibutuhkan:
 
   ```bash
   sudo dnf install ./KilatCode_*.rpm
   ```
 
-  Di versi sebelumnya, pengguna Fedora bisa memakai AppImage. AppImage butuh FUSE 2, yang di Fedora belum terpasang secara bawaan: jalankan `sudo dnf install fuse-libs` dulu.
+  Kalau ingin memakai AppImage di Fedora, pasang FUSE 2 dulu (`sudo dnf install fuse-libs`) karena belum terpasang secara bawaan.
 
 Token disimpan lewat Secret Service, jadi pastikan GNOME Keyring atau KWallet berjalan di sesi desktopmu.
 
 ### Update
 
-Kilat memeriksa versi baru sendiri (beberapa detik setelah dibuka, lalu tiap 6 jam). Kalau ada, muncul tombol kuning **Update ke vX** di status bar bawah: klik, Kilat mengunduh, memasang, lalu mulai ulang. Bisa juga lewat **Pengaturan → Periksa update**. Paket update ditandatangani, jadi hanya update resmi yang diterima. Di Linux, update otomatis berlaku untuk versi AppImage; pengguna `.deb` cukup memasang `.deb` versi baru. Akun, pengaturan, dan thread tidak hilang. Agent yang sedang berjalan berhenti saat Kilat dimulai ulang, tapi sesinya dilanjutkan saat thread dibuka lagi.
+Kilat memeriksa versi baru sendiri (beberapa detik setelah dibuka, lalu tiap 6 jam). Kalau ada, muncul tombol kuning **Update ke vX** di status bar bawah: klik, Kilat mengunduh, memasang, lalu mulai ulang. Bisa juga lewat **Pengaturan → Periksa update**. Paket update ditandatangani, jadi hanya update resmi yang diterima. Di Linux, update otomatis berlaku untuk versi AppImage; pengguna `.deb` atau `.rpm` cukup memasang paket versi baru. Akun, pengaturan, dan thread tidak hilang. Agent yang sedang berjalan berhenti saat Kilat dimulai ulang, tapi sesinya dilanjutkan saat thread dibuka lagi.
 
 ## Menambah akun
 
@@ -235,6 +235,7 @@ Saat jendela Kilat tidak aktif, kamu mendapat notifikasi sistem (dan suara, kala
 
 | Setelan | Fungsi |
 |---|---|
+| Bahasa | Otomatis (ikut bahasa sistem), Bahasa Indonesia, atau English. |
 | Notifikasi sistem | Notifikasi saat agent selesai, butuh izin, atau kena limit. |
 | Bunyikan suara | Suara pendek bersama notifikasi. Ada tombol ▶ coba. |
 | Claude in Chrome | Agent Claude dijalankan dengan `--chrome` supaya bisa mengendalikan Chrome lewat extension Claude. |

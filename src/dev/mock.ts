@@ -17,6 +17,12 @@ const scenario = q.get("s") ?? "limit";
 const now = Date.now();
 const MIN = 60_000;
 const HOUR = 60 * MIN;
+/** Example data in English for ?lang=en (the website's English screenshots). */
+const EN = q.get("lang") === "en";
+const L = (id: string, en: string) => (EN ? en : id);
+const P1 = L("toko-online", "web-shop");
+const ROOT1 = `G:/${L("kode", "code")}/${P1}`;
+const ROOT2 = `G:/${L("kode", "code")}/api-server`;
 
 // A reset on a full hour, at least 40 minutes away, so the dialog text and the
 // CLI message agree.
@@ -58,13 +64,13 @@ const usage = (five: number, week: number) => ({
 });
 
 const accounts: Account[] = [
-  acc({ id: "c-kerja", provider: "claude", label: "Kerja", email: "dev@kantor.co.id", plan: "max", usage: usage(scenario === "limit" || scenario === "wait" ? 100 : 71, 64), limitedUntil: scenario === "limit" || scenario === "wait" ? resetAt : null }),
-  acc({ id: "c-pribadi", provider: "claude", label: "Pribadi", email: "saya@contoh.id", plan: "pro", usage: usage(12, 30) }),
-  acc({ id: "c-default", provider: "claude", kind: "default", label: "Claude (login bawaan)", email: "saya@contoh.id", plan: "pro", usage: usage(12, 30) }),
-  acc({ id: "x-tim", provider: "codex", kind: "chatgpt", label: "Tim", email: "tim@kantor.co.id", plan: "plus", usage: usage(18, 22) }),
-  acc({ id: "x-default", provider: "codex", kind: "default", label: "ChatGPT (login bawaan)", email: "saya@contoh.id", plan: "go" }),
+  acc({ id: "c-kerja", provider: "claude", label: L("Kerja", "Work"), email: L("dev@kantor.co.id", "dev@company.example"), plan: "max", usage: usage(scenario === "limit" || scenario === "wait" ? 100 : 71, 64), limitedUntil: scenario === "limit" || scenario === "wait" ? resetAt : null }),
+  acc({ id: "c-pribadi", provider: "claude", label: L("Pribadi", "Personal"), email: L("saya@contoh.id", "me@example.com"), plan: "pro", usage: usage(12, 30) }),
+  acc({ id: "c-default", provider: "claude", kind: "default", label: L("Claude (login bawaan)", "Claude (default login)"), email: L("saya@contoh.id", "me@example.com"), plan: "pro", usage: usage(12, 30) }),
+  acc({ id: "x-tim", provider: "codex", kind: "chatgpt", label: L("Tim", "Team"), email: L("tim@kantor.co.id", "team@company.example"), plan: "plus", usage: usage(18, 22) }),
+  acc({ id: "x-default", provider: "codex", kind: "default", label: L("ChatGPT (login bawaan)", "ChatGPT (default login)"), email: L("saya@contoh.id", "me@example.com"), plan: "go" }),
   acc({ id: "g-1", provider: "github", kind: "gh", label: "revincolabs", login: "revincolabs", gitName: "revincolabs", gitEmail: "dev@revincolabs.example" }),
-  acc({ id: "g-2", provider: "github", kind: "gh", label: "dev-kantor", login: "dev-kantor", gitName: "Dev Kantor", gitEmail: "dev@kantor.co.id" }),
+  acc({ id: "g-2", provider: "github", kind: "gh", label: L("dev-kantor", "work-dev"), login: L("dev-kantor", "work-dev"), gitName: L("Dev Kantor", "Work Dev"), gitEmail: L("dev@kantor.co.id", "dev@company.example") }),
 ];
 
 function thread(p: Partial<ThreadMeta> & Pick<ThreadMeta, "id" | "projectId" | "title">): ThreadMeta {
@@ -73,7 +79,7 @@ function thread(p: Partial<ThreadMeta> & Pick<ThreadMeta, "id" | "projectId" | "
     accountId: "c-pribadi",
     model: "opus",
     mode: "full",
-    cwd: "G:/kode/toko-online",
+    cwd: ROOT1,
     worktreeBranch: null,
     status: "ready",
     pinned: false,
@@ -91,24 +97,24 @@ const threads: ThreadMeta[] = [
   thread({
     id: "t1",
     projectId: "p1",
-    title: "Refactor pembayaran",
+    title: L("Refactor pembayaran", "Payments refactor"),
     accountId: "c-kerja",
     status: limited ? "limited" : "running",
     limit: limited ? { accountId: "c-kerja", provider: "claude", at: now - 3 * MIN, resetsAt: resetAt, message: `You've hit your session limit · resets ${resetText}` } : null,
     waitUntil: scenario === "wait" ? resetAt + MIN : null,
     updatedAt: now - 3 * MIN,
   }),
-  thread({ id: "t2", projectId: "p1", title: "Halaman checkout baru", provider: "codex", accountId: "x-tim", model: "", status: "running", worktreeBranch: "kilat/checkout", updatedAt: now - 1 * MIN }),
-  thread({ id: "t3", projectId: "p1", title: "Perbaiki bug login", status: "attention", updatedAt: now - 9 * MIN }),
-  thread({ id: "t4", projectId: "p2", title: "Migrasi database", cwd: "G:/kode/api-server", status: "running", updatedAt: now - 4 * MIN }),
-  thread({ id: "t5", projectId: "p2", title: "Tulis dokumentasi API", provider: "codex", accountId: "x-tim", model: "", cwd: "G:/kode/api-server", status: "ready", updatedAt: now - 3 * HOUR }),
-  thread({ id: "t6", projectId: "p2", title: "Coba Bun untuk test", cwd: "G:/kode/api-server", status: "off", archived: true, updatedAt: now - 5 * 24 * HOUR }),
+  thread({ id: "t2", projectId: "p1", title: L("Halaman checkout baru", "New checkout page"), provider: "codex", accountId: "x-tim", model: "", status: "running", worktreeBranch: "kilat/checkout", updatedAt: now - 1 * MIN }),
+  thread({ id: "t3", projectId: "p1", title: L("Perbaiki bug login", "Fix the login bug"), status: "attention", updatedAt: now - 9 * MIN }),
+  thread({ id: "t4", projectId: "p2", title: L("Migrasi database", "Database migration"), cwd: ROOT2, status: "running", updatedAt: now - 4 * MIN }),
+  thread({ id: "t5", projectId: "p2", title: L("Tulis dokumentasi API", "Write the API docs"), provider: "codex", accountId: "x-tim", model: "", cwd: ROOT2, status: "ready", updatedAt: now - 3 * HOUR }),
+  thread({ id: "t6", projectId: "p2", title: L("Coba Bun untuk test", "Try Bun for tests"), cwd: ROOT2, status: "off", archived: true, updatedAt: now - 5 * 24 * HOUR }),
 ];
 
 const data: AppData = {
   projects: [
-    { id: "p1", name: "toko-online", path: "G:/kode/toko-online", githubAccountId: "g-1", createdAt: now - 20 * 24 * HOUR },
-    { id: "p2", name: "api-server", path: "G:/kode/api-server", githubAccountId: "g-2", createdAt: now - 10 * 24 * HOUR },
+    { id: "p1", name: P1, path: ROOT1, githubAccountId: "g-1", createdAt: now - 20 * 24 * HOUR },
+    { id: "p2", name: "api-server", path: ROOT2, githubAccountId: "g-2", createdAt: now - 10 * 24 * HOUR },
   ],
   accounts,
   threads,
@@ -123,7 +129,7 @@ const data: AppData = {
     notify: true,
     sound: true,
     claudeChrome: false,
-    continuePrompt: "Lanjutkan pekerjaan yang tadi terhenti karena limit akun.",
+    continuePrompt: L("Lanjutkan pekerjaan yang tadi terhenti karena limit akun.", "Continue the work that stopped because the account hit its limit."),
   },
 };
 
@@ -140,7 +146,7 @@ const rule = dim("─".repeat(56));
 
 function claudeScreen(t: ThreadMeta): string {
   const a = accounts.find((x) => x.id === t.accountId)!;
-  const status = `${clay("⚡")} ${dim(`Kilat · ${a.label} · ${a.plan?.toUpperCase()} · ${a.usage?.windows.map((w) => `${w.label} ${w.usedPercent}%`).join(" · ")}`)}`;
+  const status = `${clay("⚡")} ${dim(`Kilat · ${a.label} · ${a.plan?.toUpperCase()} · ${a.usage?.windows.map((w) => `${L(w.label, w.label.replace(" jam", "h").replace(" hari", "d"))} ${w.usedPercent}%`).join(" · ")}`)}`;
   const head = [
     ` ${clay("▐▛███▜▌")}   ${bold("Claude Code")}`,
     `${clay("▝▜█████▛▘")}  ${dim(`Opus · Claude ${a.plan === "max" ? "Max" : "Pro"}`)}`,
@@ -150,9 +156,9 @@ function claudeScreen(t: ThreadMeta): string {
   const body =
     t.id === "t1"
       ? [
-          `${dim(">")} refactor modul pembayaran, lalu jalankan semua test`,
+          `${dim(">")} ${L("refactor modul pembayaran, lalu jalankan semua test", "refactor the payments module, then run all the tests")}`,
           "",
-          `● Saya mulai dari ${blue("src/payments/")}. Ada 6 file yang terlibat.`,
+          `● ${L("Saya mulai dari", "I'll start with")} ${blue("src/payments/")}. ${L("Ada 6 file yang terlibat.", "Six files are involved.")}`,
           "",
           `${green("●")} ${bold("Read")}(src/payments/charge.ts)`,
           `  ${dim("⎿  Read 214 lines")}`,
@@ -163,12 +169,12 @@ function claudeScreen(t: ThreadMeta): string {
           `${green("●")} ${bold("Bash")}(npm test)`,
           `  ${dim("⎿")}  42 passed, ${red("3 failed")}`,
           "",
-          "● Memperbaiki 3 test yang gagal di charge.test.ts…",
-          ...(limited ? [`  ${dim("⎿")}  ${red(`You've hit your session limit · resets ${resetText}`)}`] : [`${clay("✻")} ${clay("Menjalankan ulang test…")} ${dim("(48s · esc to interrupt)")}`]),
+          L("● Memperbaiki 3 test yang gagal di charge.test.ts…", "● Fixing the 3 failing tests in charge.test.ts…"),
+          ...(limited ? [`  ${dim("⎿")}  ${red(`You've hit your session limit · resets ${resetText}`)}`] : [`${clay("✻")} ${clay(L("Menjalankan ulang test…", "Re-running the tests…"))} ${dim("(48s · esc to interrupt)")}`]),
           "",
         ]
       : [
-          `${dim(">")} buat migrasi untuk kolom invoice_due_date dan isi data lamanya`,
+          `${dim(">")} ${L("buat migrasi untuk kolom invoice_due_date dan isi data lamanya", "add a migration for invoice_due_date and backfill old rows")}`,
           "",
           `${green("●")} ${bold("Read")}(db/schema.sql)`,
           `  ${dim("⎿  Read 388 lines")}`,
@@ -176,7 +182,7 @@ function claudeScreen(t: ThreadMeta): string {
           `${green("●")} ${bold("Write")}(db/migrations/0042_invoice_due_date.sql)`,
           `  ${dim("⎿  Wrote 31 lines to db/migrations/0042_invoice_due_date.sql")}`,
           "",
-          `${clay("✻")} ${clay("Menjalankan migrasi di database lokal…")} ${dim("(12s · esc to interrupt)")}`,
+          `${clay("✻")} ${clay(L("Menjalankan migrasi di database lokal…", "Running the migration on the local database…"))} ${dim("(12s · esc to interrupt)")}`,
           "",
         ];
   return [...head, ...body, rule, `${dim(">")} `, rule, `  ${status}`].join("\r\n");
@@ -190,16 +196,16 @@ function codexScreen(t: ThreadMeta): string {
     `${dim("│")} ${dim("directory:")} ${t.cwd.replaceAll("/", "\\").padEnd(36)}${dim("│")}`,
     dim("╰────────────────────────────────────────────────╯"),
     "",
-    `${dim("›")} buat halaman checkout baru dengan ringkasan pesanan`,
+    `${dim("›")} ${L("buat halaman checkout baru dengan ringkasan pesanan", "build a new checkout page with an order summary")}`,
     "",
-    `${blue("•")} Menambahkan komponen ringkasan pesanan dan validasi alamat.`,
+    `${blue("•")} ${L("Menambahkan komponen ringkasan pesanan dan validasi alamat.", "Added an order summary component and address validation.")}`,
     `  ${dim("└ Edited src/pages/checkout.tsx (+86 -4)")}`,
     "",
     `${blue("•")} ${dim("Working (31s · esc to interrupt)")}`,
   ].join("\r\n");
 }
 
-const bashScreen = `${green("saya@laptop")} ${clay("MINGW64")} ${blue("/g/kode/toko-online")} ${blue("(refactor/pembayaran)")}\r\n$ `;
+const bashScreen = `${green(L("saya@laptop", "me@laptop"))} ${clay("MINGW64")} ${blue(`/g/${L("kode", "code")}/${P1}`)} ${blue(`(${L("refactor/pembayaran", "refactor/payments")})`)}\r\n$ `;
 
 // ------------------------------------------------------------------- git
 
@@ -210,10 +216,10 @@ index 4c1d2e0..9a7f3b1 100644
 @@ -12,14 +12,23 @@ import { Money } from "../money";
  export async function charge(order: Order, card: CardToken) {
 -  const total = order.items.reduce((s, i) => s + i.price * i.qty, 0);
--  if (total <= 0) throw new Error("total tidak valid");
+-  if (total <= 0) throw new Error("${L("total tidak valid", "invalid total")}");
 +  const total = orderTotal(order);
 +  if (total.isZero()) {
-+    throw new PaymentError("EMPTY_ORDER", "Pesanan kosong");
++    throw new PaymentError("EMPTY_ORDER", "${L("Pesanan kosong", "Empty order")}");
 +  }
    const fee = gatewayFee(total);
 -  return gateway.charge(card, total + fee);
@@ -234,7 +240,7 @@ import { ledger } from "./ledger";
 export async function charge(order: Order, card: CardToken) {
   const total = orderTotal(order);
   if (total.isZero()) {
-    throw new PaymentError("EMPTY_ORDER", "Pesanan kosong");
+    throw new PaymentError("EMPTY_ORDER", "${L("Pesanan kosong", "Empty order")}");
   }
   const fee = gatewayFee(total);
   const result = await gateway.charge(card, total.add(fee));
@@ -254,8 +260,8 @@ mockIPC(
         return {
           data: structuredClone(data),
           tools: { bash: "C:/Program Files/Git/bin/bash.exe", claude: "claude", codex: "codex", gh: "gh" },
-          dataDir: "C:/Users/saya/AppData/Roaming/dev.kilat.code",
-          version: "0.2.0",
+          dataDir: `C:/Users/${L("saya", "me")}/AppData/Roaming/dev.kilat.code`,
+          version: "0.2.1",
         };
       case "codex_models":
         return [];
@@ -270,7 +276,7 @@ mockIPC(
       case "git_status":
         return {
           isRepo: true,
-          branch: "refactor/pembayaran",
+          branch: L("refactor/pembayaran", "refactor/payments"),
           ahead: 2,
           behind: 0,
           files: [
@@ -283,10 +289,10 @@ mockIPC(
         };
       case "git_recent":
         return [
-          { hash: "7bb51df", subject: "Pisahkan perhitungan total pesanan", when: "2 jam lalu" },
-          { hash: "5fd01da", subject: "Catat setiap transaksi di ledger", when: "kemarin" },
-          { hash: "a3ad600", subject: "Tambah PaymentError dengan kode", when: "2 hari lalu" },
-          { hash: "358b468", subject: "Perbarui SDK gateway ke v4", when: "3 hari lalu" },
+          { hash: "7bb51df", subject: L("Pisahkan perhitungan total pesanan", "Split out the order total calculation"), when: L("2 jam lalu", "2 hours ago") },
+          { hash: "5fd01da", subject: L("Catat setiap transaksi di ledger", "Record every transaction in the ledger"), when: L("kemarin", "yesterday") },
+          { hash: "a3ad600", subject: L("Tambah PaymentError dengan kode", "Add PaymentError with codes"), when: L("2 hari lalu", "2 days ago") },
+          { hash: "358b468", subject: L("Perbarui SDK gateway ke v4", "Update the gateway SDK to v4"), when: L("3 hari lalu", "3 days ago") },
         ];
       case "git_diff":
         return diff;
@@ -299,7 +305,7 @@ mockIPC(
         return pick.map((name) => ({ name, path: `${base}/${name}`, isDir: !name.includes(".") }));
       }
       case "fs_read_file":
-        return files[Object.keys(files).find((k) => String(args.path).endsWith(k)) ?? ""] ?? "// contoh\n";
+        return files[Object.keys(files).find((k) => String(args.path).endsWith(k)) ?? ""] ?? L("// contoh\n", "// example\n");
       case "fs_list_files":
         return ["src/payments/charge.ts", "src/payments/ledger.ts", "src/payments/gateway.ts", "src/pages/checkout.tsx", "tests/charge.test.ts"];
       default:

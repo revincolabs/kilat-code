@@ -10,17 +10,27 @@ import { PUBLISHER, RELEASES_URL, REPO_URL, SITE_NAME, SITE_URL, VERSION } from 
 import { LANGS, LOCALE, anchors, localePath, type Lang } from "../i18n";
 import { home } from "../i18n/home";
 // Real screenshots of the app (dev preview with example data, see preview.html in the app repo).
-import appLimit from "../assets/screens/app-limit.webp";
-import appChanges from "../assets/screens/app-changes.webp";
-import limitWait from "../assets/screens/limit-wait.webp";
-import terminal from "../assets/screens/terminal.webp";
-import sidebar from "../assets/screens/sidebar.webp";
+// One set per language: the app follows the system language (preview.html?lang=…).
+import appLimitId from "../assets/screens/app-limit.webp";
+import appChangesId from "../assets/screens/app-changes.webp";
+import limitWaitId from "../assets/screens/limit-wait.webp";
+import terminalId from "../assets/screens/terminal.webp";
+import sidebarId from "../assets/screens/sidebar.webp";
+import appLimitEn from "../assets/screens/app-limit-en.webp";
+import appChangesEn from "../assets/screens/app-changes-en.webp";
+import limitWaitEn from "../assets/screens/limit-wait-en.webp";
+import terminalEn from "../assets/screens/terminal-en.webp";
+import sidebarEn from "../assets/screens/sidebar-en.webp";
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const c = home[lang];
+const shots = {
+  id: { appLimit: appLimitId, appChanges: appChangesId, limitWait: limitWaitId, terminal: terminalId, sidebar: sidebarId },
+  en: { appLimit: appLimitEn, appChanges: appChangesEn, limitWait: limitWaitEn, terminal: terminalEn, sidebar: sidebarEn },
+}[lang];
 const a = anchors[lang];
 const visualCol = "(max-width: 1023px) calc(100vw - 64px), 660px";
 const fullCol = "(max-width: 1240px) calc(100vw - 64px), 1176px";
@@ -28,7 +38,7 @@ const fullCol = "(max-width: 1240px) calc(100vw - 64px), 1176px";
 // ---------------------------------------------------------------- JSON-LD
 const abs = (p: string) => new URL(p, SITE_URL).href;
 const url = abs(localePath(lang, "/"));
-const shot = abs((await getImage({ src: appLimit, width: 1600, format: "webp" })).src);
+const shot = abs((await getImage({ src: shots.appLimit, width: 1600, format: "webp" })).src);
 const strip = (html: string) => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&");
 const ids = {
   website: `${SITE_URL}/#website`,
@@ -114,7 +124,7 @@ const jsonLd = {
         <div class="app-panel">
           <figure>
             <Image
-              src={appLimit}
+              src={shots.appLimit}
               alt={c.alt.limit}
               widths={[760, 1200, 1800, 2560]}
               sizes="(max-width: 767px) calc(100vw - 60px), (max-width: 1240px) calc(100vw - 104px), 1136px"
@@ -156,7 +166,7 @@ const jsonLd = {
         </div>
         <figure class="shot">
           <div class="frame">
-            <Image src={limitWait} alt={c.alt.wait} widths={[680, 1360]} sizes={visualCol} />
+            <Image src={shots.limitWait} alt={c.alt.wait} widths={[680, 1360]} sizes={visualCol} />
           </div>
           <figcaption>{c.limits.caption}</figcaption>
         </figure>
@@ -173,7 +183,7 @@ const jsonLd = {
         </div>
         <figure class="shot">
           <div class="frame">
-            <Image src={terminal} alt={c.alt.terminal} widths={[680, 1360]} sizes={visualCol} />
+            <Image src={shots.terminal} alt={c.alt.terminal} widths={[680, 1360]} sizes={visualCol} />
           </div>
           <figcaption>{c.terminal.caption}</figcaption>
         </figure>
@@ -227,7 +237,7 @@ const jsonLd = {
         <div class="soft agents">
           <figure class="shot">
             <div class="frame">
-              <Image src={sidebar} alt={c.alt.sidebar} widths={[236, 472, 504]} sizes="236px" />
+              <Image src={shots.sidebar} alt={c.alt.sidebar} widths={[236, 472, 504]} sizes="236px" />
             </div>
           </figure>
           <ul class="legend">
@@ -241,7 +251,7 @@ const jsonLd = {
     <Section label={c.around.label} title={c.around.title} lead={c.around.lead}>
       <figure class="shot wide-shot">
         <div class="frame">
-          <Image src={appChanges} alt={c.alt.changes} widths={[760, 1200, 1800, 2400]} sizes={fullCol} />
+          <Image src={shots.appChanges} alt={c.alt.changes} widths={[760, 1200, 1800, 2400]} sizes={fullCol} />
         </div>
         <figcaption>{c.around.caption}</figcaption>
       </figure>

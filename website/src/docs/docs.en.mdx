@@ -3,16 +3,16 @@ import DownloadBox from "../components/DownloadBox.astro";
 import { RELEASES_URL } from "../site";
 
 <Note>
-**The app's interface is in Indonesian.** This guide quotes buttons and menus exactly as they appear in Kilat, with an English translation in parentheses, e.g. **Akun & Pengaturan** (Accounts & Settings).
+**Kilat speaks English and Indonesian.** It follows your system language; change it in **Settings → Language**. This guide uses the English labels (Kilat 0.2.0 and earlier are in Indonesian only).
 </Note>
 
 ## Quick start
 
 1. Make sure the [requirements](#requirements) are installed: at least Git and either the Claude Code CLI or the Codex CLI.
 2. [Download Kilat Code](#installation) for Windows, macOS, or Linux, install it, and open it.
-3. Click **Akun & Pengaturan** (Accounts & Settings) in the bottom left. Two accounts are already there: *Claude (login bawaan)* and *ChatGPT (login bawaan)* (default login) use the CLI logins already on your computer. Add more accounts if you need them.
-4. Click the folder button next to **Thread baru** (New thread) to open a project folder.
-5. Click **Thread baru**. The agent's terminal starts in that folder right away. Type your task as usual.
+3. Click **Accounts & Settings** in the bottom left. Two accounts are already there: *Claude (default login)* and *ChatGPT (default login)* use the CLI logins already on your computer. Add more accounts if you need them.
+4. Click the folder button next to **New thread** to open a project folder.
+5. Click **New thread**. The agent's terminal starts in that folder right away. Type your task as usual.
 
 <Note>
 **Tip:** a new thread uses the account, model, and mode you used last. All of them can be changed from the bar above the terminal.
@@ -71,52 +71,52 @@ All files are also on the <a href={RELEASES_URL}>GitHub Releases</a> page.
   sudo apt install ./KilatCode_*.deb
   ```
 
-- **.rpm** (Fedora and derivatives, from v0.2.1). `dnf` also installs the WebKitGTK it needs:
+- **.rpm** (Fedora and derivatives). `dnf` also installs the WebKitGTK it needs:
 
   ```bash
   sudo dnf install ./KilatCode_*.rpm
   ```
 
-  On earlier versions, Fedora users can use the AppImage. AppImages need FUSE 2, which Fedora doesn't install by default: run `sudo dnf install fuse-libs` first.
+  To use the AppImage on Fedora instead, install FUSE 2 first (`sudo dnf install fuse-libs`); Fedora doesn't include it by default.
 
 Tokens are stored through Secret Service, so make sure GNOME Keyring or KWallet is running in your desktop session.
 
 ### Updates
 
-Kilat checks for new versions itself (a few seconds after it opens, then every 6 hours). When one is available, a yellow **Update ke vX** (Update to vX) button appears in the status bar: click it and Kilat downloads, installs, and restarts. You can also use **Pengaturan → Periksa update** (Settings → Check for updates). Updates are signed, so only official ones are accepted. On Linux, automatic updates apply to the AppImage; with the `.deb`, install the new `.deb`. Accounts, settings, and threads are kept. Running agents stop when Kilat restarts, but their sessions continue when you open the thread again.
+Kilat checks for new versions itself (a few seconds after it opens, then every 6 hours). When one is available, a yellow **Update to vX** button appears in the status bar: click it and Kilat downloads, installs, and restarts. You can also use **Settings → Check for updates**. Updates are signed, so only official ones are accepted. On Linux, automatic updates apply to the AppImage; with the `.deb` or `.rpm`, install the new package. Accounts, settings, and threads are kept. Running agents stop when Kilat restarts, but their sessions continue when you open the thread again.
 
 ## Adding accounts
 
-All accounts are managed in **Akun & Pengaturan** (Accounts & Settings, bottom left). Every account needs a **unique name** (e.g. "Claude Work"). Email and plan (Pro, Max, Plus, …) are detected automatically, so you always know which account is in use.
+All accounts are managed in **Accounts & Settings** (bottom left). Every account needs a **unique name** (e.g. "Claude Work"). Email and plan (Pro, Max, Plus, …) are detected automatically, so you always know which account is in use.
 
 ### Claude (Pro/Max subscription)
 
-1. Open the **Claude** tab, enter a name, and click **+ Login langganan (Pro/Max)** (sign in with subscription).
+1. Open the **Claude** tab, enter a name, and click **+ Sign in with subscription (Pro/Max)**.
 2. Step 1: a small terminal runs `claude setup-token`. Click *Authorize* in the browser. The token is valid for one year, captured automatically, checked with Anthropic, and stored in your system's secret store.
 3. Step 2: sign in once more in the browser, only to read the account's email and plan. This login is deleted right after it's read.
 
 <Note>
-**Important:** before you start, make sure the browser is signed in to the right Claude account. If the email that comes back belongs to another Claude account you already added, Kilat rejects it so accounts don't get mixed up. Older accounts whose email hasn't been detected have a **Deteksi email** (Detect email) button.
+**Important:** before you start, make sure the browser is signed in to the right Claude account. If the email that comes back belongs to another Claude account you already added, Kilat rejects it so accounts don't get mixed up. Older accounts whose email hasn't been detected have a **Detect email** button.
 </Note>
 
 ### Claude (API key)
 
-Enter a name, paste an `sk-ant-api…` API key, and click **Pakai API key** (Use API key). The key is checked with Anthropic before it's saved.
+Enter a name, paste an `sk-ant-api…` API key, and click **Use an API key**. The key is checked with Anthropic before it's saved.
 
 ### ChatGPT / Codex
 
-Open the **ChatGPT / Codex** tab, enter a name, and click **+ Login ChatGPT**. Kilat runs `codex login` in a folder that belongs to that account. You can also use an OpenAI API key.
+Open the **ChatGPT / Codex** tab, enter a name, and click **+ Sign in to ChatGPT**. Kilat runs `codex login` in a folder that belongs to that account. You can also use an OpenAI API key.
 
 ### GitHub
 
-Click **+ Login akun GitHub baru** (sign in to a new GitHub account), which runs `gh auth login`, or **Impor dari gh** (Import from gh) if you've already signed in with `gh`. The commit name and email and an SSH key can be set per account.
+Click **+ Sign in to a new GitHub account**, which runs `gh auth login`, or **Import from gh** if you've already signed in with `gh`. The commit name and email and an SSH key can be set per account.
 
 ## Projects and threads
 
 A **project** is a folder on your computer. A **thread** is one conversation with an agent in that project, shown as a terminal.
 
-- **Thread baru** (New thread) creates a thread in the active project. The **+** button next to a project name does the same.
-- **Thread di worktree terpisah** (Thread in a separate worktree, in the project's **⋯** menu): Kilat creates a git worktree and a `kilat/…` branch just for that thread, so several agents can change files without overwriting each other.
+- **New thread** creates a thread in the active project. The **+** button next to a project name does the same.
+- **New thread in a separate worktree** (in the project's **⋯** menu): Kilat creates a git worktree and a `kilat/…` branch just for that thread, so several agents can change files without overwriting each other.
 - The thread title is filled in from your first message. Double-click the title in the top bar to rename it.
 - Hover a thread to pin, archive, or delete it. The search box filters by title.
 - The dot next to a thread shows its status: blinking yellow = working, green = ready, orange = needs permission or hit a limit (limited threads also get a clock icon), grey = the agent isn't running. The letters **C** / **G** mark Claude or ChatGPT.
@@ -129,7 +129,7 @@ A thread is the real `claude` or `codex` terminal. Anything you can do in a norm
 
 - **Agents keep running in the background.** Switching to another thread doesn't stop them. When you come back, the screen is redrawn.
 - The circular arrow on the right of the bar above the terminal restarts the agent and continues the same session. The square button next to it stops the agent.
-- If the agent stops (for example, you type `/exit`), a **Jalankan lagi** (Run again) button appears and continues the previous session.
+- If the agent stops (for example, you type `/exit`), a **Run again** button appears and continues the previous session.
 - Claude's status line at the bottom of the terminal shows `⚡ Kilat · account name · plan · usage`, so you always know which account you're using.
 
 ### Keyboard in the terminal
@@ -150,9 +150,9 @@ The bar above the terminal has a **model** and a **permission mode** picker. Cha
 
 | Mode | Claude Code | Codex |
 |---|---|---|
-| Akses penuh (Full access) | `--dangerously-skip-permissions` | `--dangerously-bypass-approvals-and-sandbox` |
-| Setelan CLI (CLI settings) | no flag, follows the CLI's settings (e.g. auto mode) | no flag, follows `config.toml` |
-| Minta izin (Ask for permission) | `--permission-mode default` | `-s workspace-write -a on-request` |
+| Full access | `--dangerously-skip-permissions` | `--dangerously-bypass-approvals-and-sandbox` |
+| CLI settings | no flag, follows the CLI's settings (e.g. auto mode) | no flag, follows `config.toml` |
+| Ask for permission | `--permission-mode default` | `-s workspace-write -a on-request` |
 | Plan / read-only | `--permission-mode plan` | `-s read-only -a on-request` |
 
 <Note warn>
@@ -177,7 +177,7 @@ Kilat detects limits automatically: from Claude Code's `StopFailure` hook, or fr
 
 ### 1. Wait
 
-Kilat shows the reset time, read from the CLI's usage data or from the limit message (e.g. *"resets 3pm"*, *"try again at …"*). Choose **Tunggu sampai …** (Wait until …) or another duration (30 minutes, 1, 3, or 5 hours). When the time comes, Kilat restarts the agent in the same session and sends a follow-up message. This works while Kilat is open; if Kilat is closed, the work continues as soon as you open it again. While waiting, an orange bar above the terminal has **Lanjut sekarang** (Continue now) and **Batal** (Cancel) buttons.
+Kilat shows the reset time, read from the CLI's usage data or from the limit message (e.g. *"resets 3pm"*, *"try again at …"*). Choose **Wait until …** or another duration (30 minutes, 1, 3, or 5 hours). When the time comes, Kilat restarts the agent in the same session and sends a follow-up message. This works while Kilat is open; if Kilat is closed, the work continues as soon as you open it again. While waiting, an orange bar above the terminal has **Continue now** and **Cancel** buttons.
 
 ### 2. Move to another Claude account
 
@@ -188,7 +188,7 @@ A list of your other Claude accounts with their usage. Click one: the same sessi
 Click a ChatGPT account: Codex starts with the conversation history as context and is asked to continue the last task.
 
 <Note>
-The follow-up message can be changed in [Settings](#settings) (default: *"Lanjutkan pekerjaan yang tadi terhenti karena limit akun."*, "continue the work that stopped because of the account limit"). The × button closes the dialog if you'd rather handle it yourself.
+The follow-up message can be changed in [Settings](#settings) (default: *"Continue the work that stopped because the account hit its limit."*). The × button closes the dialog if you'd rather handle it yourself.
 </Note>
 
 ## Account usage
@@ -196,7 +196,7 @@ The follow-up message can be changed in [Settings](#settings) (default: *"Lanjut
 - **Claude:** the 5-hour and 7-day window percentages, reported by Claude Code through the status line.
 - **Codex:** the limit windows from Codex's session files.
 
-Usage appears in the account dropdown, the limit dialog, and the account list in Settings, with reset times. Accounts that are currently limited get a clock icon. If a limit has already passed, click **Hapus tanda limit** (Clear limit mark) in the account list.
+Usage appears in the account dropdown, the limit dialog, and the account list in Settings, with reset times. Accounts that are currently limited get a clock icon. If a limit has already passed, click **Clear limit mark** in the account list.
 
 <Note>
 If you set your own `statusLine` in `~/.claude/settings.json`, Kilat doesn't overwrite it. Claude usage then isn't read, but limits are still detected.
@@ -216,10 +216,10 @@ Install skills or plugins as usual from any agent terminal. They're available on
 The buttons in the top right open a side panel:
 
 - **Editor:** a file explorer and editor (CodeMirror) for quick looks and edits. <kbd>Ctrl</kbd>+<kbd>P</kbd> finds a file.
-- **Perubahan** (Changes): git status, a diff per file, and checkboxes for the files to commit.
-  - **Buat pesan** (Write message): the agent writes a commit message from the diff, using the active thread's account.
+- **Changes**: git status, a diff per file, and checkboxes for the files to commit.
+  - **Write message**: the agent writes a commit message from the diff, using the active thread's account.
   - **Commit**, **Commit & Push**, **Push**, **+ branch**.
-  - **Buat PR** (Create PR): push, then create a pull request with `gh`, optionally as a draft.
+  - **Create PR**: push, then create a pull request with `gh`, optionally as a draft.
 
 ## Multiple GitHub accounts
 
@@ -239,13 +239,14 @@ When the Kilat window isn't focused, you get a system notification (and a sound,
 
 | Setting | What it does |
 |---|---|
-| Notifikasi sistem (System notifications) | Notify when an agent finishes, needs permission, or hits a limit. |
-| Bunyikan suara (Play a sound) | A short sound with the notification. There's a ▶ button to try it. |
+| Language | Automatic (follow the system), Bahasa Indonesia, or English. |
+| System notifications | Notify when an agent finishes, needs permission, or hits a limit. |
+| Play a sound | A short sound with the notification. There's a ▶ button to try it. |
 | Claude in Chrome | Run Claude agents with `--chrome` so they can control Chrome through the Claude extension. |
-| Pesan lanjutan setelah limit (Follow-up message after a limit) | The message sent to the agent when work continues. |
-| Daftar model Claude (Claude model list) | The models offered in the thread bar (comma-separated). |
-| Ukuran font terminal (Terminal font size) | The terminal's text size. |
-| Lokasi program (Program locations) | Paths to Bash, Claude Code, Codex, and the GitHub CLI. Leave empty to detect them automatically. |
+| Follow-up message after a limit | The message sent to the agent when work continues. |
+| Claude model list | The models offered in the thread bar (comma-separated). |
+| Terminal font size | The terminal's text size. |
+| Program locations | Paths to Bash, Claude Code, Codex, and the GitHub CLI. Leave empty to detect them automatically. |
 
 ## Keyboard shortcuts
 
@@ -273,21 +274,21 @@ When the Kilat window isn't focused, you get a system notification (and a sound,
 
 ## Troubleshooting
 
-### "tidak ditemukan: claude / codex / bash / gh" (not found) in the status bar
+### "not found: claude / codex / bash / gh" in the status bar
 
-Install the program, or enter its location in [Settings](#settings) under *Lokasi program* (Program locations). For Claude Code, try running `claude --version` in a normal terminal first.
+Install the program, or enter its location in [Settings](#settings) under *Program locations*. For Claude Code, try running `claude --version` in a normal terminal first.
 
-### A thread says "belum di-setup" (not set up) or "belum login" (not signed in)
+### A thread says "not set up" or "not signed in"
 
-Open Akun & Pengaturan (Accounts & Settings) and finish the setup for that account, or pick another account from the dropdown above the terminal.
+Open Accounts & Settings and finish the setup for that account, or pick another account from the dropdown above the terminal.
 
 ### Claude asks about trusting the folder or shows the Bypass Permissions warning
 
-Those are Claude Code's own one-time dialogs. Answer them in the terminal. If you don't want the Bypass Permissions warning, use the *Setelan CLI* (CLI settings) or *Minta izin* (Ask for permission) mode.
+Those are Claude Code's own one-time dialogs. Answer them in the terminal. If you don't want the Bypass Permissions warning, use the *CLI settings* or *Ask for permission* mode.
 
 ### The reset time is unknown
 
-Pick one of the wait durations (30 minutes to 5 hours). You can press **Lanjut sekarang** (Continue now) at any time.
+Pick one of the wait durations (30 minutes to 5 hours). You can press **Continue now** at any time.
 
 ### Claude usage doesn't show
 

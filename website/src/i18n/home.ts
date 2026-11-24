@@ -179,7 +179,7 @@ export const home: Record<Lang, HomeCopy> = {
         ],
         [
           "Bisa dipakai di macOS atau Linux?",
-          "Bisa: macOS 11+ (Apple Silicon dan Intel) dan Linux x86_64 (AppImage atau .deb, dan .rpm untuk Fedora mulai v0.2.1). Versi Windows yang paling banyak diuji; macOS dan Linux masih tahap awal, jadi laporan masalah sangat membantu.",
+          "Bisa: macOS 11+ (Apple Silicon dan Intel) dan Linux x86_64 (AppImage, .deb, atau .rpm untuk Fedora). Versi Windows yang paling banyak diuji; macOS dan Linux masih tahap awal, jadi laporan masalah sangat membantu.",
         ],
         [
           "Apa bedanya dengan menjalankan CLI di terminal biasa?",
@@ -204,14 +204,14 @@ export const home: Record<Lang, HomeCopy> = {
     meta: "Windows, macOS, Linux · Free",
     alt: {
       limit:
-        "Kilat Code: the thread list on the left, a Claude Code terminal on the right, and a dialog with options because the Claude account named Kerja hit its limit",
-      wait: "Orange bar above the terminal: waiting for the Kerja account's limit to reset, then continuing automatically, with a countdown",
+        "Kilat Code: the thread list on the left, a Claude Code terminal on the right, and a dialog with options because the Claude account named Work hit its limit",
+      wait: "Orange bar above the terminal: waiting for the Work account's limit to reset, then continuing automatically, with a countdown",
       terminal: "A Claude Code terminal inside Kilat, with the account, model, and permission mode bar above it",
       sidebar: "Kilat's thread list showing the status of each agent",
       changes: "Kilat with the Changes panel open: changed files, a commit message box, and commit, push, and create pull request buttons",
     },
     panelCaption:
-      'The Claude account "Kerja" (Work) hit its limit in the middle of a refactor. Kilat offers three ways to continue, right above the terminal. The app\'s interface is in Indonesian.',
+      'The Claude account "Work" hit its limit in the middle of a refactor. Kilat offers three ways to continue, right above the terminal.',
     facts: [
       { big: "2.9 MB", text: "Windows installer. Built with Tauri and Rust, not Electron.", small: "macOS 7.3 MB · Linux .deb 4.5 MB" },
       { big: "0 servers", text: "Tokens stay in your system's secret store. Kilat has no servers of its own.", small: "Credential Manager · Keychain · Secret Service" },
@@ -339,11 +339,11 @@ export const home: Record<Lang, HomeCopy> = {
         ],
         [
           "Does it run on macOS and Linux?",
-          "Yes: macOS 11+ (Apple Silicon and Intel) and Linux x86_64 (AppImage or .deb, plus an .rpm for Fedora from v0.2.1). Windows is the most tested; macOS and Linux are still early, so bug reports help a lot.",
+          "Yes: macOS 11+ (Apple Silicon and Intel) and Linux x86_64 (AppImage, .deb, or .rpm for Fedora). Windows is the most tested; macOS and Linux are still early, so bug reports help a lot.",
         ],
         [
           "Is the app in English?",
-          "The app's interface is currently in Indonesian. Claude Code and Codex reply in whatever language you write in, and the English documentation translates every button label it mentions.",
+          "Yes. Kilat follows your system language (English, or Indonesian on an Indonesian system), and you can switch it in Settings → Language. Messages Kilat sends to the agents follow the same language.",
         ],
         [
           "How is this different from running the CLI in a normal terminal?",

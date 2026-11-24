@@ -16,7 +16,7 @@
 - **Around the agents.** A file editor, diffs, commit, push, branches, and pull requests, with a GitHub account chosen per project.
 - **Your setup keeps working.** Skills, plugins, MCP servers, and hooks you installed in Claude Code and Codex apply to every account.
 - **Light and local.** Built with Tauri and Rust (about 3 MB on Windows). No Kilat servers, no telemetry; tokens stay in your system's secret store.
-- **English and Indonesian.** The app follows your system language (from v0.2.1) and can be switched in Settings.
+- **English and Indonesian.** The app follows your system language and can be switched in Settings.
 
 ## Download
 
@@ -26,7 +26,7 @@ Get the installer for your system from the [latest release](https://github.com/r
 |---|---|---|
 | Windows 10/11 (64-bit) | `KilatCode_windows_x64-setup.exe` | Not code-signed yet: in SmartScreen click *More info → Run anyway* |
 | macOS 11+ (Apple Silicon & Intel) | `KilatCode_darwin_universal.dmg` | Not notarized yet: right-click the app → *Open* |
-| Linux x86_64 | `.AppImage`, `.deb`, or `.rpm` (Fedora, from v0.2.1) | Needs WebKitGTK 4.1 and a Secret Service (GNOME Keyring or KWallet) |
+| Linux x86_64 | `.AppImage`, `.deb`, or `.rpm` (Fedora) | Needs WebKitGTK 4.1 and a Secret Service (GNOME Keyring or KWallet) |
 
 Kilat checks for updates by itself and offers them in the status bar. Windows is the most tested platform; macOS and Linux are still early, so bug reports help a lot.
 

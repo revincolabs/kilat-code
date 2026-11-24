@@ -1,6 +1,6 @@
 // Everything that changes with a release lives here.
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.2.1";
 
 export const REPO = "revincolabs/kilat-code";
 export const REPO_URL = `https://github.com/${REPO}`;
@@ -57,7 +57,7 @@ export const PLATFORMS: Platform[] = [
     id: "mac",
     name: "macOS",
     requirement: "macOS 11+ · Apple Silicon & Intel",
-    files: [{ label: "Disk image .dmg", url: latest("KilatCode_darwin_universal.dmg"), mb: 7.3 }],
+    files: [{ label: "Disk image .dmg", url: latest("KilatCode_darwin_universal.dmg"), mb: 7.5 }],
     note: { id: "Pertama kali: klik kanan aplikasi → Open.", en: "First launch: right-click the app → Open." },
   },
   {
@@ -66,11 +66,12 @@ export const PLATFORMS: Platform[] = [
     requirement: "x86_64 · WebKitGTK 4.1",
     files: [
       { label: "AppImage", url: latest("KilatCode_linux_amd64.AppImage"), mb: 83 },
-      { label: ".deb", url: latest("KilatCode_linux_amd64.deb"), mb: 4.5 },
+      { label: ".deb", url: latest("KilatCode_linux_amd64.deb"), mb: 4.6 },
+      { label: ".rpm (Fedora)", url: latest("KilatCode_linux_x86_64.rpm"), mb: 4.6 },
     ],
     note: {
-      id: "AppImage: chmod +x lalu jalankan. Fedora: pasang fuse-libs dulu; paket .rpm menyusul di v0.2.1.",
-      en: "AppImage: chmod +x, then run it. Fedora: install fuse-libs first; an .rpm package arrives in v0.2.1.",
+      id: "AppImage: chmod +x lalu jalankan. Fedora: pakai .rpm (atau pasang fuse-libs untuk AppImage).",
+      en: "AppImage: chmod +x, then run it. Fedora: use the .rpm (or install fuse-libs for the AppImage).",
     },
   },
 ];
