@@ -11,3 +11,12 @@ backup/
 
 # designmd working data
 .designmd/
+
+# local notes and anything secret: never commit
+context.md
+.env
+.env.*
+*.key
+*.pem
+*.p12
+.claude/
