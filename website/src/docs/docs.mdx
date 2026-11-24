@@ -44,11 +44,17 @@ Semua file juga ada di halaman <a href={RELEASES_URL}>GitHub Releases</a>.
 ### macOS
 
 1. Buka file `.dmg`, lalu seret **Kilat Code** ke folder **Applications**.
-2. Aplikasi belum dinotarisasi Apple, jadi saat pertama kali dibuka: klik kanan **Kilat Code** di Applications → **Open** → **Open**. Kalau macOS menyebut aplikasi "rusak", jalankan di Terminal:
+2. Aplikasi belum dinotarisasi Apple, jadi saat pertama kali dibuka macOS menampilkan *"Kilat Code" Not Opened*. Klik **Done**, lalu buka **System Settings → Privacy & Security**, gulir ke bagian **Security**, dan klik **Open Anyway** di samping pesan tentang Kilat Code (masukkan password atau Touch ID). Buka Kilat lagi dan pilih **Open Anyway**. Cukup sekali; update berikutnya terbuka normal.
+
+   Di macOS 14 atau lebih lama, cara cepatnya: klik kanan **Kilat Code** di Applications → **Open** → **Open**.
+
+   Lewat Terminal juga bisa:
 
    ```bash
-   xattr -cr "/Applications/Kilat Code.app"
+   sudo xattr -dr com.apple.quarantine "/Applications/Kilat Code.app"
    ```
+
+   Kalau muncul *Operation not permitted*, izinkan Terminal dulu di **System Settings → Privacy & Security → App Management**, lalu buka ulang Terminal dan ulangi perintahnya.
 
 3. Kilat membaca PATH dari shell login-mu (zsh/bash), jadi `claude`, `codex`, dan `gh` yang terpasang lewat Homebrew atau npm tetap ketemu walau Kilat dibuka dari Dock.
 

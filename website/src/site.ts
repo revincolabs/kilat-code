@@ -58,7 +58,10 @@ export const PLATFORMS: Platform[] = [
     name: "macOS",
     requirement: "macOS 11+ · Apple Silicon & Intel",
     files: [{ label: "Disk image .dmg", url: latest("KilatCode_darwin_universal.dmg"), mb: 7.5 }],
-    note: { id: "Pertama kali: klik kanan aplikasi → Open.", en: "First launch: right-click the app → Open." },
+    note: {
+      id: "Pertama kali: System Settings → Privacy & Security → Open Anyway.",
+      en: "First launch: System Settings → Privacy & Security → Open Anyway.",
+    },
   },
   {
     id: "linux",

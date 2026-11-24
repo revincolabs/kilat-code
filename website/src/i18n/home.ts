@@ -175,7 +175,7 @@ export const home: Record<Lang, HomeCopy> = {
         ],
         [
           "Muncul peringatan keamanan saat memasang. Aman?",
-          "Installer Kilat belum ditandatangani secara digital. Di Windows, klik <b>More info</b> lalu <b>Run anyway</b> pada SmartScreen. Di macOS, klik kanan aplikasi lalu <b>Open</b>. Kodenya bisa kamu periksa di GitHub.",
+          "Installer Kilat belum ditandatangani secara digital. Di Windows, klik <b>More info</b> lalu <b>Run anyway</b> pada SmartScreen. Di macOS, buka <b>System Settings → Privacy &amp; Security</b> lalu klik <b>Open Anyway</b> (di macOS 14 ke bawah: klik kanan aplikasi → <b>Open</b>). Kodenya bisa kamu periksa di GitHub.",
         ],
         [
           "Bisa dipakai di macOS atau Linux?",
@@ -335,7 +335,7 @@ export const home: Record<Lang, HomeCopy> = {
         ],
         [
           "I get a security warning when installing. Is it safe?",
-          "The Kilat installers aren't code-signed yet. On Windows, click <b>More info</b> and then <b>Run anyway</b> in SmartScreen. On macOS, right-click the app and choose <b>Open</b>. You can review the code on GitHub.",
+          "The Kilat installers aren't code-signed yet. On Windows, click <b>More info</b> and then <b>Run anyway</b> in SmartScreen. On macOS, go to <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b> (on macOS 14 or earlier: right-click the app → <b>Open</b>). You can review the code on GitHub.",
         ],
         [
           "Does it run on macOS and Linux?",

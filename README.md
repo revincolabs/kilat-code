@@ -25,7 +25,7 @@ Get the installer for your system from the [latest release](https://github.com/r
 | System | File | Notes |
 |---|---|---|
 | Windows 10/11 (64-bit) | `KilatCode_windows_x64-setup.exe` | Not code-signed yet: in SmartScreen click *More info → Run anyway* |
-| macOS 11+ (Apple Silicon & Intel) | `KilatCode_darwin_universal.dmg` | Not notarized yet: right-click the app → *Open* |
+| macOS 11+ (Apple Silicon & Intel) | `KilatCode_darwin_universal.dmg` | Not notarized yet: on first launch go to *System Settings → Privacy & Security → Open Anyway* |
 | Linux x86_64 | `.AppImage`, `.deb`, or `.rpm` (Fedora) | Needs WebKitGTK 4.1 and a Secret Service (GNOME Keyring or KWallet) |
 
 Kilat checks for updates by itself and offers them in the status bar. Windows is the most tested platform; macOS and Linux are still early, so bug reports help a lot.
