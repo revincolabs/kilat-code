@@ -4,15 +4,15 @@
 #
 #   bash packaging/winget/submit.sh 0.2.0
 #
-# Needs: gh (logged in), the manifests in manifests/g/galuhdpranoto/KilatCode/<version>/
+# Needs: gh (logged in), the manifests in manifests/r/revincolabs/KilatCode/<version>/
 # validated with:  winget validate --manifest <that folder>
 set -euo pipefail
 
 VERSION="${1:?usage: submit.sh <version>, e.g. 0.2.0}"
-ID="galuhdpranoto.KilatCode"
+ID="revincolabs.KilatCode"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-SRC="$HERE/manifests/g/galuhdpranoto/KilatCode/$VERSION"
-DEST="manifests/g/galuhdpranoto/KilatCode/$VERSION"
+SRC="$HERE/manifests/r/revincolabs/KilatCode/$VERSION"
+DEST="manifests/r/revincolabs/KilatCode/$VERSION"
 UPSTREAM="microsoft/winget-pkgs"
 
 [ -d "$SRC" ] || { echo "Tidak ada manifest di $SRC" >&2; exit 1; }

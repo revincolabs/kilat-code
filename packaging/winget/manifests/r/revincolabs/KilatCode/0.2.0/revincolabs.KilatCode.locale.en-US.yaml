@@ -1,15 +1,14 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 
-PackageIdentifier: galuhdpranoto.KilatCode
+PackageIdentifier: revincolabs.KilatCode
 PackageVersion: 0.2.0
 PackageLocale: en-US
-Publisher: galuhdpranoto
-PublisherUrl: https://github.com/galuhdpranoto
+Publisher: revincolabs
 PublisherSupportUrl: https://github.com/galuhdpranoto/kilat-code/issues
 PackageName: Kilat Code
 PackageUrl: https://kilat-code.vercel.app
 License: Freeware
-Copyright: Copyright (c) 2026 galuhdpranoto
+Copyright: Copyright (c) 2026 revincolabs
 ShortDescription: Lightweight desktop app that runs the real Claude Code and Codex terminals side by side, with many accounts.
 Description: |-
   Kilat Code runs the real Claude Code and Codex (ChatGPT) terminal UIs side by side in one window.
