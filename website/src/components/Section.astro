@@ -1,25 +1,22 @@
 ---
-// A numbered section: "— 01" marker and heading on the left (sticky), content
-// on the right. `wide` puts the heading on top and the content full width.
+// A content block: bolt label, large heading and optional lead on top, then
+// whatever the page puts below (usually a .split of text and a visual).
 interface Props {
   id?: string;
-  num: string;
+  label: string;
   title: string;
-  wide?: boolean;
+  lead?: string;
 }
-const { id, num, title, wide = false } = Astro.props;
+const { id, label, title, lead } = Astro.props;
 ---
 
-<section class:list={["sec", { "sec-wide": wide }]} id={id}>
+<section class="block" id={id}>
   <div class="wrap">
-    <div class="sec-side">
-      <div>
-        <p class="kicker">{num}</p>
-        <h2>{title}</h2>
-      </div>
-    </div>
-    <div class="sec-main">
-      <slot />
-    </div>
+    <header class="block-head">
+      <p class="label">{label}</p>
+      <h2>{title}</h2>
+      {lead && <p class="block-lead">{lead}</p>}
+    </header>
+    <slot />
   </div>
 </section>

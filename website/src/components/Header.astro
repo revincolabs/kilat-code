@@ -1,4 +1,5 @@
 ---
+import GithubMark from "./GithubMark.astro";
 import { REPO_URL } from "../site";
 
 interface Props {
@@ -16,7 +17,7 @@ const links = [
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Kilat Code, beranda">
-      <img src="/icon.png" alt="" width="30" height="30" />
+      <img src="/icon.png" alt="" width="28" height="28" />
       <span>Kilat Code</span>
     </a>
     <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
@@ -27,15 +28,31 @@ const links = [
           </a>
         ))
       }
-      <a class="nav-gh-m" href={REPO_URL}>GitHub</a>
+      <a class="nav-gh-m" href="/#download">Download</a>
     </nav>
     <div class="nav-end">
-      <a class="nav-gh" href={REPO_URL}>GitHub</a>
-      <a class="btn btn-ink" href="/#download">Download <span class="arr" aria-hidden="true">→</span></a>
-      <button class="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
-        Menu
-        <span class="bars" aria-hidden="true"><i></i><i></i></span>
+      <a class="icon-btn" href={REPO_URL} aria-label="Kode sumber di GitHub" title="GitHub">
+        <GithubMark size={22} />
+      </a>
+      <a class="btn btn-yellow btn-sm" href="/#download">Download</a>
+      <button class="icon-btn nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
+        <svg class="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 8h16M4 16h16"></path>
+        </svg>
+        <svg class="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
       </button>
     </div>
   </div>
 </header>
+
+<style>
+  .nav-toggle .i-close,
+  :global(.site-header.open) .nav-toggle .i-menu {
+    display: none;
+  }
+  :global(.site-header.open) .nav-toggle .i-close {
+    display: block;
+  }
+</style>

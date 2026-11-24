@@ -2,18 +2,20 @@
 import { PLATFORMS } from "../site";
 
 interface Props {
-  /** "ink" on light backgrounds, "light" on the dark bands */
-  tone?: "ink" | "light";
+  /** "yellow" on light backgrounds, "dark" on the yellow panel */
+  tone?: "yellow" | "dark";
 }
-const { tone = "ink" } = Astro.props;
+const { tone = "yellow" } = Astro.props;
 const fallback = PLATFORMS[0];
 // The browser swaps in the visitor's OS (script below); without JS it stays Windows.
 const links = Object.fromEntries(PLATFORMS.map((p) => [p.id, { url: p.files[0].url, name: p.name }]));
 ---
 
-<a class:list={["btn", tone === "light" ? "btn-light" : "btn-ink"]} href={fallback.files[0].url} data-os-download={JSON.stringify(links)}>
+<a class:list={["btn", tone === "dark" ? "btn-dark" : "btn-yellow"]} href={fallback.files[0].url} data-os-download={JSON.stringify(links)}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"></path>
+  </svg>
   <span class="os-label">Download untuk {fallback.name}</span>
-  <span class="arr" aria-hidden="true">→</span>
 </a>
 
 <script>
